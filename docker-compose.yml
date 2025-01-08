@@ -1,0 +1,27 @@
+# version: "3.9"
+services:
+  db:
+    image: mysql:9.1.0
+    container_name: mysql_restaurant
+    cap_add:
+      - SYS_NICE
+    restart: always
+    environment:
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+    ports:
+      - "${MYSQL_PORT}:3306"
+    volumes:
+      - mysql_volume:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    env_file:
+      - .env
+      # redis:
+      #   image: "redis:latest"
+      #   container_name: redis
+      #   ports:
+      #     - "${REDIS_PORT}:6379"
+volumes:
+  mysql_volume:
