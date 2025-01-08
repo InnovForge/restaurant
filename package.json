@@ -1,9 +1,9 @@
 {
-	"name": "webM",
+	"name": "restaurant",
 	"version": "1.0.0",
 	"description": "",
 	"scripts": {
-		"dev": "concurrently \"pnpm --filter backend dev\" \"pnpm --filter frontend dev\""
+		"dev": "concurrently \"pnpm --filter backend-restaurant dev\" \"pnpm --filter frontend-restaurant dev\""
 	},
 
 	"keywords": [],

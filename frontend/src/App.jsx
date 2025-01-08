@@ -9,7 +9,7 @@ function App() {
 
   	useEffect(() => {
 		async function fetchData(){
-			const d = await fetch("http://localhost:3000/");
+			const d = await fetch("http://localhost:3001/");
       const data = await d.json();
       console.log(data);
 		};
