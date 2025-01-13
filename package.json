@@ -5,11 +5,10 @@
 	"scripts": {
 		"dev": "concurrently \"pnpm --filter backend-restaurant dev\" \"pnpm --filter frontend-restaurant dev\""
 	},
-
 	"keywords": [],
 	"author": "",
 	"license": "ISC",
 	"devDependencies": {
 		"concurrently": "^9.1.2"
-	}
+	},
 }
