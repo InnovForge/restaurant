@@ -1,6 +1,5 @@
 # React + Vite
 
-<<<<<<< HEAD
 ## Project setup
 ```sh
 pnpm install # or npm install
@@ -16,7 +15,6 @@ Project use Structure bulletproof-react see more in [bulletproof-react](https://
 
 Most of the code lives in the `src` folder and looks something like this:
 
->>>>>>> e9a6e1cd4bce80c00391ae8b91258ee731c5e7ba
 ```sh
 src
 |
@@ -46,8 +44,6 @@ src
 |
 +-- utils             # shared utility functions
 ```
-<<<<<<< HEAD
-=======
 
 For easy scalability and maintenance, organize most of the code within the features folder. Each feature folder should contain code specific to that feature, keeping things neatly separated. This approach helps prevent mixing feature-related code with shared components, making it simpler to manage and maintain the codebase compared to having many files in a flat folder structure. By adopting this method, you can enhance collaboration, readability, and scalability in the application's architecture.
 
@@ -71,4 +67,3 @@ src/features/awesome-feature
 +-- utils       # utility functions for a specific feature
 ```
 
->>>>>>> e9a6e1cd4bce80c00391ae8b91258ee731c5e7ba
