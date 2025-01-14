@@ -1,7 +1,7 @@
 # React + MySql + Express
 
 > [!IMPORTANT]
-> Hãy sao chép file .env.example và dổi tên thành file .env tại gốc dự án trước khi chạy ***docker compose up***
+> Hãy sao chép file .env.example và đổi tên thành file .env tại gốc dự án trước khi chạy ***docker compose up***
 
 ## 🚀 Getting Started with Dev
 
@@ -22,6 +22,6 @@ pnpm install # or npm install
 pnpm dev # or npm run dev
 ```
 4. **Open the source code and start editing!**
-Client: Your site is now running at `http://localhost:5173`!
-Server: Your server is now running at `http://localhost:3001`!
+- Client: Your site is now running at `http://localhost:5173`!
+- Server: Your server is now running at `http://localhost:3001`!
 
