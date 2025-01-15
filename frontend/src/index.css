@@ -5,7 +5,6 @@ input[type="password"] {
 	border: 1px solid #ccc;
 	border-radius: 5px;
 }
-<<<<<<< HEAD
 .underline {
 	color: blue;
 }
@@ -147,7 +146,6 @@ input[type="password"] {
 	body {
 		@apply bg-background text-foreground;
 	}
-=======
 .underline{
   color: blue;
 }
@@ -219,6 +217,5 @@ input[type="password"] {
   body {
     @apply bg-background text-foreground;
   }
->>>>>>> e9a6e1cd4bce80c00391ae8b91258ee731c5e7ba
 }
-
+}
