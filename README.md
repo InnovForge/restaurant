@@ -1,31 +1,34 @@
-# React + MySql + Express
+# React + MySql + Express + Docker
 
-> [!IMPORTANT]
-> Hãy sao chép file .env.example và đặt tên file là .env trước khi chạy ***docker compose up***
+> [!NOTE]
+> Hãy sao chép file .env.development và đặt tên file là .env nếu muốn chạy lệnh không thiết lập sẵn 
 
 ## dependencies
-- [x] [Nodejs](https://nodejs.org/en/)
-- [x] [Docker](https://www.docker.com/)
+- [Nodejs](https://nodejs.org/en/)
+- [Docker](https://www.docker.com/)
+- [Pnpm](https://pnpm.io/) (optional)
 
 ## 🚀 Getting Started with Dev
-
-1. **Run docker compose up**
-
+1. **Run docker compose up** (root project)
 ```sh
-docker compose up
+pnpm docker:up # or npm run docker:up
 ```
-
 2. **Install dependencies**
-
 ```sh
 pnpm install # or npm install
 ```
 3. **Start the development server**
-
 ```sh
 pnpm dev # or npm run dev
 ```
 4. **Open the source code and start editing!**
-- Client: Your site is now running at `http://localhost:5173`!
-- Server: Your server is now running at `http://localhost:3001`!
+- Client: Your site is now running at `http://localhost:5173`
+- Server: Your server is now running at `http://localhost:3001`
 
+## Commands (root project)
+```sh
+pnpm dev # or npm run dev # start dev server
+pnpm docker:up # or npm run docker:up # start docker
+pnpm docker:down # or npm run docker:down # stop docker
+pnpm docker:clean # or npm run docker:clean # remove docker container and image
+```

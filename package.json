@@ -3,7 +3,10 @@
 	"version": "1.0.0",
 	"description": "",
 	"scripts": {
-		"dev": "concurrently \"pnpm --filter backend-restaurant dev\" \"pnpm --filter frontend-restaurant dev\""
+		"dev": "concurrently \"pnpm --filter backend-restaurant dev\" \"pnpm --filter frontend-restaurant dev\"",
+    "docker:up": "docker compose --env-file .env.development up",
+    "docker:down": "docker compose --env-file .env.development down",
+    "docker:clean": "docker compose --env-file .env.development down --volumes --remove-orphans"
 	},
 	"keywords": [],
 	"author": "",
