@@ -1,7 +1,7 @@
 # React + MySql + Express + Docker
 
 > [!NOTE]
-> Hãy sao chép file .env.development và đặt tên file là .env nếu muốn chạy lệnh không thiết lập sẵn 
+> Hãy sao chép file .env.development và đặt tên file là .env nếu muốn chạy lệnh ***docker compose*** không thiết lập sẵn 
 
 ## dependencies
 - [Nodejs](https://nodejs.org/en/)
