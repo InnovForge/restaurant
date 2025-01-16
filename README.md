@@ -1,7 +1,6 @@
 # React + MySql + Express
 
 > [!IMPORTANT]
-
 > Hãy sao chép file .env.example và đặt tên file là .env trước khi chạy ***docker compose up***
 
 ## dependencies
