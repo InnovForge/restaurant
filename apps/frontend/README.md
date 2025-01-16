@@ -1,5 +1,7 @@
-# React + Vite
-
+# React + Vite + shadcn UI
+- [React](https://reactjs.org/) (UI Library)
+- [shadcn](https://ui.shadcn.com/) (UI)
+- [vite](https://vitejs.dev/) (Build tool)
 ## Project setup
 ```sh
 pnpm install # or npm install
@@ -8,11 +10,7 @@ pnpm install # or npm install
 ```sh
 pnpm dev # or npm run dev
 ```
-
-Project use Structure bulletproof-react see more in [bulletproof-react](https://github.com/alan2207/bulletproof-react/blob/master/docs/project-structure.md)
-=======
-# 🗄️ Project Structure by [bulletproof-react](https://github.com/alan2207/bulletproof-react)
-
+# Project use structure bulletproof-react see more in [bulletproof-react](https://github.com/alan2207/bulletproof-react/blob/master/docs/project-structure.md)
 Most of the code lives in the `src` folder and looks something like this:
 
 ```sh

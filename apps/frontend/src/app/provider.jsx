@@ -12,7 +12,6 @@ export const AppProvider = ({ children }) => {
 			}
 		>
 			<Toaster />
-
 			{children}
 		</React.Suspense>
 	);

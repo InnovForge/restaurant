@@ -17,7 +17,10 @@ services:
       - mysql_volume:/var/lib/mysql
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     env_file:
-      - .env
+    - path: .env
+      required: false # default 
+    - path: .env.development
+      required: false
       # redis:
       #   image: "redis:latest"
       #   container_name: redis
