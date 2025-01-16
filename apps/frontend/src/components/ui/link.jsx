@@ -5,7 +5,7 @@ import { Link as RouterLink } from 'react-router';
 export const Link = ({ className, children, ...props }) => {
   return (
     <RouterLink
-      className={cn('text-slate-600 hover:text-slate-900', className)}
+      className={ className}
       {...props}
     >
       {children}
