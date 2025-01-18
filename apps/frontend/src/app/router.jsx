@@ -7,6 +7,7 @@ import {
 } from "./routes/app/root";
 import Home from "./routes/app/home";
 import Food from "./routes/app/food";
+import AdminRestaurant from "@/features/admin/components/admin-restaurant";
 
 const NOT_FOUND = React.lazy(() => import("./routes/not-found"));
 
@@ -15,6 +16,8 @@ export const createAppRouter = () =>
 		{
 			path: "/login",
 			element: <Login />,
+			path: "/admin",
+			element:<AdminRestaurant/>
 		},
 		{
 			path: "/",
