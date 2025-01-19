@@ -7,8 +7,10 @@ import {
 } from "./routes/app/root";
 import Home from "./routes/app/home";
 import Food from "./routes/app/food";
-import AdminRestaurant from "@/features/admin/components/admin-restaurant";
-
+import MenuPage from "@/features/admin/menu/page";
+import OrdersPage from "@/features/admin/orders/page";
+import HomeAdmin from "@/features/admin/page";
+import Overview from "@/features/admin/overview/page";
 const NOT_FOUND = React.lazy(() => import("./routes/not-found"));
 
 export const createAppRouter = () =>
@@ -16,8 +18,6 @@ export const createAppRouter = () =>
 		{
 			path: "/login",
 			element: <Login />,
-			path: "/admin",
-			element:<AdminRestaurant/>
 		},
 		{
 			path: "/",
@@ -31,6 +31,25 @@ export const createAppRouter = () =>
 				{
 					path: "/food",
 					element: <Food />,
+				},
+			],
+		},
+		{
+			path: "/admin",
+			element: <HomeAdmin />,
+			ErrorBoundary: AppRootErrorBoundary,
+			children: [
+				{
+					index: true,
+					element: <Overview />,
+				},
+				{
+					path: "menu",
+					element: <MenuPage />,
+				},
+				{
+					path: "orders",
+					element: <OrdersPage />,
 				},
 			],
 		},
