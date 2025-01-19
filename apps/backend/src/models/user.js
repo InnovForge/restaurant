@@ -1,4 +1,4 @@
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { nanoidNumbersOnly } from "../utils/nanoid.js";
 import { pool } from "../configs/mysql.js";
 
