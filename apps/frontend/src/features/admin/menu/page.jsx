@@ -1,4 +1,3 @@
-import DashboardLayout from "../components/Dashboard"
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 

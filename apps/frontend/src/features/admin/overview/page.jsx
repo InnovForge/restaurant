@@ -1,4 +1,3 @@
-import DashboardLayout from "../components/Dashboard"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { DollarSign, ShoppingCart, Utensils } from 'lucide-react'
 
