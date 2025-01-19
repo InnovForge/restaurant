@@ -1,4 +1,4 @@
-import { Calendar, Home, Inbox, Search, Settings } from "lucide-react"
+import { BadgeAlert , Home, ChartColumnDecreasing , Croissant , Settings, CircleUserRound} from "lucide-react"
 
 import {
     Sidebar,
@@ -18,19 +18,24 @@ const items = [
         icon: Home,
     },
     {
-        title: "Inbox",
+        title: "Customers",
         url: "#",
-        icon: Inbox,
+        icon: CircleUserRound ,
     },
     {
-        title: "Calendar",
+        title: "Analytics",
         url: "#",
-        icon: Calendar,
+        icon: ChartColumnDecreasing,
     },
     {
-        title: "Search",
+        title: "Foods",
         url: "#",
-        icon: Search,
+        icon: Croissant ,
+    },
+    {
+        title: "Reports",
+        url: "#",
+        icon: BadgeAlert  ,
     },
     {
         title: "Settings",
@@ -44,9 +49,11 @@ const SidebarRight = () => {
         <Sidebar>
             <SidebarContent>
                 <SidebarGroup>
-                    <SidebarGroupLabel>Application</SidebarGroupLabel>
+                    <SidebarGroupLabel className="text-xl">Admin
+
+                    </SidebarGroupLabel>
                     <SidebarGroupContent>
-                        <SidebarMenu>
+                        <SidebarMenu className="">
                             {items.map((item) => (
                                 <SidebarMenuItem key={item.title}>
                                     <SidebarMenuButton asChild>
