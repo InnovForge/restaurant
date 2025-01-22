@@ -10,7 +10,7 @@ const orders = [
 
 export default function OrdersPage() {
   return (
-    <>
+    <div className="container mx-auto p-4">
       <h1 className="text-3xl font-bold mb-6">Order Tracking</h1>
       <Table>
         <TableHeader>
@@ -38,7 +38,7 @@ export default function OrdersPage() {
           ))}
         </TableBody>
       </Table>
-    </>
+    </div>
   )
 }
 

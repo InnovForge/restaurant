@@ -20,7 +20,7 @@ const Input = ({ className = "", ...props }) => (
 );
 
 const Badge = ({ children, variant = "default" }) => {
-  const style = variant === "Tạm hết" ? "bg-green-500 text-white" : "bg-gray-300 text-gray-700";
+  const style = variant === "Sẵn sàng" ? "bg-green-500 text-white" : "bg-gray-300 text-gray-700";
   return <span className={`inline-block px-2 py-1 text-xs rounded ${style}`}>{children}</span>;
 };
 
@@ -36,38 +36,15 @@ const TableHead = ({ children, className = "" }) => (
   <th className={`p-3 text-left font-semibold ${className}`}>{children}</th>
 );
 
+// dữ liệu giả
 const data = [
-  {
-    id: "1",
-    name: "Tôm hùm nướng phô mai",
-    image: "https://th.bing.com/th/id/R.55dc200d2ae8b273a1bcbca98649326c?rik=AhNTTXII5H%2bfuA&pid=ImgRaw&r=0",
-    quanlity: 10,
-    status: "Còn",
-  },
-  {
-    id: "2",
-    name: "Cua biển hấp",
-    image: "https://th.bing.com/th/id/R.0f6e3e1a3be694277bb55f97413184cb?rik=FWiarVBsSUPCsw&pid=ImgRaw&r=0",
-    quanlity: 8,
-    status: "Còn",
-  },
-  {
-    id: "3",
-    name: "Cá hồi sống japan",
-    image: "https://th.bing.com/th/id/R.0115459b088f47c0db067984869da484?rik=Qp%2bSSrrufjFq9Q&pid=ImgRaw&r=0",
-    quanlity: 5,
-    status: "Còn",
-  },
-  {
-    id: "4",
-    name: "Mực hấp bia",
-    image: "https://daubepgiadinh.vn/wp-content/uploads/2019/01/muc-hap-bia-600x400.jpg",
-    quanlity: 12,
-    status: "Còn",
-  },
+  { id: "1", seats: 4, status: "Sẵn sàng" },
+  { id: "2", seats: 6, status: "Đang sử dụng" },
+  { id: "3", seats: 8, status: "Sẵn sàng" },
+  { id: "4", seats: 2, status: "Đang sử dụng" },
 ];
 
-const MenuPage = () => {
+const TableManagement = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 4;
@@ -84,13 +61,14 @@ const MenuPage = () => {
     <div className="container mx-auto p-6">
       <div className="border rounded-md shadow-md bg-white">
         <div className="border-b p-4 flex justify-between">
-          <h2 className="text-xl font-bold">Quản Lý Món Ăn</h2>
+          <h2 className="text-xl font-bold">Quản Lý Bàn Ăn</h2>
           <Button>
             <PlusCircle className="h-5 w-5 mr-2" />
-            Thêm món ăn
+            Thêm bàn
           </Button>
         </div>
         <div className="p-4">
+          {/* tìm kiếm và lọc*/}
           <div className="flex flex-wrap gap-4 mb-4">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
@@ -107,11 +85,9 @@ const MenuPage = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>ID</TableHead>
-                  <TableHead>Hình ảnh</TableHead>
-                  <TableHead>Tên Món Ăn</TableHead>
-                  <TableHead>Tình trạng</TableHead>
-                  <TableHead>Số Lượng</TableHead>
+                  <TableHead>ID Bàn</TableHead>
+                  <TableHead>Số Lượng Chỗ Ngồi</TableHead>
+                  <TableHead>Tình Trạng</TableHead>
                   <TableHead className="text-right">Sửa / Xóa</TableHead>
                 </TableRow>
               </TableHeader>
@@ -119,14 +95,10 @@ const MenuPage = () => {
                 {paginatedData.map((item) => (
                   <TableRow key={item.id}>
                     <TableCell>{item.id}</TableCell>
+                    <TableCell>{item.seats}</TableCell>
                     <TableCell>
-                      <img src={item.image} alt={item.name} className="w-16 h-16 object-cover rounded" />
+                      <Badge variant={item.status === "Sẵn sàng" ? "Sẵn sàng" : "Đang sử dụng"}>{item.status}</Badge>
                     </TableCell>
-                    <TableCell>{item.name}</TableCell>
-                    <TableCell>
-                      <Badge variant={item.status === "Còn" ? "Tạm hết" : "Hết"}>{item.status}</Badge>
-                    </TableCell>
-                    <TableCell>{item.quanlity}</TableCell>
                     <TableCell className="text-right">
                       <Button size="sm" variant="outline">
                         Sửa
@@ -140,7 +112,7 @@ const MenuPage = () => {
               </tbody>
             </Table>
           </div>
-          {/* trang hiển thị */}
+          {/* trang */}
           <div className="flex justify-between items-center mt-4">
             <span className="text-sm">
               Hiển thị {startIndex + 1} đến {Math.min(startIndex + itemsPerPage, filteredData.length)} trong số{" "}
@@ -181,4 +153,4 @@ const MenuPage = () => {
   );
 };
 
-export default MenuPage;
+export default TableManagement;

@@ -11,6 +11,8 @@ import MenuPage from "@/features/admin/menu/page";
 import OrdersPage from "@/features/admin/orders/page";
 import HomeAdmin from "@/features/admin/page";
 import Overview from "@/features/admin/overview/page";
+import UserInfoForm from "@/features/admin/infor/page";
+import TableManagement from "@/features/admin/table/table";
 const NOT_FOUND = React.lazy(() => import("./routes/not-found"));
 
 export const createAppRouter = () =>
@@ -41,6 +43,10 @@ export const createAppRouter = () =>
 			children: [
 				{
 					index: true,
+					element: <UserInfoForm />,
+				},
+				{
+					path: "tongquan",
 					element: <Overview />,
 				},
 				{
@@ -50,6 +56,10 @@ export const createAppRouter = () =>
 				{
 					path: "orders",
 					element: <OrdersPage />,
+				},
+				{
+					path: "table",
+					element: <TableManagement />,
 				},
 			],
 		},
