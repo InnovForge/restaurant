@@ -46,7 +46,7 @@ export const createAppRouter = () =>
 					element: <UserInfoForm />,
 				},
 				{
-					path: "tongquan",
+					path: "thongke",
 					element: <Overview />,
 				},
 				{
@@ -54,7 +54,7 @@ export const createAppRouter = () =>
 					element: <MenuPage />,
 				},
 				{
-					path: "orders",
+					path: "hoadon",
 					element: <OrdersPage />,
 				},
 				{

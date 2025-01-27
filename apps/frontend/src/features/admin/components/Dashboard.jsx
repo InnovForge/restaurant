@@ -28,11 +28,11 @@ export default function DashboardLayout({ children }) {
             Thông tin
           </Link>
           <Link
-            to="/admin/tongquan"
+            to="/admin/thongke"
             className="block px-4 py-2 text-gray-600 hover:bg-gray-100 hover:text-gray-800"
           >
             <Home className="inline-block mr-2" size={18} />
-            Tổng quan
+            Thống kê
           </Link>
           <Link
             to="/admin/menu"
@@ -42,11 +42,11 @@ export default function DashboardLayout({ children }) {
             Menu
           </Link>
           <Link
-            to="/admin/orders"
+            to="/admin/hoadon"
             className="block px-4 py-2 text-gray-600 hover:bg-gray-100 hover:text-gray-800"
           >
             <ShoppingBag className="inline-block mr-2" size={18} />
-            Orders
+            Hóa đơn
           </Link>
           <Link
             to="/admin/table"
