@@ -1,9 +1,7 @@
-import React from 'react'
-
+import React from "react";
+import DisplayFood from "@/features/display-food/components/display-food";
 const Food = () => {
-  return (
-    <div> this is page food</div>
-  )
-}
+	return <DisplayFood />;
+};
 
-export default Food
+export default Food;

@@ -1,4 +1,3 @@
-// import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import { logger } from "./utils/logger.js";
@@ -10,7 +9,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 const corsOptions = {
-	origin: process.env.CLIENT_URL || "http://localhost:5173",
+	origin: process.env.CLIENT_URL || "http://localhost:5174",
 };
 
 app.use(express.json());
@@ -22,5 +21,5 @@ app.get("/", async (req, res) => {
 });
 
 app.listen(PORT, () => {
-	logger.info(`Express server running on port ${PORT}`);
+	logger.info(`Express server running on port http://localhost:${PORT}/`);
 });

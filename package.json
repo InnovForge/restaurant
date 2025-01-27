@@ -3,15 +3,15 @@
 	"version": "1.0.0",
 	"description": "",
 	"scripts": {
-		"dev": "concurrently \"pnpm --filter backend-restaurant dev\" \"pnpm --filter frontend-restaurant dev\"", 
-    "setup": "pnpm install && pnpm docker:build",
-    "docker:build": "docker compose --env-file .env.development build",
+		"dev": "concurrently \"pnpm --filter backend-restaurant dev\" \"pnpm --filter frontend-restaurant dev\"",
+		"setup": "pnpm install --frozen-lockfile && pnpm docker:build",
+		"docker:build": "docker compose --env-file .env.development build",
 		"docker:up": "docker compose --env-file .env.development up",
 		"docker:down": "docker compose --env-file .env.development down",
 		"docker:clean": "docker compose --env-file .env.development down --volumes --remove-orphans",
-    "docker:start": "docker compose --env-file .env.development start",
-    "docker:stop": "docker compose --env-file .env.development stop",
-    "docker:restart": "docker compose --env-file .env.development restart"
+		"docker:start": "docker compose --env-file .env.development start",
+		"docker:stop": "docker compose --env-file .env.development stop",
+		"docker:restart": "docker compose --env-file .env.development restart"
 	},
 	"keywords": [],
 	"author": "",
