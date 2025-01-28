@@ -10,16 +10,17 @@ CREATE TABLE IF NOT EXISTS users (
   updated_at TIMESTAMP NOT NULL DEFAULT NOW() ON UPDATE now() 
 );
 
--- CREATE TABLE IF NOT EXISTS restaurants (
---   restaurant_id NVARCHAR(16) PRIMARY KEY, 
---   restaurant_name NVARCHAR(100) NOT NULL,        
---   address NVARCHAR(255),                           
---   phone NVARCHAR(15),                              
---   email NVARCHAR(255),                             
---   total_tables INT NOT NULL,
---   created_at TIMESTAMP NOT NULL DEFAULT NOW(),     
---   updated_at TIMESTAMP NOT NULL DEFAULT NOW() ON UPDATE NOW() 
--- );
+CREATE TABLE IF NOT EXISTS restaurants (
+  restaurant_id NVARCHAR(16) PRIMARY KEY, 
+  restaurant_name NVARCHAR(100) NOT NULL,        
+  avatar_url NVARCHAR(255),
+  address NVARCHAR(255),                           
+  phone NVARCHAR(15),                              
+  email NVARCHAR(255),                             
+  total_tables INT NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT NOW(),     
+  updated_at TIMESTAMP NOT NULL DEFAULT NOW() ON UPDATE NOW() 
+);
 --
 -- CREATE TABLE IF NOT EXISTS restaurant_users (
 --   restaurant_user_id NVARCHAR(16) PRIMARY KEY,

@@ -1,4 +1,4 @@
-export const contRoute = async (waypoints) => {
+export const countRoute = async (waypoints) => {
   const response = await fetch(
     `https://api.geoapify.com/v1/routing?waypoints=${waypoints}&mode=scooter&apiKey=${process.env.GEOAPIFY_API_KEY}`,
   );

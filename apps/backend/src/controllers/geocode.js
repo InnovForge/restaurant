@@ -1,6 +1,7 @@
 import * as response from "../utils/response.js";
 import * as service from "../services/geocode.js";
 import { logger } from "../utils/logger.js";
+
 const processLocationResults = (data) => {
   if (!data?.results || data.results.length === 0) {
     return [];
@@ -52,11 +53,11 @@ export const revGeocode = async (req, res) => {
 // TODO: this is test func route
 export const countRoute = async (req, res) => {
   const { waypoints } = req.query;
-  const data = await service.contRoute(waypoints);
+  const data = await service.countRoute(waypoints);
   return response.success(res, "Route found", data);
 };
 
-// HERE MAPS
+/* // HERE MAPS
 // 1000 requests per day
 export const searchLocationHere = async (req, res) => {
   const { locationQuery, latitude, longitude } = req.query;
@@ -82,4 +83,4 @@ export const searchLocationHere = async (req, res) => {
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
-};
+}; */
