@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight, PlusCircle, Search } from "lucide-react";
 
 const Button = ({ children, onClick, variant = "default", size = "md", className = "", ...props }) => {
@@ -43,6 +44,7 @@ const data = [
     image: "https://th.bing.com/th/id/R.55dc200d2ae8b273a1bcbca98649326c?rik=AhNTTXII5H%2bfuA&pid=ImgRaw&r=0",
     quanlity: 10,
     status: "Còn",
+    price: "100000",
   },
   {
     id: "2",
@@ -50,6 +52,7 @@ const data = [
     image: "https://th.bing.com/th/id/R.0f6e3e1a3be694277bb55f97413184cb?rik=FWiarVBsSUPCsw&pid=ImgRaw&r=0",
     quanlity: 8,
     status: "Còn",
+    price: "100000",
   },
   {
     id: "3",
@@ -57,6 +60,7 @@ const data = [
     image: "https://th.bing.com/th/id/R.0115459b088f47c0db067984869da484?rik=Qp%2bSSrrufjFq9Q&pid=ImgRaw&r=0",
     quanlity: 5,
     status: "Còn",
+    price: "100000",
   },
   {
     id: "4",
@@ -64,6 +68,7 @@ const data = [
     image: "https://daubepgiadinh.vn/wp-content/uploads/2019/01/muc-hap-bia-600x400.jpg",
     quanlity: 12,
     status: "Còn",
+    price: "100000",
   },
 ];
 
@@ -85,10 +90,12 @@ const MenuPage = () => {
       <div className="border rounded-md shadow-md bg-white">
         <div className="border-b p-4 flex justify-between">
           <h2 className="text-xl font-bold">Quản Lý Món Ăn</h2>
-          <Button>
-            <PlusCircle className="h-5 w-5 mr-2" />
-            Thêm món ăn
-          </Button>
+          <Link to="/admin/menu/themmon">
+            <Button>
+              <PlusCircle className="h-5 w-5 mr-2" />
+              Thêm món ăn
+            </Button>
+          </Link>
         </div>
         <div className="p-4">
           <div className="flex flex-wrap gap-4 mb-4">
@@ -112,6 +119,7 @@ const MenuPage = () => {
                   <TableHead>Tên Món Ăn</TableHead>
                   <TableHead>Tình trạng</TableHead>
                   <TableHead>Số Lượng</TableHead>
+                  <TableHead>Giá</TableHead>
                   <TableHead className="text-right">Sửa / Xóa</TableHead>
                 </TableRow>
               </TableHeader>
@@ -127,6 +135,7 @@ const MenuPage = () => {
                       <Badge variant={item.status === "Còn" ? "Tạm hết" : "Hết"}>{item.status}</Badge>
                     </TableCell>
                     <TableCell>{item.quanlity}</TableCell>
+                    <TableCell>{item.price + " VNĐ"}</TableCell>
                     <TableCell className="text-right">
                       <Button size="sm" variant="outline">
                         Sửa

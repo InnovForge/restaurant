@@ -1,6 +1,5 @@
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 import { Home, Utensils, ShoppingBag, User, LogOut ,Table} from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function DashboardLayout({ children }) {
