@@ -15,6 +15,7 @@ import UserInfoForm from "@/features/admin/infor/page";
 import AddFood from "@/features/admin/menu/addfood";
 import AddTable from "@/features/admin/table/addtable";
 import TableManagement from "@/features/admin/table/page";
+import OrderDetail from "@/features/admin/orders/detail";
 const NOT_FOUND = React.lazy(() => import("./routes/not-found"));
 
 export const createAppRouter = () =>
@@ -62,6 +63,10 @@ export const createAppRouter = () =>
 				{
 					path: "hoadon",
 					element: <OrdersPage />,
+				},
+				{
+					path: "hoadon/chitiet",
+					element: <OrderDetail />,
 				},
 				{
 					path: "ban",

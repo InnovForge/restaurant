@@ -71,19 +71,24 @@ const OrdersPage = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead>Mã hóa đơn</TableHead>
-                  <TableHead>Tình Trạng</TableHead>
-                  <TableHead>Chi tiết</TableHead>
+                  <TableHead className="text-center">Tình Trạng</TableHead>
+                  <TableHead className="text-right">Chi tiết</TableHead>
                 </TableRow>
               </TableHeader>
               <tbody>
                 {paginatedData.map((item) => (
                   <TableRow key={item.id}>
                     <TableCell>{item.id}</TableCell>
-                    <TableCell>
+                    <TableCell  className="text-center">
                       <Badge variant={item.status === "Đã thanh toán" ? "Đã thanh toán" : "Chưa thanh toán"}>{item.status}</Badge>
                     </TableCell>
-                    <TableCell>
-                      <Button className="w-25">Xem chi tiết</Button>
+                    <TableCell className="text-right">
+                      <Link to="/admin/hoadon/chitiet">
+                        <Button>
+                          <PlusCircle cclassName="w-25" />
+                          Xem chi tiết
+                        </Button>
+                      </Link>
                     </TableCell>
                   </TableRow>
                 ))}
