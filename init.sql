@@ -1,4 +1,4 @@
--- DROP TABLE IF EXISTS users, addresses, user_addresses, restaurants,restaurant_managers, foods, food_orders, order_reviews, reservations, reservation_reviews;
+DROP TABLE IF EXISTS users, addresses, user_addresses, restaurants, restaurant_managers, foods, food_orders, order_reviews, reservations, reservation_reviews;
 
 CREATE TABLE IF NOT EXISTS users (
   	user_id VARCHAR(16) PRIMARY KEY,
@@ -47,12 +47,12 @@ CREATE TABLE IF NOT EXISTS restaurants (
 );
 
 CREATE TABLE IF NOT EXISTS restaurant_managers (
-    manager_id VARCHAR(16) NOT NULL,
+    user_id VARCHAR(16) NOT NULL,
     restaurant_id VARCHAR(16) NOT NULL,
     role ENUM('manager', 'staff') NOT NULL,
-    PRIMARY KEY (manager_id, restaurant_id),
+    PRIMARY KEY (user_id, restaurant_id),
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    FOREIGN KEY (manager_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
     FOREIGN KEY (restaurant_id) REFERENCES restaurants(restaurant_id) ON DELETE CASCADE
 );
 
@@ -67,8 +67,8 @@ CREATE TABLE IF NOT EXISTS foods (
  	image_url VARCHAR(255),
  	available bool,
  	created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMP NOT NULL DEFAULT NOW() ON UPDATE NOW(),
-  FOREIGN KEY (restaurant_id) REFERENCES restaurants(restaurant_id) ON DELETE CASCADE
+  	updated_at TIMESTAMP NOT NULL DEFAULT NOW() ON UPDATE NOW(),
+  	FOREIGN KEY (restaurant_id) REFERENCES restaurants(restaurant_id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS food_orders (
@@ -76,6 +76,7 @@ CREATE TABLE IF NOT EXISTS food_orders (
 	restaurant_id VARCHAR(16) NOT NULL,
 	user_id VARCHAR(16) NOT NULL,
 	user_address_id VARCHAR(16) NOT NULL,
+	order_status ENUM('pending', 'preparing', 'completed', 'canceled') NOT NULL DEFAULT 'pending',
 	order_datetime TIMESTAMP NOT NULL DEFAULT NOW(),
 	FOREIGN KEY (restaurant_id) REFERENCES restaurants(restaurant_id) ON DELETE CASCADE,
 	FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
