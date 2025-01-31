@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS users, addresses, user_addresses, restaurants, restaurant_managers, food_categories, foods, food_category_mapping, food_orders, order_reviews, reservations, reservation_reviews;
+-- DROP TABLE IF EXISTS users, addresses, user_addresses, restaurants, restaurant_managers, food_categories, foods, food_category_mapping, food_orders, order_reviews, reservations, reservation_reviews;
 
 CREATE TABLE IF NOT EXISTS users (
   	user_id VARCHAR(16) PRIMARY KEY,
