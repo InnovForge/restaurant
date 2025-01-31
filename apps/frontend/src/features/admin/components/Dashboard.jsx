@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import { Home, Utensils, ShoppingBag, User, LogOut ,Table} from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
@@ -48,7 +48,7 @@ export default function DashboardLayout({ children }) {
             Hóa đơn
           </Link>
           <Link
-            to="/admin/table"
+            to="/admin/ban"
             className="block px-4 py-2 text-gray-600 hover:bg-gray-100 hover:text-gray-800"
           >
             <Table className="inline-block mr-2" size={18} />

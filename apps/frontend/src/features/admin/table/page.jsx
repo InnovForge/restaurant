@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { ChevronLeft, ChevronRight, PlusCircle, Search } from "lucide-react";
+import { Link } from "react-router";
 
 const Button = ({ children, onClick, variant = "default", size = "md", className = "", ...props }) => {
   const baseStyle = "inline-flex items-center justify-center rounded-md border px-4 py-2";
@@ -62,13 +63,14 @@ const TableManagement = () => {
       <div className="border rounded-md shadow-md bg-white">
         <div className="border-b p-4 flex justify-between">
           <h2 className="text-xl font-bold">Quản Lý Bàn Ăn</h2>
-          <Button>
-            <PlusCircle className="h-5 w-5 mr-2" />
-            Thêm bàn
-          </Button>
+          <Link to="/admin/ban/themban">
+            <Button>
+              <PlusCircle className="h-5 w-5 mr-2" />
+              Thêm bàn
+            </Button>
+          </Link>
         </div>
         <div className="p-4">
-          {/* tìm kiếm và lọc*/}
           <div className="flex flex-wrap gap-4 mb-4">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
@@ -80,7 +82,6 @@ const TableManagement = () => {
               />
             </div>
           </div>
-          {/* bảng */}
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
@@ -112,7 +113,6 @@ const TableManagement = () => {
               </tbody>
             </Table>
           </div>
-          {/* trang */}
           <div className="flex justify-between items-center mt-4">
             <span className="text-sm">
               Hiển thị {startIndex + 1} đến {Math.min(startIndex + itemsPerPage, filteredData.length)} trong số{" "}

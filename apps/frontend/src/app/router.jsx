@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, RouterProvider } from "react-router";
 import Login from "./routes/auth/Login";
 import {
 	default as AppRoot,
@@ -12,8 +12,9 @@ import OrdersPage from "@/features/admin/orders/page";
 import HomeAdmin from "@/features/admin/page";
 import Overview from "@/features/admin/overview/page";
 import UserInfoForm from "@/features/admin/infor/page";
-import TableManagement from "@/features/admin/table/table";
 import AddFood from "@/features/admin/menu/addfood";
+import AddTable from "@/features/admin/table/addtable";
+import TableManagement from "@/features/admin/table/page";
 const NOT_FOUND = React.lazy(() => import("./routes/not-found"));
 
 export const createAppRouter = () =>
@@ -53,11 +54,6 @@ export const createAppRouter = () =>
 				{
 					path: "menu",
 					element: <MenuPage />,
-					// children: [
-					// 	{
-					// 		path: "themmon",
-					// 		element: <AddFood/>
-					// 	},]
 				},
 				{
 					path: "menu/themmon",
@@ -68,8 +64,12 @@ export const createAppRouter = () =>
 					element: <OrdersPage />,
 				},
 				{
-					path: "table",
+					path: "ban",
 					element: <TableManagement />,
+				},
+				{
+					path: "ban/themban",
+					element: <AddTable />,
 				},
 			],
 		},

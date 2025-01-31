@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import { ChevronLeft, ChevronRight, PlusCircle, Search } from "lucide-react";
 
 const Button = ({ children, onClick, variant = "default", size = "md", className = "", ...props }) => {
