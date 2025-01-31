@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS users, addresses, user_addresses, restaurants, restaurant_managers, foods, food_orders, order_reviews, reservations, reservation_reviews;
+DROP TABLE IF EXISTS users, addresses, user_addresses, restaurants, restaurant_managers, food_categories, foods, food_category_mapping, food_orders, order_reviews, reservations, reservation_reviews;
 
 CREATE TABLE IF NOT EXISTS users (
   	user_id VARCHAR(16) PRIMARY KEY,
@@ -56,19 +56,36 @@ CREATE TABLE IF NOT EXISTS restaurant_managers (
     FOREIGN KEY (restaurant_id) REFERENCES restaurants(restaurant_id) ON DELETE CASCADE
 );
 
+
 CREATE TABLE IF NOT EXISTS foods (
- 	food_id VARCHAR(16) PRIMARY KEY,
- 	restaurant_id VARCHAR(16) NOT NULL,
- 	name VARCHAR(100),
- 	description TEXT,
- 	category VARCHAR(50),
- 	price DECIMAL(10, 2),
- 	price_type VARCHAR(3) DEFAULT 'VND',
- 	image_url VARCHAR(255),
- 	available bool,
- 	created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-  	updated_at TIMESTAMP NOT NULL DEFAULT NOW() ON UPDATE NOW(),
-  	FOREIGN KEY (restaurant_id) REFERENCES restaurants(restaurant_id) ON DELETE CASCADE
+    food_id VARCHAR(16) PRIMARY KEY,
+    restaurant_id VARCHAR(16) NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    description TEXT,
+    price DECIMAL(10, 2) NOT NULL,
+    price_type VARCHAR(3) DEFAULT 'VND',
+    image_url VARCHAR(255),
+    available bool,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW() ON UPDATE NOW(),
+    FOREIGN KEY (restaurant_id) REFERENCES restaurants(restaurant_id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS food_categories (
+    food_category_id VARCHAR(16) PRIMARY KEY,
+    restaurant_id VARCHAR(16) NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    UNIQUE (restaurant_id, name),
+    FOREIGN KEY (restaurant_id) REFERENCES restaurants(restaurant_id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS food_category_mapping (
+    food_id VARCHAR(16) NOT NULL,
+    food_category_id VARCHAR(16) NOT NULL,
+    PRIMARY KEY (food_id, food_category_id),
+    FOREIGN KEY (food_id) REFERENCES foods(food_id) ON DELETE CASCADE,
+    FOREIGN KEY (food_category_id) REFERENCES food_categories(food_category_id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS food_orders (
