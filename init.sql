@@ -1,4 +1,4 @@
--- DROP TABLE IF EXISTS users, addresses, user_addresses, restaurants, restaurant_managers, food_categories, foods, food_category_mapping, food_orders, order_reviews, reservations, reservation_reviews;
+-- DROP TABLE IF EXISTS users, addresses, user_addresses, restaurants, restaurant_managers, food_categories, foods, food_item_orders, food_category_mapping, food_orders, order_reviews, reservations, reservation_reviews;
 
 CREATE TABLE IF NOT EXISTS users (
   	user_id VARCHAR(16) PRIMARY KEY,
@@ -99,6 +99,15 @@ CREATE TABLE IF NOT EXISTS food_orders (
 	FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
 	FOREIGN KEY (user_address_id) REFERENCES user_addresses(user_address_id) ON DELETE CASCADE
 );
+CREATE TABLE IF NOT EXISTS food_item_orders (
+    food_item_order_id VARCHAR(16) PRIMARY KEY,
+    food_order_id VARCHAR(16) NOT NULL,
+    food_id VARCHAR(16) NOT NULL,
+    quantity TINYINT NOT NULL,
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW() ON UPDATE NOW(),
+    FOREIGN KEY (food_order_id) REFERENCES food_orders(food_order_id) ON DELETE CASCADE,
+    FOREIGN KEY (food_id) REFERENCES foods(food_id) ON DELETE CASCADE
+);
 
 CREATE TABLE IF NOT EXISTS order_reviews (
     order_review_id VARCHAR(16) NOT NULL PRIMARY KEY,
@@ -106,7 +115,7 @@ CREATE TABLE IF NOT EXISTS order_reviews (
     rating TINYINT CHECK (rating BETWEEN 1 AND 5),
     comment TEXT,
     review_datetime TIMESTAMP NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMP NOT NULL DEFAULT NOW() ON UPDATE NOW(),
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     FOREIGN KEY (food_order_id) REFERENCES food_orders(food_order_id) ON DELETE CASCADE
 );
 
@@ -130,3 +139,4 @@ CREATE TABLE IF NOT EXISTS reservation_reviews (
     updated_at TIMESTAMP NOT NULL DEFAULT NOW() ON UPDATE NOW(),
     FOREIGN KEY (reservation_id) REFERENCES reservations(reservation_id) ON DELETE CASCADE
 );
+
