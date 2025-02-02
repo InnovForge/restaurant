@@ -1,6 +1,3 @@
-import React from 'react'
-
-
 const Table = ({ children }) => <table className="w-full border-collapse">{children}</table>;
 
 const TableHeader = ({ children }) => <thead className="bg-gray-100">{children}</thead>;
@@ -15,9 +12,9 @@ const TableHead = ({ children, className = "" }) => (
 
 const data = [
   { tenmon: "Cá mập nướng sốt trung hoa", soluong: 4, gia: "100.000", ghichu: "Không" },
-  { tenmon: "Vi cá japan", soluong: 6, gia: "100.000", ghichu: "Không"  },
-  { tenmon: "Mì xào hải sản full topping", soluong: 8, gia: "100.000", ghichu: "Không"  },
-  { tenmon: "Rau dâng chúa", soluong: 2, gia: "100.000", ghichu: "Không"  },
+  { tenmon: "Vi cá japan", soluong: 6, gia: "100.000", ghichu: "Không" },
+  { tenmon: "Mì xào hải sản full topping", soluong: 8, gia: "100.000", ghichu: "Không" },
+  { tenmon: "Rau dâng chúa", soluong: 2, gia: "100.000", ghichu: "Không" },
 ];
 
 const OrderDetail = () => {
@@ -64,7 +61,7 @@ const OrderDetail = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default OrderDetail
+export default OrderDetail;

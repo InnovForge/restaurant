@@ -8,9 +8,7 @@ const useAddressStore = create((set) => ({
     })),
   updateAddress: (id, updatedData) =>
     set((state) => ({
-      addresses: state.addresses.map((address) =>
-        address.id === id ? { ...address, ...updatedData } : address,
-      ),
+      addresses: state.addresses.map((address) => (address.id === id ? { ...address, ...updatedData } : address)),
     })),
   removeAddress: (id) =>
     set((state) => ({

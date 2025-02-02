@@ -3,20 +3,25 @@
 	"version": "1.0.0",
 	"description": "",
 	"scripts": {
-		"dev": "concurrently \"pnpm --filter backend-restaurant dev\" \"pnpm --filter frontend-restaurant dev\"",
+		"dev": "concurrently \"pnpm --filter backend-restaurant dev\" \"pnpm --filter frontend-restaurant dev\" \"pnpm docker:up\"",
+		"lint": "concurrently  \"pnpm --filter frontend-restaurant lint\"",
 		"setup": "pnpm install --frozen-lockfile && pnpm docker:build",
-		"docker:build": "docker compose --env-file .env.development build",
-		"docker:up": "docker compose --env-file .env.development up",
-		"docker:down": "docker compose --env-file .env.development down",
-		"docker:clean": "docker compose --env-file .env.development down --volumes --remove-orphans",
-		"docker:start": "docker compose --env-file .env.development start",
-		"docker:stop": "docker compose --env-file .env.development stop",
-		"docker:restart": "docker compose --env-file .env.development restart"
+		"docker:build": "docker compose -f docker-compose.dev.yml --env-file .env.development build",
+		"docker:preview": "docker compose --env-file .env.development up",
+		"docker:preview:clean": "docker compose --env-file .env.development down --volumes --remove-orphans",
+		"docker:up": "docker compose -f docker-compose.dev.yml --env-file .env.development up",
+		"docker:down": "docker compose -f docker-compose.dev.yml --env-file .env.development down",
+		"docker:clean": "docker compose -f docker-compose.dev.yml --env-file .env.development down --volumes --remove-orphans",
+		"docker:start": "docker compose -f docker-compose.dev.yml --env-file .env.development start",
+		"docker:stop": "docker compose -f docker-compose.dev.yml --env-file .env.development stop",
+		"docker:restart": "docker compose -f docker-compose.dev.yml --env-file .env.development restart",
+		"prepare": "husky"
 	},
 	"keywords": [],
 	"author": "",
 	"license": "ISC",
 	"devDependencies": {
-		"concurrently": "^9.1.2"
+		"concurrently": "^9.1.2",
+		"husky": "^9.1.7"
 	}
 }

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { ChevronLeft, ChevronRight, PlusCircle, Search } from "lucide-react";
 import { Link } from "react-router";
 import { Button } from "@/components/ui/button";
@@ -41,7 +41,7 @@ const OrdersPage = () => {
   const itemsPerPage = 4;
 
   const filteredData = data.filter((item) =>
-    Object.values(item).some((value) => value.toString().toLowerCase().includes(searchTerm.toLowerCase()))
+    Object.values(item).some((value) => value.toString().toLowerCase().includes(searchTerm.toLowerCase())),
   );
 
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
@@ -79,8 +79,10 @@ const OrdersPage = () => {
                 {paginatedData.map((item) => (
                   <TableRow key={item.id}>
                     <TableCell>{item.id}</TableCell>
-                    <TableCell  className="text-center">
-                      <Badge variant={item.status === "Đã thanh toán" ? "Đã thanh toán" : "Chưa thanh toán"}>{item.status}</Badge>
+                    <TableCell className="text-center">
+                      <Badge variant={item.status === "Đã thanh toán" ? "Đã thanh toán" : "Chưa thanh toán"}>
+                        {item.status}
+                      </Badge>
                     </TableCell>
                     <TableCell className="text-right">
                       <Link to="/admin/hoadon/chitiet">
