@@ -1,12 +1,15 @@
+-- MYSQL Database Schema
+
 -- DROP TABLE IF EXISTS users, addresses, user_addresses, restaurants, restaurant_managers, food_categories, foods, food_item_orders, food_category_mapping, food_orders, order_reviews, reservations, reservation_reviews;
 
 CREATE TABLE IF NOT EXISTS users (
   	user_id VARCHAR(16) PRIMARY KEY,
   	name VARCHAR(60) NOT NULL,
-  	gender TINYINT NOT NULL CHECK (gender IN (0, 1, 2, 9)), -- 0 unknown / 1 male / 2 female  / 0  "Not applicable / Not disclosed"
+  	gender TINYINT CHECK (gender IN (0, 1, 2, 9)), -- 0 unknown / 1 male / 2 female  / 0  "Not applicable / Not disclosed"
   	username VARCHAR(30) NOT NULL UNIQUE,
   	password VARCHAR(60) NOT NULL,
   	email VARCHAR(255),
+  	email_verify BOOLEAN DEFAULT false,
   	avatar_url VARCHAR(255),
   	phone_number VARCHAR(15),
   	phone_verify BOOLEAN DEFAULT false,
@@ -139,4 +142,3 @@ CREATE TABLE IF NOT EXISTS reservation_reviews (
     updated_at TIMESTAMP NOT NULL DEFAULT NOW() ON UPDATE NOW(),
     FOREIGN KEY (reservation_id) REFERENCES reservations(reservation_id) ON DELETE CASCADE
 );
-
