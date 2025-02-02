@@ -1,12 +1,13 @@
-import React from "react";
-
 const Login = () => {
   return (
     <div className="h-screen flex">
       {/* Image Section */}
       <div
         className="hidden md:flex w-1/2 bg-cover bg-center"
-        style={{ backgroundImage: "url('https://dynamic-media-cdn.tripadvisor.com/media/photo-o/06/14/e2/6d/jim-mcdougall-in-stefano.jpg?w=700&h=-1&s=1')" }}
+        style={{
+          backgroundImage:
+            "url('https://dynamic-media-cdn.tripadvisor.com/media/photo-o/06/14/e2/6d/jim-mcdougall-in-stefano.jpg?w=700&h=-1&s=1')",
+        }}
       ></div>
 
       {/* Form Section */}
@@ -70,7 +71,10 @@ const Login = () => {
           </form>
 
           <p className="mt-4 text-sm text-center text-gray-500">
-            Need an account? <a href="#" className="text-blue-600 hover:underline">Create one</a>
+            Need an account?{" "}
+            <a href="#" className="text-blue-600 hover:underline">
+              Create one
+            </a>
           </p>
         </div>
       </div>

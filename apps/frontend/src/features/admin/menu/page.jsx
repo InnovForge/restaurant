@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router";
 import { ChevronLeft, ChevronRight, PlusCircle, Search } from "lucide-react";
 
@@ -78,7 +78,7 @@ const MenuPage = () => {
   const itemsPerPage = 4;
 
   const filteredData = data.filter((item) =>
-    Object.values(item).some((value) => value.toString().toLowerCase().includes(searchTerm.toLowerCase()))
+    Object.values(item).some((value) => value.toString().toLowerCase().includes(searchTerm.toLowerCase())),
   );
 
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
