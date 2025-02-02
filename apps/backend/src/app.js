@@ -12,6 +12,7 @@ const corsOptions = {
 	origin: process.env.CLIENT_URL || "http://localhost:5174",
 };
 
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cors(corsOptions));
 app.use("/api", router);

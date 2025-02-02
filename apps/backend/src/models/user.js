@@ -45,16 +45,39 @@ const userModel = {
 
   /**
    * Cập nhật thông tin người dùng.
-   * @param {number} userId - ID của người dùng.
-   * @param {Object} userData - Dữ liệu cập nhật (name, email, etc.).
-   * @returns {Promise<boolean>} `true` nếu cập nhật thành công, `false` nếu không.
+   *
+   * @param {string} userId - ID của người dùng.
+   * @param {Object} userData - Dữ liệu cần cập nhật.
+   * @param {string} [userData.name] - Tên mới của người dùng (tùy chọn).
+   * @param {string} [userData.email] - Email mới của người dùng (tùy chọn).
+   * @param {string} [userData.password] - Mật khẩu mới (nếu có sẽ được mã hóa).
+   * @param {string} [userData.phone_number] - Số điện thoại mới (tùy chọn).
+   * @param {string} [userData.avatar_url] - URL ảnh đại diện mới (tùy chọn).
+   * @returns {Promise<boolean>} `true` nếu cập nhật thành công, `false` nếu không có thay đổi.
    */
   async updateUser(userId, userData) {
-    const { name, email, password } = userData;
-    const [result] = await pool.query(
-      "UPDATE users SET name = ?, email = ?, password = ? WHERE id = ?",
-      [name, email, password, userId],
-    );
+    const fields = [];
+    const values = [];
+
+    for (const [key, value] of Object.entries(userData)) {
+      if (value !== undefined && value !== null) {
+        if (key === "password") {
+          values.push(await bcrypt.hash(value, 10));
+        } else {
+          values.push(value);
+        }
+        fields.push(`${key} = ?`);
+      }
+    }
+
+    if (fields.length === 0) return false;
+
+    values.push(userId);
+    // console.log(fields,values);
+
+    const sql = `UPDATE users SET ${fields.join(", ")} WHERE user_id = ?`;
+
+    const [result] = await pool.query(sql, values);
     return result.affectedRows > 0;
   },
 
