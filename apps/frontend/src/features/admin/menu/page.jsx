@@ -1,41 +1,27 @@
 import React, { useState } from "react";
 import { Link } from "react-router";
 import { ChevronLeft, ChevronRight, PlusCircle, Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
 
-const Button = ({ children, onClick, variant = "default", size = "md", className = "", ...props }) => {
-  const baseStyle = "inline-flex items-center justify-center rounded-md border px-4 py-2";
-  const variantStyle = variant === "default" ? "bg-blue-500 text-white" : "border-gray-300 text-gray-700";
-  const sizeStyle = size === "sm" ? "text-sm py-1 px-2" : size === "icon" ? "w-8 h-8" : "";
-  return (
-    <button className={`${baseStyle} ${variantStyle} ${sizeStyle} ${className}`} onClick={onClick} {...props}>
-      {children}
-    </button>
-  );
-};
-
-const Input = ({ className = "", ...props }) => (
-  <input
-    className={`block w-full border border-gray-300 rounded-md py-2 px-3 text-sm placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500 ${className}`}
-    {...props}
-  />
-);
-
-const Badge = ({ children, variant = "default" }) => {
-  const style = variant === "Tạm hết" ? "bg-green-500 text-white" : "bg-gray-300 text-gray-700";
-  return <span className={`inline-block px-2 py-1 text-xs rounded ${style}`}>{children}</span>;
-};
-
-const Table = ({ children }) => <table className="w-full border-collapse">{children}</table>;
-
-const TableHeader = ({ children }) => <thead className="bg-gray-100">{children}</thead>;
-
-const TableRow = ({ children }) => <tr className="border-b">{children}</tr>;
-
-const TableCell = ({ children, className = "" }) => <td className={`p-3 ${className}`}>{children}</td>;
-
-const TableHead = ({ children, className = "" }) => (
-  <th className={`p-3 text-left font-semibold ${className}`}>{children}</th>
-);
+import {
+  Table,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
 
 const data = [
   {
@@ -73,6 +59,11 @@ const data = [
 ];
 
 const MenuPage = () => {
+  const [editItem, setEditItem] = useState({});
+
+  const handleEditClick = (item) => {
+    setEditItem(item);
+  };
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 4;
@@ -137,9 +128,84 @@ const MenuPage = () => {
                     <TableCell>{item.quanlity}</TableCell>
                     <TableCell>{item.price + " VNĐ"}</TableCell>
                     <TableCell className="text-right">
-                      <Button size="sm" variant="outline">
-                        Sửa
-                      </Button>
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button variant="outline" onClick={() => handleEditClick(item)}>Sửa</Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[425px]">
+                          <DialogHeader>
+                            <DialogTitle>Sửa món ăn</DialogTitle>
+                            <DialogDescription>
+                              Thực hiện thay đổi cho món ăn của bạn tại đây. Nhấp vào sửa khi bạn hoàn tất.
+                            </DialogDescription>
+                          </DialogHeader>
+                          <div className="grid gap-4 py-4">
+                            <div className="grid grid-cols-4 items-center gap-4">
+                              <Label htmlFor="hinhanh" className="text-right">
+                                Chọn ảnh
+                              </Label>
+                              <Input
+                                id="hinhanh"
+                                value={editItem.image || ""}
+                                onChange={(e) => setEditItem({ ...editItem, image: e.target.value })}
+                                className="col-span-3"
+                              />
+                            </div>
+                            <div className="grid grid-cols-4 items-center gap-4">
+                              <Label htmlFor="monan" className="text-right">
+                                Tên món ăn
+                              </Label>
+                              <Input
+                                id="monan"
+                                value={editItem.name || ""}
+                                onChange={(e) => setEditItem({ ...editItem, name: e.target.value })}
+                                className="col-span-3"
+                              />
+                            </div>
+                            <div className="grid grid-cols-4 items-center gap-4">
+                              <Label htmlFor="tinhtrang" className="text-right">
+                                Tình trạng
+                              </Label>
+                              <select
+                                id="tinhtrang"
+                                value={editItem.status || ""}
+                                onChange={(e) => setEditItem({ ...editItem, status: e.target.value })}
+                                className="col-span-3 border rounded-md px-3 py-2"
+                              >
+                                <option value="Còn">Còn</option>
+                                <option value="Hết">Hết</option>
+                              </select>
+                            </div>
+                            <div className="grid grid-cols-4 items-center gap-4">
+                              <Label htmlFor="soluong" className="text-right">
+                                Số lượng
+                              </Label>
+                              <Input
+                                id="soluong"
+                                type="number"
+                                value={editItem.quanlity || ""}
+                                onChange={(e) => setEditItem({ ...editItem, quanlity: e.target.value })}
+                                className="col-span-3"
+                              />
+                            </div>
+                            <div className="grid grid-cols-4 items-center gap-4">
+                              <Label htmlFor="gia" className="text-right">
+                                Giá
+                              </Label>
+                              <Input
+                                id="gia"
+                                type="number"
+                                value={editItem.price || ""}
+                                onChange={(e) => setEditItem({ ...editItem, price: e.target.value })}
+                                className="col-span-3"
+                              />
+                            </div>
+                          </div>
+                          <DialogFooter>
+                            <Button type="submit">Sửa</Button>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
                       <Button size="sm" variant="outline" className="text-red-500 ml-2">
                         Xóa
                       </Button>
