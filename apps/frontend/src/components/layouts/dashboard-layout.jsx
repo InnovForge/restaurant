@@ -33,7 +33,15 @@ import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useRef } from "react";
 import useOutsideClick from "@/hooks/use-outside-click";
 import useAddressStore from "@/stores/useAddressStore";
-import { X, Utensils, CookingPot, ArrowLeft, MapPin, ShoppingCart, Search } from "lucide-react";
+import {
+	X,
+	Utensils,
+	CookingPot,
+	ArrowLeft,
+	MapPin,
+	Search,
+} from "lucide-react";
+import Cart from "@/features/cart/components/cart";
 
 export const DashboardLayout = ({ children }) => {
   const [value, setValue] = useState(null);
@@ -103,135 +111,174 @@ export const DashboardLayout = ({ children }) => {
                   </SheetContent>
                 </Sheet>
 
-                <Link to="/" className="flex items-center gap-1">
-                  <img src={logo} className="logo react w-[30x] h-[30px]" alt="React logo" />
-                  <h1 className="text-xl font-semibold hidden md:block">CIDO</h1>
-                </Link>
-              </div>
-              <div className="flex flex-1 gap-1">
-                {isDesktop && (
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button variant="ghost">
-                        <MapPin className="w-6 h-6" />
-                        <p className="whitespace-nowrap overflow-hidden text-ellipsis xl:max-w-xs max-w-32">
-                          {addresses[0]?.title ?? "Chọn địa chỉ"}
-                        </p>
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="top-1/2">
-                      <DialogHeader>
-                        <DialogTitle>Chọn địa chỉ chính xác</DialogTitle>
-                        <DialogDescription>Để chúng tôi cung cấp dịch vụ tốt nhất cho bạn</DialogDescription>
-                      </DialogHeader>
-                      <SearchLocation value={value} setValue={setValue} />
-                      <DialogClose asChild>
-                        <Button onClick={() => handleAdd()} disabled={value === null}>
-                          Xác Nhận
-                        </Button>
-                      </DialogClose>
-                      <img src={food} alt="food" className="h-80 object-cover rounded-md" />
-                    </DialogContent>
-                  </Dialog>
-                )}
-                <div className="relative md:flex hidden w-full lg:max-w-md max-w-xs">
-                  <MainSearchBar />
-                </div>
-              </div>
-            </div>
-            <div className="gap-1 items-center flex">
-              <Button variant="ghost" size="icon">
-                <ShoppingCart />
-              </Button>
-              <Button variant="ghost" asChild>
-                <Link to="/login">Đăng nhập</Link>
-              </Button>
-              <Button variant="outline" asChild>
-                <Link to="/register">Đăng kí</Link>
-              </Button>
-            </div>
-          </div>
-          <div className="flex h-8 justify-end items-center gap-2">
-            <div className="hidden md:flex gap-2">
-              {navItems.map((item) => (
-                <Link to={item.href} key={item.name} className="flex items-center gap-1">
-                  <Button variant="ghost">
-                    {item.icon && <item.icon className="w-5 h-5" />}
-                    {item.name}
-                  </Button>
-                </Link>
-              ))}
-            </div>
-            <div className="md:hidden flex justify-between w-full gap-2 items-center">
-              <Drawer>
-                <DrawerTrigger>
-                  <MapPin className="w-5 h-5" />
-                </DrawerTrigger>
-                <DrawerContent className="gap-4 p-1 flex-1">
-                  <DrawerHeader>
-                    <DrawerTitle>Chọn địa chỉ chính xác</DrawerTitle>
-                    <DrawerDescription>Để chúng tôi cung cấp dịch vụ tốt nhất cho bạn</DrawerDescription>
-                  </DrawerHeader>
-                  <SearchLocation value={value} setValue={setValue} />
-                  <DrawerClose asChild>
-                    <Button onClick={() => handleAdd()} disabled={value === null}>
-                      Xác Nhận
-                    </Button>
-                  </DrawerClose>
-                  <img src={food} alt="food" className="h-80 object-cover rounded-md" />
-                </DrawerContent>
-              </Drawer>
-              <Dialog open={isOpenDialog} onOpenChange={setIsOpenDialog}>
-                <DialogTrigger asChild>
-                  <div className="relative flex md:hidden w-full">
-                    <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input placeholder="Tìm kiếm món ăn, nhà hàng" className="pl-8" />
-                  </div>
-                </DialogTrigger>
-                <VisuallyHidden>
-                  <DialogTitle> search</DialogTitle>
-                  <DialogDescription>test</DialogDescription>
-                </VisuallyHidden>
-                <DialogContent className="max-w-screen h-screen border-none sm:rounded-none rounded-none shadow-none [&>button]:hidden flex p-1">
-                  <div className="flex items-center w-full gap-1 h-fit">
-                    <MainSearchBar isMobile={true} setIsOpen={setIsOpenDialog} />
-                  </div>
-                </DialogContent>
-              </Dialog>
-            </div>
-          </div>
-        </div>
-      </header>
-      <main className="flex-1 w-full max-w-7xl m-auto px-2 my-2">{children}</main>
-      <footer className="bg-background/60 backdrop-blur supports-[backdrop-filter]:bg-background p-2 border-t">
-        <div className="flex justify-between items-start max-w-7xl m-auto">
-          <div className="flex flex-col items-stretch h-full">
-            <div className="gap-1 flex italic text-xs pb-10">
-              <Link to="/privacy">Chính sách bảo mật</Link>
-              <span>|</span>
-              <Link to="/contact">Quy chế bảo mật</Link>
-            </div>
-            <img src={thongbaobocongthuong} alt="food" className="object-cover justify-self-start" width={140} />
-          </div>
-          <div className="flex flex-col items-center">
-            <h3 className="pb-4">© 2025 CIDO</h3>
-            <div className="flex gap-2">
-              <div>
-                <p>@ngtuonghy</p>
-                <p>@name</p>
-                <p>@name</p>
-              </div>
-              <div>
-                <p>@TTV</p>
-                <p>@name</p>
-                <p>@name</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </footer>
-    </div>
-  );
+								<Link to="/" className="flex items-center gap-1">
+									<img
+										src={logo}
+										className="logo react w-[30x] h-[30px]"
+										alt="React logo"
+									/>
+									<h1 className="text-xl font-semibold hidden md:block">
+										CIDO
+									</h1>
+								</Link>
+							</div>
+							<div className="flex flex-1 gap-1">
+								{isDesktop && (
+									<Dialog>
+										<DialogTrigger asChild>
+											<Button variant="ghost">
+												<MapPin className="w-6 h-6" />
+												<p className="whitespace-nowrap overflow-hidden text-ellipsis xl:max-w-xs max-w-32">
+													{addresses[0]?.title ?? "Chọn địa chỉ"}
+												</p>
+											</Button>
+										</DialogTrigger>
+										<DialogContent className="top-1/2">
+											<DialogHeader>
+												<DialogTitle>Chọn địa chỉ chính xác</DialogTitle>
+												<DialogDescription>
+													Để chúng tôi cung cấp dịch vụ tốt nhất cho bạn
+												</DialogDescription>
+											</DialogHeader>
+											<SearchLocation value={value} setValue={setValue} />
+											<DialogClose asChild>
+												<Button
+													onClick={() => handleAdd()}
+													disabled={value === null}
+												>
+													Xác Nhận
+												</Button>
+											</DialogClose>
+											<img
+												src={food}
+												alt="food"
+												className="h-80 object-cover rounded-md"
+											/>
+										</DialogContent>
+									</Dialog>
+								)}
+								<div className="relative md:flex hidden w-full lg:max-w-md max-w-xs">
+									<MainSearchBar />
+								</div>
+							</div>
+						</div>
+						<div className="gap-1 items-center flex">
+							<Cart />
+							<Button variant="ghost" asChild>
+								<Link to="/login">Đăng nhập</Link>
+							</Button>
+							<Button variant="outline" asChild>
+								<Link to="/register">Đăng kí</Link>
+							</Button>
+						</div>
+					</div>
+					<div className="flex h-8 justify-end items-center gap-2">
+						<div className="hidden md:flex gap-2">
+							{navItems.map((item) => (
+								<Link
+									to={item.href}
+									key={item.name}
+									className="flex items-center gap-1"
+								>
+									<Button variant="ghost">
+										{item.icon && <item.icon className="w-5 h-5" />}
+										{item.name}
+									</Button>
+								</Link>
+							))}
+						</div>
+						<div className="md:hidden flex justify-between w-full gap-2 items-center">
+							<Drawer>
+								<DrawerTrigger>
+									<MapPin className="w-5 h-5" />
+								</DrawerTrigger>
+								<DrawerContent className="gap-4 p-1 flex-1">
+									<DrawerHeader>
+										<DrawerTitle>Chọn địa chỉ chính xác</DrawerTitle>
+										<DrawerDescription>
+											Để chúng tôi cung cấp dịch vụ tốt nhất cho bạn
+										</DrawerDescription>
+									</DrawerHeader>
+									<SearchLocation value={value} setValue={setValue} />
+									<DrawerClose asChild>
+										<Button
+											onClick={() => handleAdd()}
+											disabled={value === null}
+										>
+											Xác Nhận
+										</Button>
+									</DrawerClose>
+									<img
+										src={food}
+										alt="food"
+										className="h-80 object-cover rounded-md"
+									/>
+								</DrawerContent>
+							</Drawer>
+							<Dialog open={isOpenDialog} onOpenChange={setIsOpenDialog}>
+								<DialogTrigger asChild>
+									<div className="relative flex md:hidden w-full">
+										<Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+										<Input
+											placeholder="Tìm kiếm món ăn, nhà hàng"
+											className="pl-8"
+										/>
+									</div>
+								</DialogTrigger>
+								<VisuallyHidden>
+									<DialogTitle> search</DialogTitle>
+									<DialogDescription>test</DialogDescription>
+								</VisuallyHidden>
+								<DialogContent className="max-w-screen h-screen border-none sm:rounded-none rounded-none shadow-none [&>button]:hidden flex p-1">
+									<div className="flex items-center w-full gap-1 h-fit">
+										<MainSearchBar
+											isMobile={true}
+											setIsOpen={setIsOpenDialog}
+										/>
+									</div>
+								</DialogContent>
+							</Dialog>
+						</div>
+					</div>
+				</div>
+			</header>
+			<main className="flex-1 w-full max-w-7xl m-auto px-2 my-2">
+				{children}
+			</main>
+			<footer className="bg-background/60 backdrop-blur supports-[backdrop-filter]:bg-background p-2 border-t">
+				<div className="flex justify-between items-start max-w-7xl m-auto">
+					<div className="flex flex-col items-stretch h-full">
+						<div className="gap-1 flex italic text-xs pb-10">
+							<Link to="/privacy">Chính sách bảo mật</Link>
+							<span>|</span>
+							<Link to="/contact">Quy chế bảo mật</Link>
+						</div>
+						<img
+							src={thongbaobocongthuong}
+							alt="food"
+							className="object-cover justify-self-start"
+							width={140}
+						/>
+					</div>
+					<div className="flex flex-col items-center">
+						<h3 className="pb-4">© 2025 CIDO</h3>
+						<div className="flex gap-2">
+							<div>
+								<p>@ngtuonghy</p>
+								<p>@name</p>
+								<p>@name</p>
+							</div>
+							<div>
+								<p>@TTV</p>
+								<p>@name</p>
+								<p>@name</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</footer>
+		</div>
+	);
 };
 
 const MainSearchBar = ({ isMobile, setIsOpen }) => {
