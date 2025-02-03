@@ -18,9 +18,7 @@ const userModel = {
    * @returns {Promise<Object|null>} Người dùng hoặc `null` nếu không tìm thấy.
    */
   async getUserById(userId) {
-    const [rows] = await pool.query("SELECT * FROM users WHERE id = ?", [
-      userId,
-    ]);
+    const [rows] = await pool.query("SELECT * FROM users WHERE id = ?", [userId]);
     return rows[0] || null;
   },
 
@@ -35,10 +33,13 @@ const userModel = {
     const hashedPassword = await bcrypt.hash(password, 10);
     // console.log(nanoid, username, name, email, hashedPassword);
 
-    const [result] = await pool.query(
-      "INSERT INTO users (user_id, username, name, password, email) VALUES (?, ?, ?, ?, ?)",
-      [nanoid, username, name, hashedPassword, email],
-    );
+    await pool.query("INSERT INTO users (user_id, username, name, password, email) VALUES (?, ?, ?, ?, ?)", [
+      nanoid,
+      username,
+      name,
+      hashedPassword,
+      email,
+    ]);
     // console.log(result)
     //	return result.insertId
   },
@@ -87,9 +88,7 @@ const userModel = {
    * @returns {Promise<boolean>} `true` nếu xóa thành công, `false` nếu không.
    */
   async deleteUser(userId) {
-    const [result] = await pool.query("DELETE FROM users WHERE id = ?", [
-      userId,
-    ]);
+    const [result] = await pool.query("DELETE FROM users WHERE id = ?", [userId]);
     return result.affectedRows > 0;
   },
 };

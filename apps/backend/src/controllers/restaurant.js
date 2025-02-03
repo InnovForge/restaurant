@@ -1,4 +1,5 @@
 import restaurantModel from "../models/restaurant.js";
+import * as response from "../utils/response.js";
 
 export const updateRestaurant = async (req, res) => {
   const { id } = req.params;

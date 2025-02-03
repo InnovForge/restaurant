@@ -43,7 +43,7 @@ export function badRequest(res, message, errors = []) {
  * @param {string} message - Thông báo lỗi
  * @returns {object}
  */
-export function notFound(message) {
+export function notFound(res, message) {
   return createResponse(res, 404, message);
 }
 

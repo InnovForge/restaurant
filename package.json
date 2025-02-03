@@ -5,7 +5,7 @@
 	"scripts": {
 		"dev": "concurrently \"pnpm --filter backend-restaurant dev\" \"pnpm --filter frontend-restaurant dev\" \"pnpm docker:up\"",
 		"lint": "concurrently  \"pnpm --filter frontend-restaurant lint\"",
-    "lint:staged": "concurrently  \"pnpm --filter frontend-restaurant lint:staged\"",
+    "lint:staged": "concurrently  \"pnpm --filter frontend-restaurant lint:staged\" \"pnpm --filter backend-restaurant lint:staged\"",
 		"setup": "pnpm install --frozen-lockfile && pnpm docker:build",
 		"docker:build": "docker compose -f docker-compose.dev.yml --env-file .env.development build",
 		"docker:preview": "docker compose --env-file .env.development up",

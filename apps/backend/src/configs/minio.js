@@ -1,4 +1,4 @@
-import * as Minio from 'minio'
+import * as Minio from "minio";
 
 const minioClient = new Minio.Client({
   endPoint: process.env.MINIO_HOST || "localhost",
@@ -6,7 +6,6 @@ const minioClient = new Minio.Client({
   useSSL: false,
   accessKey: process.env.MINIO_ROOT_USER,
   secretKey: process.env.MINIO_ROOT_PASSWORD,
-})
+});
 
-export { minioClient }
-
+export { minioClient };

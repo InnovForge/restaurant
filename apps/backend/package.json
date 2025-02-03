@@ -1,31 +1,52 @@
 {
-	"name": "backend-restaurant",
-	"version": "1.0.0",
-	"description": "",
-	"main": "./src/app.js",
-	"type": "module",
-	"scripts": {
-		"dev": "cross-env NODE_ENV=development nodemon -r dotenv-flow/config ./src/app.js",
-		"start": "node -r dotenv-flow/config ./src/app.js"
-	},
-	"keywords": [],
-	"author": "ngtuonghy",
-	"license": "ISC",
-	"dependencies": {
-		"bcryptjs": "^2.4.3",
-		"body-parser": "^1.20.3",
-		"cors": "^2.8.5",
-		"dotenv-flow": "^4.1.0",
-		"express": "^4.21.2",
-		"minio": "^8.0.4",
-		"multer": "1.4.5-lts.1",
-		"mysql2": "^3.12.0",
-		"nanoid": "^5.0.9",
-		"remove-accents": "^0.5.0",
-		"winston": "^3.17.0"
-	},
-	"devDependencies": {
-		"cross-env": "^7.0.3",
-		"nodemon": "^3.1.9"
-	}
+  "name": "backend-restaurant",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./src/app.js",
+  "type": "module",
+  "scripts": {
+    "dev": "cross-env NODE_ENV=development nodemon -r dotenv-flow/config ./src/app.js",
+    "start": "node -r dotenv-flow/config ./src/app.js",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "lint:staged": "lint-staged"
+  },
+  "imports": {
+    "#root/*": "./*"
+  },
+  "keywords": [],
+  "author": "ngtuonghy",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.20.3",
+    "cors": "^2.8.5",
+    "dotenv-flow": "^4.1.0",
+    "express": "^4.21.2",
+    "minio": "^8.0.4",
+    "multer": "1.4.5-lts.1",
+    "mysql2": "^3.12.0",
+    "nanoid": "^5.0.9",
+    "remove-accents": "^0.5.0",
+    "winston": "^3.17.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.17.0",
+    "cross-env": "^7.0.3",
+    "eslint": "^9.17.0",
+    "eslint-config-prettier": "^10.0.1",
+    "eslint-plugin-prettier": "^5.2.3",
+    "globals": "^15.14.0",
+    "lint-staged": "^15.4.3",
+    "nodemon": "^3.1.9",
+    "prettier": "^3.4.2"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix"
+    ],
+    "*.json": [
+      "prettier --write"
+    ]
+  }
 }

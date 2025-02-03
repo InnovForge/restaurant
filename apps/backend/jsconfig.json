@@ -1,12 +1,13 @@
 {
-	"compilerOptions": {
-		"module": "nodenext",
+  "compilerOptions": {
+    "module": "NodeNext",
     "target": "esnext",
-		"moduleResolution": "nodenext",
-		// "baseUrl": ".",
-		// "paths": {
-		// 	"@lib/*": ["./src/lib/*"]
-		// }
-	},
-	"exclude": ["node_modules"]
+    "moduleResolution": "NodeNext"
+    // "baseUrl": "./src",
+    // "paths": {
+    // 	"@utils/*": ["utils/*"],
+    // 	"@controllers/*": ["controllers/*"]
+    // }
+  },
+  "exclude": ["node_modules"]
 }
