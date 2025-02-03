@@ -12,6 +12,7 @@
     "lint:staged": "lint-staged",
     "prettier": "prettier . --check",
     "prettier:fix": "prettier .  --write",
+    "format": "pnpm prettier:fix && pnpm lint:fix",
     "preview": "vite preview"
   },
   "dependencies": {

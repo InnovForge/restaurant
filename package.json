@@ -5,6 +5,10 @@
 	"scripts": {
 		"dev": "concurrently \"pnpm --filter backend-restaurant dev\" \"pnpm --filter frontend-restaurant dev\" \"pnpm docker:up\"",
 		"lint": "concurrently  \"pnpm --filter frontend-restaurant lint\" \"pnpm --filter backend-restaurant lint\"",
+    "lint:fix": "concurrently  \"pnpm --filter frontend-restaurant lint:fix\" \"pnpm --filter backend-restaurant lint:fix\"",
+    "prettier": "concurrently  \"pnpm --filter frontend-restaurant prettier\" \"pnpm --filter backend-restaurant prettier\"",
+    "prettier:fix": "concurrently  \"pnpm --filter frontend-restaurant prettier:fix\" \"pnpm --filter backend-restaurant prettier:fix\"",
+    "format": "concurrently  \"pnpm --filter frontend-restaurant format\" \"pnpm --filter backend-restaurant format\"",
 		"lint:staged": "lint-staged",
 		"clean": "concurrently  \"pnpm --filter frontend-restaurant clean\" \"pnpm --filter backend-restaurant clean\"",
 		"setup": "pnpm install --frozen-lockfile && pnpm docker:build",

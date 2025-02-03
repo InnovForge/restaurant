@@ -10,9 +10,10 @@
     "clean": "rimraf ./node_modules/",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "lint:staged": "lint-staged"
+    "prettier": "prettier . --check",
+    "prettier:fix": "prettier . --write",
+    "format": "pnpm prettier:fix && pnpm lint:fix"
   },
-
   "keywords": [],
   "author": "ngtuonghy",
   "license": "ISC",
@@ -40,5 +41,5 @@
     "lint-staged": "^15.4.3",
     "nodemon": "^3.1.9",
     "prettier": "^3.4.2"
-  } 
+  }
 }
