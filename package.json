@@ -4,8 +4,9 @@
 	"description": "",
 	"scripts": {
 		"dev": "concurrently \"pnpm --filter backend-restaurant dev\" \"pnpm --filter frontend-restaurant dev\" \"pnpm docker:up\"",
-		"lint": "concurrently  \"pnpm --filter frontend-restaurant lint\"",
-    "lint:staged": "concurrently  \"pnpm --filter frontend-restaurant lint:staged\" \"pnpm --filter backend-restaurant lint:staged\"",
+		"lint": "concurrently  \"pnpm --filter frontend-restaurant lint\" \"pnpm --filter backend-restaurant lint\"",
+		"lint:staged": "lint-staged",
+		"clean": "concurrently  \"pnpm --filter frontend-restaurant clean\" \"pnpm --filter backend-restaurant clean\"",
 		"setup": "pnpm install --frozen-lockfile && pnpm docker:build",
 		"docker:build": "docker compose -f docker-compose.dev.yml --env-file .env.development build",
 		"docker:preview": "docker compose --env-file .env.development up",
@@ -23,6 +24,13 @@
 	"license": "ISC",
 	"devDependencies": {
 		"concurrently": "^9.1.2",
-		"husky": "^9.1.7"
+		"eslint": "^9.17.0",
+		"husky": "^9.1.7",
+		"lint-staged": "^15.4.3"
+	},
+	"lint-staged": {
+		"apps/frontend/**/*.{js,ts,tsx,jsx}": "pnpm --filter frontend-restaurant eslint --fix",
+		"apps/frontend/**/*.{css,scss,yaml}": "pnpm --filter frontend-restaurant prettier --write",
+		"apps/backend/**/*.{js,ts}": "pnpm --filter backend-restaurant eslint --fix"
 	}
 }

@@ -7,13 +7,12 @@
   "scripts": {
     "dev": "cross-env NODE_ENV=development nodemon -r dotenv-flow/config ./src/app.js",
     "start": "node -r dotenv-flow/config ./src/app.js",
+    "clean": "rimraf ./node_modules/",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "lint:staged": "lint-staged"
   },
-  "imports": {
-    "#root/*": "./*"
-  },
+
   "keywords": [],
   "author": "ngtuonghy",
   "license": "ISC",
@@ -28,6 +27,7 @@
     "mysql2": "^3.12.0",
     "nanoid": "^5.0.9",
     "remove-accents": "^0.5.0",
+    "rimraf": "^6.0.1",
     "winston": "^3.17.0"
   },
   "devDependencies": {
@@ -40,13 +40,5 @@
     "lint-staged": "^15.4.3",
     "nodemon": "^3.1.9",
     "prettier": "^3.4.2"
-  },
-  "lint-staged": {
-    "*.{js,jsx,ts,tsx}": [
-      "eslint --fix"
-    ],
-    "*.json": [
-      "prettier --write"
-    ]
-  }
+  } 
 }

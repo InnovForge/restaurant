@@ -104,7 +104,12 @@ const TableManagement = () => {
                                 id="soluong"
                                 type="number"
                                 value={editItem.quanlity || ""}
-                                onChange={(e) => setEditItem({ ...editItem, quanlity: e.target.value })}
+                                onChange={(e) =>
+                                  setEditItem({
+                                    ...editItem,
+                                    quanlity: e.target.value,
+                                  })
+                                }
                                 className="col-span-3"
                               />
                             </div>

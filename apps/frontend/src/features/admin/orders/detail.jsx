@@ -11,9 +11,19 @@ const TableHead = ({ children, className = "" }) => (
 );
 
 const data = [
-  { tenmon: "Cá mập nướng sốt trung hoa", soluong: 4, gia: "100.000", ghichu: "Không" },
+  {
+    tenmon: "Cá mập nướng sốt trung hoa",
+    soluong: 4,
+    gia: "100.000",
+    ghichu: "Không",
+  },
   { tenmon: "Vi cá japan", soluong: 6, gia: "100.000", ghichu: "Không" },
-  { tenmon: "Mì xào hải sản full topping", soluong: 8, gia: "100.000", ghichu: "Không" },
+  {
+    tenmon: "Mì xào hải sản full topping",
+    soluong: 8,
+    gia: "100.000",
+    ghichu: "Không",
+  },
   { tenmon: "Rau dâng chúa", soluong: 2, gia: "100.000", ghichu: "Không" },
 ];
 

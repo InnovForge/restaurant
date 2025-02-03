@@ -143,7 +143,12 @@ const MenuPage = () => {
                               <Input
                                 id="hinhanh"
                                 value={editItem.image || ""}
-                                onChange={(e) => setEditItem({ ...editItem, image: e.target.value })}
+                                onChange={(e) =>
+                                  setEditItem({
+                                    ...editItem,
+                                    image: e.target.value,
+                                  })
+                                }
                                 className="col-span-3"
                               />
                             </div>
@@ -154,7 +159,12 @@ const MenuPage = () => {
                               <Input
                                 id="monan"
                                 value={editItem.name || ""}
-                                onChange={(e) => setEditItem({ ...editItem, name: e.target.value })}
+                                onChange={(e) =>
+                                  setEditItem({
+                                    ...editItem,
+                                    name: e.target.value,
+                                  })
+                                }
                                 className="col-span-3"
                               />
                             </div>
@@ -165,7 +175,12 @@ const MenuPage = () => {
                               <select
                                 id="tinhtrang"
                                 value={editItem.status || ""}
-                                onChange={(e) => setEditItem({ ...editItem, status: e.target.value })}
+                                onChange={(e) =>
+                                  setEditItem({
+                                    ...editItem,
+                                    status: e.target.value,
+                                  })
+                                }
                                 className="col-span-3 border rounded-md px-3 py-2"
                               >
                                 <option value="Còn">Còn</option>
@@ -180,7 +195,12 @@ const MenuPage = () => {
                                 id="soluong"
                                 type="number"
                                 value={editItem.quanlity || ""}
-                                onChange={(e) => setEditItem({ ...editItem, quanlity: e.target.value })}
+                                onChange={(e) =>
+                                  setEditItem({
+                                    ...editItem,
+                                    quanlity: e.target.value,
+                                  })
+                                }
                                 className="col-span-3"
                               />
                             </div>
@@ -192,7 +212,12 @@ const MenuPage = () => {
                                 id="gia"
                                 type="number"
                                 value={editItem.price || ""}
-                                onChange={(e) => setEditItem({ ...editItem, price: e.target.value })}
+                                onChange={(e) =>
+                                  setEditItem({
+                                    ...editItem,
+                                    price: e.target.value,
+                                  })
+                                }
                                 className="col-span-3"
                               />
                             </div>
