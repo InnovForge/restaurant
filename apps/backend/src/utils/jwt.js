@@ -1,22 +1,32 @@
 import jwt from "jsonwebtoken";
-export function createAccessJwt(userId) {
-  return jwt.sign({ userId }, process.env.JWT_ACCESS_TOKEN, {
-    expiresIn: "20s",
-  });
+
+function createAccessJwt(userId) {
+	return jwt.sign({ userId }, process.env.JWT_ACCESS_TOKEN, {
+		expiresIn: "20s",
+	});
 }
 
-export function createRefreshJwt(userId) {
-  return jwt.sign({ userId }, process.env.JWT_REFRESH_TOKEN, {
-    expiresIn: "365d",
-  });
+function createRefreshJwt(userId) {
+	return jwt.sign({ userId }, process.env.JWT_REFRESH_TOKEN, {
+		expiresIn: "365d",
+	});
 }
 
-export default async function createSesionLogin(
-	res,
-	userId,
-) {
-  const accessToken = createAccessJwt(userId);
-  const refreshToken = createRefreshJwt(userId);
+export function createNewAccessToken(res, userId) {
+	const accessToken = createAccessJwt(userId);
+  res.cookie("accessToken", accessToken, {
+		httpOnly: true,
+		secure: false,
+		path: "/",
+		samSite: "strict",
+	});
+	
+}
+
+export function createSesionLogin(res, userId) {
+
+	const accessToken = createAccessJwt(userId);
+	const refreshToken = createRefreshJwt(userId);
 
 	res.cookie("accessToken", accessToken, {
 		httpOnly: true,
@@ -24,12 +34,14 @@ export default async function createSesionLogin(
 		path: "/",
 		samSite: "strict",
 	});
+
 	res.cookie("refreshToken", refreshToken, {
 		httpOnly: true,
 		secure: false,
-		path: "/refreshToken",
+		path: "api/v1/auth/refreshToken",
 		samSite: "strict",
 	});
+
 	res.cookie("userId", userId, {
 		httpOnly: false,
 		secure: false,

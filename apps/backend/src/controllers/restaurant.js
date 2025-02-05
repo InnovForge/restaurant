@@ -1,5 +1,5 @@
 import restaurantModel from "../models/restaurant.js";
-import * as response from "../utils/response.js";
+import responseHandler from "../utils/response.js";
 
 export const updateRestaurant = async (req, res) => {
   const { id } = req.params;
@@ -12,8 +12,8 @@ export const updateRestaurant = async (req, res) => {
       location,
       image,
     });
-    return response.success(res, "Restaurant updated", restaurant);
+    return responseHandler.success(res, "Restaurant updated", restaurant);
   } catch (error) {
-    return response.internalServerError(res, error.message);
+    return responseHandler.internalServerError(res, error.message);
   }
 };

@@ -1,67 +1,48 @@
-/**
- * @param {number} statusCode - Mã trạng thái HTTP
- * @param {string} message - Thông báo phản hồi
- * @param {object|null} [data=null] - Dữ liệu trả về (nếu có)
- * @param {Array} [errors=[]] - Danh sách lỗi (nếu có)
- * @returns {object}
- */
-function createResponse(res, statusCode, message, data = null, errors = []) {
-  const response = {
-    status: statusCode < 400 ? "success" : "error",
-    code: statusCode,
-    message,
-  };
+function createResponse(
+	res,
+	statusCode,
+	message,
+	data = null,
+	errorType = null,
+	errors = [],
+) {
+	const response = {
+		status: statusCode < 400 ? "success" : "error",
+		code: statusCode,
+		message,
+	};
 
-  if (data) response.data = data;
-  if (errors.length > 0) response.errors = errors;
+	if (data) response.data = data;
+	if (errorType) response.errorType = errorType;
+	if (errors.length > 0) response.errors = errors;
 
-  res.status(statusCode).json(response);
+	return res.status(statusCode).json(response);
 }
 
-/**
- * Phản hồi OK (HTTP 200)
- * @param {string} message - Thông báo thành công
- * @param {object|null} [data=null] - Dữ liệu trả về (nếu có)
- * @returns {object}
- */
-export function success(res, message, data = null) {
-  return createResponse(res, 200, message, data);
-}
+const responseHandler = {
 
-/**
- * Phản hồi Bad Request (HTTP 400)
- * @param {string} message - Thông báo lỗi
- * @param {Array} errors - Danh sách lỗi (nếu có)
- * @returns {object}
- */
-export function badRequest(res, message, errors = []) {
-  return createResponse(res, 400, message, null, errors);
-}
+	/**
+	 * @param {Object} res - Express response object
+	 * @param {String} message - Message to be sent in the response
+	 * */
+	success: (res, message, data = null) =>
+		createResponse(res, 200, message, data),
 
+	/**
+	 * @param {Object} res - Express response object
+	 * @param {String} message - Message to be sent in the response
+	 * @param {Array} errors - Array of error messages
+	 */
+	badRequest: (res, message, errors = []) =>
+		createResponse(res, 400, message, null, errors),
 
-/**
- * Phản hồi Unauthorized (HTTP 401)
- * @param {string} message - Thông báo lỗi
- * @returns {object}
- */
-export function unauthorized(res, message) {
-  return createResponse(res, 401, message);
-}
+	created: (res, message, data = null) =>
+		createResponse(res, 201, message, data),
+	unauthorized: (res, message, errorType) =>
+		createResponse(res, 401, message, null, errorType),
+	forbidden: (res, message) => createResponse(res, 403, message),
+	notFound: (res, message) => createResponse(res, 404, message),
+	internalServerError: (res, message) => createResponse(res, 500, message),
+};
 
-/**
- * Phản hồi Not Found (HTTP 404)
- * @param {string} message - Thông báo lỗi
- * @returns {object}
- */
-export function notFound(res, message) {
-  return createResponse(res, 404, message);
-}
-
-/**
- * Phản hồi Internal Server Error (HTTP 500)
- * @param {string} message - Thông báo lỗi
- * @returns {object}
- */
-export function internalServerError(res, message) {
-  return createResponse(res, 500, message);
-}
+export default responseHandler;

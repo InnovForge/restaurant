@@ -11,6 +11,7 @@ const PORT = process.env.PORT || 3000;
 
 const corsOptions = {
   origin: process.env.CLIENT_URL || "http://localhost:5174",
+  credentials: true,
 };
 app.use(cookieParser())
 app.use(express.urlencoded({ extended: true }));
