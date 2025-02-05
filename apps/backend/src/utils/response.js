@@ -38,6 +38,16 @@ export function badRequest(res, message, errors = []) {
   return createResponse(res, 400, message, null, errors);
 }
 
+
+/**
+ * Phản hồi Unauthorized (HTTP 401)
+ * @param {string} message - Thông báo lỗi
+ * @returns {object}
+ */
+export function unauthorized(res, message) {
+  return createResponse(res, 401, message);
+}
+
 /**
  * Phản hồi Not Found (HTTP 404)
  * @param {string} message - Thông báo lỗi
