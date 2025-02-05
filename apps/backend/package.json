@@ -5,7 +5,7 @@
   "main": "./src/app.js",
   "type": "module",
   "scripts": {
-    "dev": "cross-env NODE_ENV=development nodemon -r dotenv-flow/config ./src/app.js",
+    "dev": "cross-env NODE_ENV=development node -r dotenv-flow/config ./src/devApp.js",
     "start": "node -r dotenv-flow/config ./src/app.js",
     "clean": "rimraf ./node_modules/",
     "lint": "eslint .",
@@ -39,6 +39,7 @@
     "eslint-plugin-prettier": "^5.2.3",
     "globals": "^15.14.0",
     "lint-staged": "^15.4.3",
+    "ngrok": "5.0.0-beta.2",
     "nodemon": "^3.1.9",
     "prettier": "^3.4.2"
   }
