@@ -23,6 +23,16 @@ const userModel = {
   },
 
   /**
+   * Lấy thông tin một người dùng theo username.
+   * @param {string} username - Tên đăng nhập của người dùng.
+   * @returns {Promise<Object|null>} Người dùng hoặc `null` nếu không tìm thấy.
+   */
+  async getUserByUsername(username) {
+    const [rows] = await pool.query("SELECT * FROM users WHERE username = ?", [username]);
+    return rows[0] || null;
+  },
+
+  /**
    * Thêm một người dùng mới.
    * @param {Object} userData - Dữ liệu của người dùng (name, email, etc.).
    * @returns {Promise<number>} ID của người dùng vừa thêm.
