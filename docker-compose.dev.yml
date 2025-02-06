@@ -1,0 +1,66 @@
+services: 
+  db:
+    image: mysql:9.1.0
+    container_name: mysql
+    cap_add:
+      - SYS_NICE
+    restart: always
+    environment:
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+    ports:
+      - "${MYSQL_PORT}:3306"
+    volumes:
+      - mysql_volume:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    env_file: 
+      - path: .env.development
+        required: true
+  s3:
+    image: minio/minio
+    container_name: minio
+    restart: always
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+    ports:
+      - "${MINIO_PORT}:9000"
+      - "${MINIO_CONSOLE_PORT}:${MINIO_CONSOLE_PORT}" # Console Port
+    volumes:
+      - minio_volume:/data
+    command: server /data --console-address ":${MINIO_CONSOLE_PORT}"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      retries: 5
+      start_period: 5s
+      timeout: 5s
+    env_file:
+      - path: .env
+        required: false # default 
+      - path: .env.development
+        required: false
+  createbuckets:
+    image: minio/mc
+    container_name: createbuckets
+    depends_on:
+      s3:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c " /usr/bin/mc alias set myminio http://minio:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD};
+      /usr/bin/mc mb --ignore-existing myminio/users;
+      /usr/bin/mc mb --ignore-existing myminio/restaurants;
+      /usr/bin/mc mb --ignore-existing myminio/foods;
+      /usr/bin/mc anonymous set public myminio/users;
+      /usr/bin/mc anonymous set public myminio/restaurants;
+      /usr/bin/mc anonymous set public myminio/foods;
+      exit 0;
+      "
+    env_file: 
+      - path: .env.development
+        required: true
+volumes:
+  mysql_volume:
+  minio_volume:

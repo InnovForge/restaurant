@@ -1,8 +1,28 @@
-# version: "3.9"
 services:
+  backend:
+    build:
+      context: ./apps/backend
+      dockerfile: Dockerfile
+    container_name: backend
+    restart: always
+    ports:
+      - "3000"
+    environment:
+      - PORT=3000
+  frontend:
+    build:
+      context: ./apps/frontend
+      dockerfile: Dockerfile
+    environment:
+      - VITE_APP_API_URL=http://backend:3000
+    command: ["sh", "-c", "serve -s dist -l 5173"]
+    container_name: frontend
+    restart: always 
+    ports:
+      - "${FRONTEND_PORT}:5173" 
   db:
     image: mysql:9.1.0
-    container_name: mysql_restaurant
+    container_name: mysql
     cap_add:
       - SYS_NICE
     restart: always
@@ -17,14 +37,46 @@ services:
       - mysql_volume:/var/lib/mysql
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     env_file:
-    - path: .env
-      required: false # default 
-    - path: .env.development
-      required: false
-      # redis:
-      #   image: "redis:latest"
-      #   container_name: redis
-      #   ports:
-      #     - "${REDIS_PORT}:6379"
+      - path: .env
+        required: false # default 
+      - path: .env.development
+        required: false
+  s3:
+    image: minio/minio
+    container_name: minio
+    restart: always
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+    ports:
+      - "${MINIO_PORT}:9000"
+      - "${MINIO_CONSOLE_PORT}:${MINIO_CONSOLE_PORT}" # Console Port
+    volumes:
+      - minio_volume:/data
+    command: server /data --console-address ":${MINIO_CONSOLE_PORT}"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      retries: 5
+      start_period: 5s
+      timeout: 5s
+    env_file:
+      - path: .env
+        required: false # default 
+      - path: .env.development
+        required: false
+  createbuckets:
+    image: minio/mc
+    depends_on:
+      s3:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c " /usr/bin/mc alias set myminio http://minio:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD}; /usr/bin/mc mb --ignore-existing myminio/${MINIO_BUCKET};  /usr/bin/mc anonymous set public myminio/${MINIO_BUCKET}; exit 0; "
+    env_file:
+      - path: .env
+        required: false # default 
+      - path: .env.development
+        required: false
 volumes:
   mysql_volume:
+  minio_volume:

@@ -1,24 +1,31 @@
-import React, { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef } from "react";
 import { Input } from "@/components/ui/input";
-import { getLocations } from "../api/get-locations";
+import { getGeocode, getReverseGeocode } from "../api/get-locations";
+import { LocateFixed } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { SyncLoader } from "react-spinners";
+import { CircleX } from "lucide-react";
+import useAddressStore from "@/stores/useAddressStore";
 
-const SearchLocation = ({ value, onChange, onBlur }) => {
-  const [searchValue, setSearchValue] = useState(value || "");
+const SearchLocation = ({ value, setValue }) => {
+  const { addresses } = useAddressStore();
+  const [searchValue, setSearchValue] = useState(addresses[0]?.title ?? "");
   const [data, setData] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
-  const [focusedIndex, setFocusedIndex] = useState(-1); 
+  const [focusedIndex, setFocusedIndex] = useState(-1);
+  const [isfetching, setIsFetching] = useState(false);
+  const inputRef = useRef(null);
   const timeoutIdRef = useRef(null);
 
- 
   const handleInputChange = useCallback(
     (e) => {
       const query = e.target.value;
       setSearchValue(query);
       setIsOpen(query.length > 0);
-      setFocusedIndex(-1); 
+      setFocusedIndex(-1);
 
-      if (onChange) {
-        onChange(null);
+      if (setValue) {
+        setValue(null);
       }
 
       if (timeoutIdRef.current) {
@@ -26,26 +33,31 @@ const SearchLocation = ({ value, onChange, onBlur }) => {
       }
 
       if (query.length > 5) {
+        setIsFetching(true);
         timeoutIdRef.current = setTimeout(async () => {
           try {
-            const response = await getLocations(query);
-            setData(response.locations || []);
+            const response = await getGeocode(query);
+            setData(response.data || []);
+            setIsFetching(false);
           } catch (error) {
+            setIsFetching(false);
             console.error("Error fetching locations:", error);
           }
         }, 500);
       } else {
+        setIsFetching(false);
         setData([]);
       }
     },
-    [onChange]
+    [setValue],
   );
 
   const handleLocationSelect = (location) => {
-    setSearchValue(location.name);
+    setSearchValue(location.title);
+    console.log(location);
     setIsOpen(false);
-    if (onChange) {
-      onChange(location);
+    if (setValue) {
+      setValue(location);
     }
   };
 
@@ -55,53 +67,89 @@ const SearchLocation = ({ value, onChange, onBlur }) => {
     switch (e.key) {
       case "ArrowDown":
         e.preventDefault();
-        setFocusedIndex((prev) => (prev + 1) % data.length); 
+        setFocusedIndex((prev) => (prev + 1) % data.length);
         break;
       case "ArrowUp":
         e.preventDefault();
-        setFocusedIndex((prev) => (prev - 1 + data.length) % data.length); 
+        setFocusedIndex((prev) => (prev - 1 + data.length) % data.length);
         break;
       case "Enter":
         if (focusedIndex >= 0) {
           e.preventDefault();
-          handleLocationSelect(data[focusedIndex]); 
+          handleLocationSelect(data[focusedIndex]);
         }
         break;
       case "Escape":
-        setIsOpen(false); 
+        setIsOpen(false);
         break;
       default:
         break;
     }
   };
 
+  const handleCurrentGeocode = async () => {
+    setIsFetching(true);
+    const res = await getReverseGeocode();
+    setSearchValue(res.data[0].title);
+    setValue(res.data[0]);
+    setIsFetching(false);
+  };
+
   return (
-    <div className="relative w-full" onKeyDown={handleKeyDown}>
-      <Input
-        placeholder="Search location"
-        value={searchValue}
-        onChange={handleInputChange}
-        onBlur={onBlur}
-        onFocus={() => setIsOpen(data.length > 0)} // Mở dropdown khi focus input
-      />
-      {isOpen && (
-        <ul className="z-50 absolute w-full top-[calc(100%+10px)] bg-white border border-gray-300 shadow-md">
-          {data.length > 0 ? (
-            data.map((location, index) => (
-              <li
-                key={location.name}
-                className={`px-2 py-1 cursor-pointer hover:bg-gray-100 ${
-                  index === focusedIndex ? "bg-gray-200" : ""
-                }`}
-                onClick={() => handleLocationSelect(location)}
-                onMouseEnter={() => setFocusedIndex(index)} 
+    <div className="bg-background relative" onKeyDown={handleKeyDown}>
+      <div className="relative">
+        <Input
+          ref={inputRef}
+          placeholder="127, Đường Hoàng Minh Thảo"
+          variant="outline"
+          size="default"
+          value={searchValue}
+          onChange={handleInputChange}
+          onFocus={() => setIsOpen(data.length > 0)}
+          className="pr-9"
+        />
+        {isfetching ? (
+          <div className="absolute top-1/2 right-[2px] -translate-y-1/2">
+            <SyncLoader size={4} className="p-2" />
+          </div>
+        ) : (
+          <div className="absolute top-1/2 right-[2px] -translate-y-1/2">
+            {searchValue === "" ? (
+              <Button type="button" variant="ghost" onClick={handleCurrentGeocode}>
+                <span>Vị trí hiện tại</span> <LocateFixed color="blue" />
+              </Button>
+            ) : (
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  setSearchValue("");
+                  setData([]);
+                  setValue(null);
+                  inputRef.current.focus();
+                }}
               >
-                {location.name}
-              </li>
-            ))
-          ) : (
-            <li className="px-2 py-1 text-gray-500">No locations found</li>
-          )}
+                <CircleX />
+              </Button>
+            )}
+          </div>
+        )}
+      </div>
+      {isOpen && data.length !== 0 && (
+        <ul className="w-full rounded-md absolute z-10 top-[calc(100%+10px)] text-popover-foreground bg-popover border">
+          {data.length > 0
+            ? data.map((location, index) => (
+                <li
+                  key={location.title}
+                  className={`px-2 py-2 cursor-pointer hover:bg-accent ${index === focusedIndex ? "bg-accent" : ""}`}
+                  onClick={() => handleLocationSelect(location)}
+                  onMouseEnter={() => setFocusedIndex(index)}
+                >
+                  {location.title}
+                </li>
+              ))
+            : null}
         </ul>
       )}
     </div>
@@ -109,6 +157,3 @@ const SearchLocation = ({ value, onChange, onBlur }) => {
 };
 
 export default SearchLocation;
-
-
-

@@ -1,6 +1,5 @@
 import { Router } from "express";
-import * as userController from "../controllers/user.js";
+import * as restaurantController from "../controllers/restaurant.js";
 const router = Router();
-router.post("/restau", userController.createUser);
-router.get("/user", userController.getAllUsers);
+router.post("/restaurant", restaurantController.updateRestaurant);
 export default router;

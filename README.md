@@ -1,7 +1,4 @@
-# React + MySql + Express + Docker
-
-> [!NOTE]
-> Hãy sao chép file .env.development và đặt tên file là .env nếu muốn chạy lệnh ***docker compose*** không thiết lập sẵn 
+# React + MySql + Express + Docker + Minio
 
 ## Dependencies
 - [Nodejs](https://nodejs.org/en/)
@@ -12,22 +9,22 @@
 ```sh
 pnpm run setup
 ```
-## 🚀 Getting Started with Dev
-1. **Run docker**  (root project)
+## 🚀 Getting Started with Dev (required pnpm)
+1. **Start the development server(inlucde docker)**
 ```sh
-pnpm docker:start # or npm run docker:start
+pnpm dev
 ```
-2. **Start the development server**
-```sh
-pnpm dev # or npm run dev
-```
-4. **Open the source code and start editing!**
-- Client: Your site is now running at `http://localhost:5174`
-- Server: Your server is now running at `http://localhost:3001`
+2. **Open the source code and start editing!**
+- Client: ***site*** running at `http://localhost:5174`
+- Server: server running at `http://localhost:3001`
+- Swagger: api doc running at `http://localhost:3001/docs`
+- MySql: database running at `http://localhost:3307` (username: team1, password: cdio@team1)
+- Minio(Storage): storage running at `http://localhost:9002`
+- Minio(Console): console running at `http://localhost:9003` (username: team1, password: cdio@team1)
 
 ## Commands (root project)
 ```sh
-pnpm dev # or npm run dev # start dev server
+pnpm dev  #  (include docker pnpm docker:start)
 pnpm docker:build # or npm run docker:build # build docker image
 pnpm docker:start # or npm run docker:start # start docker container
 pnpm docker:restart # or npm run docker:restart # restart docker
