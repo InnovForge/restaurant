@@ -12,6 +12,7 @@ export default [
       prettier: eslintPluginPrettier,
     },
     rules: {
+      "no-unused-vars": "off",
       "prettier/prettier": [
         "warn",
         {

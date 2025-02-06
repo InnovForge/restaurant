@@ -53,10 +53,7 @@ export const momo = async (amount, orderInfo) => {
   // console.log(rawSignature);
   //signature
 
-  const signature = crypto
-    .createHmac("sha256", secretkey)
-    .update(rawSignature)
-    .digest("hex");
+  const signature = crypto.createHmac("sha256", secretkey).update(rawSignature).digest("hex");
   // console.log("--------------------SIGNATURE----------------");
   // console.log(signature);
   //
