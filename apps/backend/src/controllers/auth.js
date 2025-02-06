@@ -6,13 +6,17 @@ import responseHandler from "../utils/response.js";
 
 export const login = async (req, res) => {
 	const { username, password } = req.body;
+  if(!username || !password){
+    return responseHandler.badRequest(res, "Bad request, invalid input");
+  }
+
 	const user = await userModel.getUserByUsername(username);
 	if (!user) {
-		return responseHandler.unauthorized(res, "Invalid username or password");
+		return responseHandler.unauthorized(res, "Unauthorized, invalid username or password");
 	}
 	const isPasswordMatch = await bcrypt.compare(password, user.password);
 	if (!isPasswordMatch) {
-		return responseHandler.unauthorized(res, "Invalid username or password");
+		return responseHandler.unauthorized(res, "Unauthorized, invalid username or password");
 	}
 	createSesionLogin(res, user.user_id);
 	return responseHandler.success(res, "Login successfully");
@@ -23,7 +27,7 @@ export const refreshToken = async (req, res) => {
 	const { refreshToken } = req.cookies;
 
 	if (!refreshToken) {
-		return responseHandler.unauthorized(res, "Invalid refresh token");
+		return responseHandler.unauthorized(res, "Unauthorized");
 	}
 
 	jwt.verify(refreshToken, process.env.JWT_REFRESH_TOKEN, async (err, user) => {

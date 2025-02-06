@@ -43,14 +43,15 @@ const userModel = {
     const hashedPassword = await bcrypt.hash(password, 10);
     // console.log(nanoid, username, name, email, hashedPassword);
 
-    await pool.query("INSERT INTO users (user_id, username, name, password, email) VALUES (?, ?, ?, ?, ?)", [
+  const result =  await pool.query("INSERT INTO users (user_id, username, name, password, email) VALUES (?, ?, ?, ?, ?)", [
       nanoid,
       username,
       name,
       hashedPassword,
       email,
     ]);
-    // console.log(result)
+  
+    console.log(result)
     //	return result.insertId
   },
 

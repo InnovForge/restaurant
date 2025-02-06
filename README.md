@@ -15,11 +15,12 @@ pnpm run setup
 pnpm dev
 ```
 2. **Open the source code and start editing!**
-- Client: Your site is now running at `http://localhost:5174`
-- Server: Your server is now running at `http://localhost:3001`
-- MySql: Your database is now running at `http://localhost:3307` (username: team1, password: cdio@team1)
-- Minio(Storage): Your storage is now running at `http://localhost:9002`
-- Minio(Console): Your console is now running at `http://localhost:9003` (username: team1, password: cdio@team1)
+- Client: ***site*** running at `http://localhost:5174`
+- Server: server running at `http://localhost:3001`
+- Swagger: api doc running at `http://localhost:3001/docs`
+- MySql: database running at `http://localhost:3307` (username: team1, password: cdio@team1)
+- Minio(Storage): storage running at `http://localhost:9002`
+- Minio(Console): console running at `http://localhost:9003` (username: team1, password: cdio@team1)
 
 ## Commands (root project)
 ```sh

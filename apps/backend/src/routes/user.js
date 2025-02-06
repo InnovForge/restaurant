@@ -3,10 +3,15 @@ import * as userController from "../controllers/user.js";
 import multer from "multer";
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
-// const upload = multer({ dest: "uploads/" });
 const router = Router();
+
+// TODO: remove this route
 router.post("/user", userController.createUser);
+
 router.get("/user", userController.getAllUsers);
+
 router.put("/user/:id", userController.updateUser);
+
 router.put("/user/:id/avatar", upload.single("avatar"), userController.updateUserAvatar);
+
 export default router;

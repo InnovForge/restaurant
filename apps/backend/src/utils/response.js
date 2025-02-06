@@ -20,7 +20,6 @@ function createResponse(
 }
 
 const responseHandler = {
-
 	/**
 	 * @param {Object} res - Express response object
 	 * @param {String} message - Message to be sent in the response
@@ -34,7 +33,7 @@ const responseHandler = {
 	 * @param {Array} errors - Array of error messages
 	 */
 	badRequest: (res, message, errors = []) =>
-		createResponse(res, 400, message, null, errors),
+		createResponse(res, 400, message, null, null, errors),
 
 	created: (res, message, data = null) =>
 		createResponse(res, 201, message, data),

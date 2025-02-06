@@ -2,7 +2,8 @@
   "compilerOptions": {
     "module": "NodeNext",
     "target": "esnext",
-    "moduleResolution": "NodeNext"
+    "moduleResolution": "NodeNext",
+    "resolveJsonModule": true
     // "baseUrl": "./src",
     // "paths": {
     // 	"@utils/*": ["utils/*"],

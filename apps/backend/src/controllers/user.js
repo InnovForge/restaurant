@@ -14,7 +14,12 @@ export const createUser = async (req, res) => {
 		});
 		responseHandler.success(res, "User created successfully");
 	} catch (error) {
-		return responseHandler.error({ error: error.message });
+		// console.log("error :>> ", error);
+		return responseHandler.internalServerError(
+			res,
+			"Internal server error",
+			error,
+		);
 	}
 };
 
@@ -39,7 +44,11 @@ export const updateUser = async (req, res) => {
 		}
 		return responseHandler.success(res, "User updated successfully");
 	} catch (error) {
-		return handleError(res, "Internal server error", error);
+		return responseHandler.internalServerError(
+			res,
+			"Internal server error",
+			error,
+		);
 	}
 };
 
@@ -56,7 +65,7 @@ export const updateUserAvatar = async (req, res) => {
 		}
 		return responseHandler.success(res, "User updated successfully");
 	} catch (error) {
-		return responseHandler.internalServerError(res, "Internal server error"); 
+		return responseHandler.internalServerError(res, "Internal server error");
 	}
 };
 
