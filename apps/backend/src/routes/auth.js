@@ -54,5 +54,44 @@ const router = Router();
 
 router.post("/auth/login", authController.login);
 
+/**
+ * @openapi
+ * /api/v1/auth/register:
+ *   post:
+ *     summary: register a user
+ *     tags:
+ *       - auth
+ *     description: register with the provided details.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - username
+ *               - password
+ *               - name
+ *             properties:
+ *               username:
+ *                 type: string
+ *                 example: team1
+ *               password:
+ *                 type: string
+ *                 format: password
+ *                 example: cdio@team1
+ *               name:
+ *                 type: string
+ *                 example: team1
+ *     responses:
+ *       201:
+ *         description: User created successfully
+ *       400:
+ *         description: Bad request, invalid input
+ *       500:
+ *         description: Internal server error
+ */
+router.post("/auth/register", authController.register);
+
 router.post("/auth/refreshToken", authController.refreshToken);
 export default router;

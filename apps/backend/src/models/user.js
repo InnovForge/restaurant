@@ -1,8 +1,11 @@
 import bcrypt from "bcryptjs";
 import { nanoidNumbersOnly } from "../utils/nanoid.js";
 import { pool } from "../configs/mysql.js";
+import { uploadFileUser } from "../utils/s3.js";
+import { toPng } from "jdenticon";
 
 const userModel = {
+  // TODO: Remove this function
   /**
    * Lấy danh sách tất cả người dùng.
    * @returns {Promise<Array>} Danh sách người dùng.
@@ -34,22 +37,31 @@ const userModel = {
 
   /**
    * Thêm một người dùng mới.
-   * @param {Object} userData - Dữ liệu của người dùng (name, email, etc.).
-   * @returns {Promise<number>} ID của người dùng vừa thêm.
+   * @param {Object} userData - Dữ liệu của người dùng mới.
+   * @param {string} userData.username - Tên đăng nhập.
+   * @param {string} userData.name - Tên hiển thị.
+   * @param {string} userData.password - Mật khẩu.
+   * @returns {Promise<boolean>} `true` nếu thêm thành công, `false` nếu không.
    */
   async createUser(userData) {
     const nanoid = nanoidNumbersOnly();
-    const { username, name, email, password } = userData;
+    const { username, name, password } = userData;
+
+    const avatar = toPng(username, 512);
+    const avatar_url = await uploadFileUser(`${nanoid}/avatar`, {
+      buffer: avatar,
+      size: avatar.length,
+      mimetype: "image/png",
+    });
+
     const hashedPassword = await bcrypt.hash(password, 10);
-    // console.log(nanoid, username, name, email, hashedPassword);
 
     const result = await pool.query(
-      "INSERT INTO users (user_id, username, name, password, email) VALUES (?, ?, ?, ?, ?)",
-      [nanoid, username, name, hashedPassword, email],
+      "INSERT INTO users (user_id, username, avatar_url, name, password) VALUES (?, ?, ?, ?, ?)",
+      [nanoid, username, avatar_url, name, hashedPassword],
     );
 
-    console.log(result);
-    //	return result.insertId
+    return result.afterInsertId > 0;
   },
 
   /**

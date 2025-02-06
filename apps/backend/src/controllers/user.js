@@ -3,26 +3,8 @@ import userModel from "../models/user.js";
 import responseHandler from "../utils/response.js";
 import { uploadFileUser } from "../utils/s3.js";
 
-export const createUser = async (req, res) => {
-  const { username, password, name, email } = req.body;
-  try {
-    await userModel.createUser({
-      username,
-      password,
-      name,
-      email,
-    });
-    responseHandler.success(res, "User created successfully");
-  } catch (error) {
-    // console.log("error :>> ", error);
-    return responseHandler.internalServerError(res, "Internal server error", error);
-  }
-};
-
 export const updateUser = async (req, res) => {
   const { id } = req.params;
-  // console.log("id :>> ", id);
-  // console.log("req.body :>> ", req.body);
   const { name, gender, email, username, password, phone_number, role } = req.body;
   try {
     const updatedStatus = await userModel.updateUser(id, {
@@ -60,6 +42,7 @@ export const updateUserAvatar = async (req, res) => {
   }
 };
 
+// TODO: Remove this function
 export const getAllUsers = async (req, res) => {
   try {
     minioClient.listBuckets(function (err, buckets) {

@@ -6,8 +6,6 @@ const upload = multer({ storage: storage });
 const router = Router();
 
 // TODO: remove this route
-router.post("/user", userController.createUser);
-
 router.get("/user", userController.getAllUsers);
 
 router.put("/user/:id", userController.updateUser);
