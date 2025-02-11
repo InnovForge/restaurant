@@ -1,6 +1,7 @@
--- MYSQL Database Schema
+-- MYSQL (9.1.0) 
+-- cdio@team1
 
--- DROP TABLE IF EXISTS users, addresses, user_addresses, restaurants, restaurant_managers, food_categories, foods, food_item_orders, food_category_mapping, food_orders, order_reviews, reservations, reservation_reviews;
+DROP TABLE IF EXISTS users, addresses, user_addresses, restaurants, restaurant_managers, food_categories, foods, bills , food_category_mapping, bill_items , reviews, reservations;
 
 CREATE TABLE IF NOT EXISTS users (
   	user_id VARCHAR(16) PRIMARY KEY,
@@ -13,7 +14,6 @@ CREATE TABLE IF NOT EXISTS users (
   	avatar_url VARCHAR(255),
   	phone_number VARCHAR(15),
   	phone_verify BOOLEAN DEFAULT false,
-  	role ENUM('customer', 'owner', 'manager', 'staff') DEFAULT 'customer',
   	created_at TIMESTAMP NOT NULL DEFAULT NOW(),
   	updated_at TIMESTAMP NOT NULL DEFAULT NOW() ON UPDATE NOW() 
 );
@@ -40,12 +40,10 @@ CREATE TABLE IF NOT EXISTS user_addresses (
 CREATE TABLE IF NOT EXISTS restaurants (
 	restaurant_id VARCHAR(16) PRIMARY KEY,
 	name VARCHAR(100),
-	owner_id VARCHAR(16) NOT NULL,
 	address_id VARCHAR(16) UNIQUE NOT NULL,
 	phone_number VARCHAR(15),
 	logo_url VARCHAR(255),
 	cover_url VARCHAR(255),
-	FOREIGN KEY (owner_id) REFERENCES users(user_id) ON DELETE CASCADE,
 	FOREIGN KEY (address_id) REFERENCES addresses(address_id) ON DELETE CASCADE
 );
 
@@ -91,37 +89,6 @@ CREATE TABLE IF NOT EXISTS food_category_mapping (
     FOREIGN KEY (food_category_id) REFERENCES food_categories(food_category_id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS food_orders (
-	food_order_id VARCHAR(16) PRIMARY KEY,
-	restaurant_id VARCHAR(16) NOT NULL,
-	user_id VARCHAR(16) NOT NULL,
-	user_address_id VARCHAR(16) NOT NULL,
-	order_status ENUM('pending', 'preparing', 'completed', 'canceled') NOT NULL DEFAULT 'pending',
-	order_datetime TIMESTAMP NOT NULL DEFAULT NOW(),
-	FOREIGN KEY (restaurant_id) REFERENCES restaurants(restaurant_id) ON DELETE CASCADE,
-	FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
-	FOREIGN KEY (user_address_id) REFERENCES user_addresses(user_address_id) ON DELETE CASCADE
-);
-CREATE TABLE IF NOT EXISTS food_item_orders (
-    food_item_order_id VARCHAR(16) PRIMARY KEY,
-    food_order_id VARCHAR(16) NOT NULL,
-    food_id VARCHAR(16) NOT NULL,
-    quantity TINYINT NOT NULL,
-    updated_at TIMESTAMP NOT NULL DEFAULT NOW() ON UPDATE NOW(),
-    FOREIGN KEY (food_order_id) REFERENCES food_orders(food_order_id) ON DELETE CASCADE,
-    FOREIGN KEY (food_id) REFERENCES foods(food_id) ON DELETE CASCADE
-);
-
-CREATE TABLE IF NOT EXISTS order_reviews (
-    order_review_id VARCHAR(16) NOT NULL PRIMARY KEY,
-    food_order_id VARCHAR(16) NOT NULL,
-    rating TINYINT CHECK (rating BETWEEN 1 AND 5),
-    comment TEXT,
-    review_datetime TIMESTAMP NOT NULL DEFAULT NOW(),
-    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    FOREIGN KEY (food_order_id) REFERENCES food_orders(food_order_id) ON DELETE CASCADE
-);
-
 CREATE TABLE IF NOT EXISTS reservations (
     reservation_id VARCHAR(16) PRIMARY KEY,
     restaurant_id VARCHAR(16) NOT NULL,
@@ -133,12 +100,39 @@ CREATE TABLE IF NOT EXISTS reservations (
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS reservation_reviews (
-    reservation_review_id VARCHAR(16) PRIMARY KEY,
-    reservation_id VARCHAR(16) NOT NULL,
+CREATE TABLE IF NOT EXISTS bills (
+	bill_id VARCHAR(16) PRIMARY KEY,
+	restaurant_id VARCHAR(16) NOT NULL,
+	user_id VARCHAR(16) NOT NULL,
+	order_status ENUM('pending', 'preparing', 'completed', 'canceled') NOT NULL DEFAULT 'pending',
+	created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+	updated_at TIMESTAMP NOT NULL DEFAULT NOW() ON UPDATE NOW(),
+	FOREIGN KEY (restaurant_id) REFERENCES restaurants(restaurant_id) ON DELETE CASCADE,
+	FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS bill_items (
+    bill_item_id VARCHAR(16) PRIMARY KEY,
+    bill_id VARCHAR(16) NOT NULL,
+    food_id VARCHAR(16),
+    reservation_id VARCHAR(16),
+    quantity TINYINT NOT NULL,
+    FOREIGN KEY (reservation_id) REFERENCES reservations(reservation_id) ON DELETE CASCADE,
+    FOREIGN KEY (bill_id) REFERENCES bills(bill_id) ON DELETE CASCADE,
+    FOREIGN KEY (food_id) REFERENCES foods(food_id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS reviews (
+    review_id VARCHAR(16) NOT NULL PRIMARY KEY,
+    bill_id VARCHAR(16) NOT NULL,
+    user_id VARCHAR(16) NOT NULL,
+    food_id VARCHAR(16) NOT NULL,
     rating TINYINT CHECK (rating BETWEEN 1 AND 5),
     comment TEXT,
-    review_datetime TIMESTAMP NOT NULL DEFAULT NOW(),
+    image_url VARCHAR(255), 
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW() ON UPDATE NOW(),
-    FOREIGN KEY (reservation_id) REFERENCES reservations(reservation_id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (bill_id) REFERENCES bills(bill_id) ON DELETE CASCADE,
+    FOREIGN KEY (food_id) REFERENCES foods(food_id) ON DELETE CASCADE
 );

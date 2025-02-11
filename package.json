@@ -15,7 +15,7 @@
 		"docker:build": "docker compose -f docker-compose.dev.yml --env-file .env.development build",
 		"docker:preview": "docker compose --env-file .env.development up",
 		"docker:preview:clean": "docker compose --env-file .env.development down --volumes --remove-orphans",
-		"docker:up": "docker compose -f docker-compose.dev.yml --env-file .env.development up",
+		"docker:up": "docker compose -f docker-compose.dev.yml --env-file .env.development up --no-attach db",
 		"docker:down": "docker compose -f docker-compose.dev.yml --env-file .env.development down",
 		"docker:clean": "docker compose -f docker-compose.dev.yml --env-file .env.development down --volumes --remove-orphans",
 		"docker:start": "docker compose -f docker-compose.dev.yml --env-file .env.development start",
