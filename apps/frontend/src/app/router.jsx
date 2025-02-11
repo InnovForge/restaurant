@@ -4,15 +4,16 @@ import Login from "./routes/auth/Login";
 import { default as AppRoot, ErrorBoundary as AppRootErrorBoundary } from "./routes/app/root";
 import Home from "./routes/app/home";
 import Food from "./routes/app/food";
-import MenuPage from "@/features/admin/menu/page";
-import OrdersPage from "@/features/admin/orders/page";
-import HomeAdmin from "@/features/admin/page";
-import Overview from "@/features/admin/overview/page";
-import UserInfoForm from "@/features/admin/infor/page";
-import AddFood from "@/features/admin/menu/addfood";
-import AddTable from "@/features/admin/table/addtable";
-import TableManagement from "@/features/admin/table/page";
-import OrderDetail from "@/features/admin/orders/detail";
+import HomeAdmin from "./routes/admin/page";
+import UserInfoForm from "./routes/admin/infor/page";
+import Overview from "./routes/admin/overview/page";
+import MenuPage from "./routes/admin/menu/page";
+import AddFood from "./routes/admin/menu/addfood";
+import OrdersPage from "./routes/admin/orders/page";
+import OrderDetail from "./routes/admin/orders/detail";
+import TableManagement from "./routes/admin/table/page";
+import AddTable from "./routes/admin/table/addtable";
+
 const NOT_FOUND = React.lazy(() => import("./routes/not-found"));
 
 export const createAppRouter = () =>
