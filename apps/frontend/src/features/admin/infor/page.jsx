@@ -5,9 +5,9 @@ import { Label } from "@/components/ui/label";
 import { useState } from "react";
 
 export default function UserInfoForm() {
-  // State to store the image URL
+  // lay anh
   const [image, setImage] = useState(null);
-  // Function to handle file input change
+  // xu ly anh khi an vao nut thay doi anh
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (file) {
