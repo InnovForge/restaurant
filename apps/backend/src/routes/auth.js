@@ -6,10 +6,10 @@ const router = Router();
  * @openapi
  * /api/v1/auth/login:
  *   post:
- *     summary: login a user
+ *     summary: đăng nhập người dùng
  *     tags:
  *       - auth
- *     description: login with the provided details.
+ *     description: Đăng nhập người dùng.
  *     requestBody:
  *       required: true
  *       content:
@@ -58,10 +58,10 @@ router.post("/auth/login", authController.login);
  * @openapi
  * /api/v1/auth/register:
  *   post:
- *     summary: register a user
+ *     summary: đăng ký người dùng
  *     tags:
  *       - auth
- *     description: register with the provided details.
+ *     description: Đăng ký một người dùng mới.
  *     requestBody:
  *       required: true
  *       content:
@@ -85,9 +85,9 @@ router.post("/auth/login", authController.login);
  *                 example: team1
  *     responses:
  *       201:
- *         description: User created successfully
+ *         description: User created successfully (đã tạo người dùng thành công)
  *       400:
- *         description: Bad request, invalid input
+ *         description: Bad request, invalid input (yêu cầu không hợp lệ, đầu vào không hợp lệ)
  *       500:
  *         description: Internal server error
  */

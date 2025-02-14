@@ -72,6 +72,7 @@ export const refreshToken = async (req, res) => {
       return responseHandler.created(res, "New access token created");
     });
   } catch (error) {
+    console.log("error :>> ", error);
     return responseHandler.internalServerError(res);
   }
 };
