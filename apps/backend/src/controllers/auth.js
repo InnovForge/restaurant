@@ -9,7 +9,7 @@ export const login = async (req, res) => {
   const { username, password } = req.body;
   const errors = validateFields({ username, password });
   if (errors) {
-    return responseHandler.badRequest(res, "Bad request, invalid input", errors);
+    return responseHandler.badRequest(res, undefined, errors);
   }
 
   const user = await userModel.getUserByUsername(username);
@@ -30,7 +30,7 @@ export const register = async (req, res) => {
   const errors = validateFields({ username, password, name });
 
   if (errors) {
-    return responseHandler.badRequest(res, "Bad request, invalid input", errors);
+    return responseHandler.badRequest(res, undefined, errors);
   }
 
   try {
@@ -40,7 +40,7 @@ export const register = async (req, res) => {
       name,
     });
 
-    responseHandler.created(res, "User created successfully");
+    responseHandler.created(res);
   } catch (error) {
     if (error.code === "ER_DUP_ENTRY") {
       return responseHandler.badRequest(res, "ER_DUP_ENTRY", [
@@ -51,7 +51,7 @@ export const register = async (req, res) => {
       ]);
     }
     console.log("error :>> ", error);
-    return responseHandler.internalServerError(res, "Internal server error", error);
+    return responseHandler.internalServerError(res);
   }
 };
 
@@ -66,12 +66,12 @@ export const refreshToken = async (req, res) => {
 
     jwt.verify(refreshToken, process.env.JWT_REFRESH_TOKEN, async (err, user) => {
       if (err) {
-        return responseHandler.unauthorized(res, "Unauthorized");
+        return responseHandler.unauthorized(res);
       }
       createNewAccessToken(res, user.userId);
       return responseHandler.created(res, "New access token created");
     });
   } catch (error) {
-    return responseHandler.internalServerError(res, "Internal server error");
+    return responseHandler.internalServerError(res);
   }
 };

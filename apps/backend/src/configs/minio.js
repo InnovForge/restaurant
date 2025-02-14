@@ -10,16 +10,55 @@ const minioClient = new Minio.Client({
 });
 
 async function ensureBucketExists(bucketName) {
+  const policy = `
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": [
+        "s3:GetBucketLocation",
+        "s3:ListBucket"
+      ],
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": [
+          "*"
+        ]
+      },
+      "Resource": [
+        "arn:aws:s3:::${bucketName}"
+      ],
+      "Sid": ""
+    },
+    {
+      "Action": [
+        "s3:GetObject"
+      ],
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": [
+          "*"
+        ]
+      },
+      "Resource": [
+        "arn:aws:s3:::${bucketName}/*"
+      ],
+      "Sid": ""
+    }
+  ]
+}`;
+
   try {
     const exists = await minioClient.bucketExists(bucketName);
     if (!exists) {
       await minioClient.makeBucket(bucketName, "us-east-1");
-      logger.info(`✅ Bucket "${bucketName}" created.`);
+      await minioClient.setBucketPolicy(bucketName, policy);
+      logger.info(`Bucket "${bucketName}" created and policy set successfully.`);
     } else {
       // logger.info(`✅ Bucket "${bucketName}" exists.`);
     }
   } catch (error) {
-    logger.error(`❌ Bucket "${bucketName}" failed to create.`);
+    logger.error(`Bucket "${bucketName}" failed to create.`);
   }
 }
 export { minioClient, ensureBucketExists };

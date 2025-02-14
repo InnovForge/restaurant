@@ -3,16 +3,16 @@ import responseHandler from "../utils/response.js";
 
 const authenticateJWT = (req, res, next) => {
   const token = req.cookies?.accessToken;
-  console.log(req.cookies);
+  // console.log(req.cookies);
   if (!token) {
     return responseHandler.unauthorized(res, "Unauthorized");
   }
 
-  jwt.verify(token, process.env.JWT_ACCESS_TOKEN, (err, user) => {
+  jwt.verify(token, process.env.JWT_ACCESS_TOKEN, (err, decoded) => {
     if (err) {
       return responseHandler.unauthorized(res, "refresh token expired", "ACCESS_TOKEN_EXPIRED");
     }
-    req.user = user; // Gán user vào request
+    req.userId = decoded.userId; // Gán user vào request
     next();
   });
 };
