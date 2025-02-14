@@ -1,7 +1,7 @@
 -- MYSQL (9.1.0) 
 -- cdio@team1
 
-DROP TABLE IF EXISTS users, addresses, user_addresses, restaurants, restaurant_managers, food_categories, foods, bills , food_category_mapping, bill_items , reviews, reservations;
+-- DROP TABLE IF EXISTS users, addresses, user_addresses, restaurants, restaurant_managers, food_categories, foods, bills , food_category_mapping, bill_items , reviews, reservations;
 
 CREATE TABLE IF NOT EXISTS users (
   	user_id VARCHAR(16) PRIMARY KEY,
