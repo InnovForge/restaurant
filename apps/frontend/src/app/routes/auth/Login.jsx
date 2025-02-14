@@ -1,82 +1,114 @@
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { Button } from "@/components/ui/button";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+
+// Schema kiểm tra đầu vào
+const formSchema = z.object({
+  username: z.string().min(2, { message: "Username must be at least 2 characters." }),
+  pass: z.string().min(2, { message: "Password must be at least 2 characters." }),
+});
+
 const Login = () => {
+  const form = useForm({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      username: "",
+      pass: "",
+    },
+  });
+
+  // Hàm xử lý khi submit form
+  const onSubmit = (values) => {
+    console.log(values);
+  };
+
   return (
-    <div className="h-screen flex">
-      {/* Image Section */}
-      <div
-        className="hidden md:flex w-1/2 bg-cover bg-center"
-        style={{
-          backgroundImage:
-            "url('https://dynamic-media-cdn.tripadvisor.com/media/photo-o/06/14/e2/6d/jim-mcdougall-in-stefano.jpg?w=700&h=-1&s=1')",
-        }}
-      ></div>
+    <div className="flex">
+      {/* Khu vực hình ảnh */}
+      <div className="border-2 border-red-600 w-[60%] h-full">
+        <img src="https://d15duu1h3gsd2d.cloudfront.net/Pictures/1024x536/1/3/0/161130_pub_843494_crop.jpg" alt="" />
+      </div>
 
-      {/* Form Section */}
-      <div className="flex w-full md:w-1/2 items-center justify-center bg-white">
-        <div className="w-full max-w-md px-6">
-          <h1 className="text-2xl font-bold mb-2">Sign in</h1>
-          <p className="text-gray-600 mb-6">Please login to continue to your account.</p>
-          <form className="space-y-4">
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email
-              </label>
-              <input
-                type="email"
-                id="email"
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Enter your email"
-                required
-              />
-            </div>
-
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Password
-              </label>
-              <input
-                type="password"
-                id="password"
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Enter your password"
-                required
-              />
-            </div>
-
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                id="keep-logged-in"
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-              />
-              <label htmlFor="keep-logged-in" className="ml-2 block text-sm text-gray-900">
+      {/* Khu vực form đăng nhập */}
+      <div className="ml-9 mt-36">
+        <div className="text-black font-bold text-3xl">
+          <h1>Sign in</h1>
+        </div>
+        <div>
+          <h6>Plese login to continue to your account.</h6>
+        </div>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            {/* Username Input */}
+            <FormField
+              control={form.control}
+              name="username"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Username</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter your username" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {/* Password Input */}
+            <FormField
+              control={form.control}
+              name="pass"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <Input type="password" placeholder="Enter your password" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {/* Checkbox "Keep me logged in" */}
+            <div className="flex items-center space-x-2">
+              <Checkbox id="terms" />
+              <label
+                htmlFor="terms"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
                 Keep me logged in
               </label>
             </div>
-
-            <button
-              type="submit"
-              className="w-full py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              Sign in
-            </button>
-
-            <div className="text-center text-gray-500 my-4">or</div>
-
+            {/* Nút đăng nhập */}
+            <div className="text-center">
+              <Button type="submit" className="w-full">
+                Sign in
+              </Button>
+            </div>
+            {/* Hoặc đăng nhập bằng Google */}
+            <div className="flex items-center my-4">
+              <div className="flex-1 border-t border-gray-300"></div>
+              <span className="px-3 text-gray-500">or</span>
+              <div className="flex-1 border-t border-gray-300"></div>
+            </div>{" "}
             <button
               type="button"
               className="w-full py-2 px-4 bg-red-500 text-white rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
             >
               Sign in with Google
             </button>
+            <div>
+              <p className="text-gray-600">
+                Need an account?{" "}
+                <a href="#" className="text-blue-500 hover:underline">
+                  Create one
+                </a>
+              </p>
+            </div>
           </form>
-
-          <p className="mt-4 text-sm text-center text-gray-500">
-            Need an account?{" "}
-            <a href="#" className="text-blue-600 hover:underline">
-              Create one
-            </a>
-          </p>
-        </div>
+        </Form>
       </div>
     </div>
   );
