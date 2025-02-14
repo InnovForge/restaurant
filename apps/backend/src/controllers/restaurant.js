@@ -55,22 +55,24 @@ export const createRestaurant = async (req, res) => {
 export const uploadRestaurantImage = async (req, res) => {
   try {
     const { id } = req.params;
-    const { coverUrl, logoUrl } = req.files;
+    const files = req.files || {};
+    const coverUrl = files.coverUrl || [];
+    const logoUrl = files.logoUrl || [];
 
-    if (!coverUrl && !logoUrl) {
+    if (!coverUrl.length && !logoUrl.length) {
       return responseHandler.badRequest(res);
     }
 
     const object = {};
 
-    if (coverUrl[0]) {
+    if (coverUrl.length > 0) {
       object.cover_url = await uploadFileRestaurant(`${id}/cover`, coverUrl[0]);
     }
-    if (logoUrl[0]) {
+    if (logoUrl.length > 0) {
       object.logo_url = await uploadFileRestaurant(`${id}/logo`, logoUrl[0]);
     }
 
-    await restaurantModel.updateRestaurant(id, object);
+    if (object.length > 0) await restaurantModel.updateRestaurant(id, object);
 
     return responseHandler.created(res);
   } catch (error) {
