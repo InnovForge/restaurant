@@ -21,7 +21,7 @@ export const login = async (req, res) => {
     return responseHandler.unauthorized(res, "Unauthorized, invalid username or password");
   }
   createSesionLogin(res, user.user_id);
-  return responseHandler.success(res, "Login successfully");
+  return responseHandler.success(res);
 };
 
 export const register = async (req, res) => {
@@ -61,15 +61,15 @@ export const refreshToken = async (req, res) => {
     const { refreshToken } = req.cookies;
 
     if (!refreshToken) {
-      return responseHandler.unauthorized(res, "Unauthorized");
+      return responseHandler.unauthorized(res);
     }
 
     jwt.verify(refreshToken, process.env.JWT_REFRESH_TOKEN, async (err, user) => {
       if (err) {
-        return responseHandler.unauthorized(res);
+        return responseHandler.sessionExpired(res);
       }
       createNewAccessToken(res, user.userId);
-      return responseHandler.created(res, "New access token created");
+      return responseHandler.created(res);
     });
   } catch (error) {
     console.log("error :>> ", error);

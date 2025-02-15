@@ -12,7 +12,6 @@ const authRestaurant =
   async (req, res, next) => {
     const userId = req.userId;
     const restaurantId = req.params.id;
-
     try {
       const role = await restaurantModel.getUserRestaurantRole(userId, restaurantId);
 
@@ -22,7 +21,7 @@ const authRestaurant =
 
       next();
     } catch (err) {
-      return responseHandler.internalServerError(res, err.message);
+      return responseHandler.internalServerError(res);
     }
   };
 

@@ -74,7 +74,7 @@ export const uploadRestaurantImage = async (req, res) => {
 
     if (object.length > 0) await restaurantModel.updateRestaurant(id, object);
 
-    return responseHandler.created(res);
+    return responseHandler.success(res);
   } catch (error) {
     console.log("error :>> ", error);
     return responseHandler.internalServerError(res);

@@ -12,12 +12,12 @@ router.use("/restaurant", authenticateJWT);
  * @openapi
  * /api/v1/restaurant:
  *   post:
- *     summary: đăng ký một nhà hàng
+ *     summary: Đăng ký một nhà hàng
  *     tags:
  *       - restaurant
- *     description: đăng ký một nhà hàng với thông tin cần thiết.
+ *     description: Đăng ký một nhà hàng với thông tin cần thiết.
  *     security:
- *     - bearerAuth: []
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -34,33 +34,36 @@ router.use("/restaurant", authenticateJWT);
  *                 example: "Nhà hàng A"
  *               phoneNumber:
  *                 type: string
- *                 format: phone
+ *                 pattern: "^\\d{10,15}$"
  *                 example: "03673920124"
  *               address:
  *                 type: object
  *                 required:
- *                 - addressLine1
- *                 - longitude
- *                 - latitude
+ *                   - addressLine1
+ *                   - longitude
+ *                   - latitude
  *                 properties:
- *                  addressLine1:
- *                    type: string
- *                    example: "123 Nguyễn Trãi"
- *                  addressLine2:
- *                    string: "P.7, Q.5"
- *                  longitude:
- *                    type: number
- *                    example: 106.694
- *                  latitude:
- *                    type: number
- *                    example: 10.762
- *
+ *                   addressLine1:
+ *                     type: string
+ *                     example: "123 Nguyễn Trãi"
+ *                   addressLine2:
+ *                     type: string
+ *                     example: "P.7, Q.5"
+ *                   longitude:
+ *                     type: number
+ *                     example: 106.694
+ *                   latitude:
+ *                     type: number
+ *                     example: 10.762
+ *     responses:
  *       201:
- *         description: Restaurant created successfully (đăng ký nhà hàng thành công)
+ *         $ref: '#/components/responses/201'
  *       400:
- *         description: Bad request, invalid input (đầu vào không hợp lệ)
+ *         $ref: '#/components/responses/400'
+ *       401:
+ *         $ref: '#/components/responses/401'
  *       500:
- *         description: Internal server error(lỗi máy chủ nội bộ)
+ *         $ref: '#/components/responses/500'
  */
 router.post("/restaurant", restaurantController.createRestaurant);
 
@@ -68,12 +71,12 @@ router.post("/restaurant", restaurantController.createRestaurant);
  * @openapi
  * /api/v1/restaurant/{id}:
  *   put:
- *     summary: cập nhật thông tin nhà hàng
+ *     summary: Cập nhật thông tin nhà hàng
  *     tags:
  *       - restaurant
- *     description: cập nhật thông tin nhà hàng
+ *     description: Cập nhật thông tin nhà hàng
  *     security:
- *     - bearerAuth: []
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -98,33 +101,38 @@ router.post("/restaurant", restaurantController.createRestaurant);
  *                 example: "Nhà hàng A"
  *               phoneNumber:
  *                 type: string
- *                 format: phone
+ *                 pattern: "^\\d{10,15}$"
  *                 example: "03673920124"
  *               address:
  *                 type: object
  *                 required:
- *                 - addressLine1
- *                 - longitude
- *                 - latitude
+ *                   - addressLine1
+ *                   - longitude
+ *                   - latitude
  *                 properties:
- *                  addressLine1:
- *                    type: string
- *                    example: "123 Nguyễn Trãi"
- *                  addressLine2:
- *                    string: "P.7, Q.5"
- *                  longitude:
- *                    type: number
- *                    example: 106.694
- *                  latitude:
- *                    type: number
- *                    example: 10.762
+ *                   addressLine1:
+ *                     type: string
+ *                     example: "123 Nguyễn Trãi"
+ *                   addressLine2:
+ *                     type: string
+ *                     example: "P.7, Q.5"
+ *                   longitude:
+ *                     type: number
+ *                     example: 106.694
+ *                   latitude:
+ *                     type: number
+ *                     example: 10.762
  *     responses:
  *       200:
- *         description: Restaurant updated successfully (cập nhật nhà hàng thành công)
+ *         $ref: '#/components/responses/200'
  *       400:
- *         description: Bad request, invalid input (đầu vào không hợp lệ)
+ *         $ref: '#/components/responses/400'
+ *       401:
+ *         $ref: '#/components/responses/401'
+ *       403:
+ *         $ref: '#/components/responses/403'
  *       500:
- *         description: Internal server error(lỗi máy chủ nội bộ)
+ *         $ref: '#/components/responses/500'
  */
 router.put("/restaurant/:id", authRestaurant([ROLE.owner, ROLE.manager]), restaurantController.updateRestaurant);
 
@@ -160,12 +168,16 @@ router.put("/restaurant/:id", authRestaurant([ROLE.owner, ROLE.manager]), restau
  *                 type: string
  *                 format: binary
  *     responses:
- *       201:
- *         description: "Image uploaded successfully (upload ảnh thành công)"
+ *       200:
+ *         $ref: '#/components/responses/200'
  *       400:
- *         description: "Bad request, invalid input (đầu vào không hợp lệ)"
+ *         $ref: '#/components/responses/400'
+ *       401:
+ *         $ref: '#/components/responses/401'
  *       403:
- *         description: "Forbidden: You don't have permission to access this resource. (Bạn không có quyền truy cập vào tài nguyên này)"
+ *         $ref: '#/components/responses/403'
+ *       500:
+ *         $ref: '#/components/responses/500'
  */
 router.put(
   "/restaurant/:id/images",

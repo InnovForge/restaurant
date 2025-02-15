@@ -29,29 +29,26 @@ const router = Router();
  *                 example: cdio@team1
  *     responses:
  *       200:
- *         description: User login successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: success
- *                 code:
- *                   type: number
- *                   example: 200
- *                 message:
- *                   type: string
- *                   example: Login successfully
- *       400:
- *         description: Bad request, invalid input
+ *         $ref: "#/components/responses/200"
  *       401:
- *        description: Unauthorized, invalid username or password
+ *         description: Unauthorized
+ *         content:
+ *            application/json:
+ *             schema:
+ *              type: object
+ *              properties:
+ *                 status:
+ *                  type: string
+ *                  example: "error"
+ *                 code:
+ *                  type: integer
+ *                  example: 401
+ *                 message:
+ *                  type: string,
+ *                  example: "Unauthorized, invalid username or password"
  *       500:
- *         description: Internal server error
+ *         $ref: "#/components/responses/500"
  */
-
 router.post("/auth/login", authController.login);
 
 /**
@@ -85,11 +82,11 @@ router.post("/auth/login", authController.login);
  *                 example: team1
  *     responses:
  *       201:
- *         description: User created successfully (đã tạo người dùng thành công)
+ *         $ref: "#/components/responses/201"
  *       400:
- *         description: Bad request, invalid input (yêu cầu không hợp lệ, đầu vào không hợp lệ)
+ *         $ref: "#/components/responses/400"
  *       500:
- *         description: Internal server error
+ *         $ref: "#/components/responses/500"
  */
 router.post("/auth/register", authController.register);
 

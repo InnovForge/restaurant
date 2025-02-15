@@ -30,6 +30,160 @@ const options = {
           name: "accessToken",
         },
       },
+      responses: {
+        200: {
+          description: "Success",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  status: { type: "string", example: "success" },
+                  code: { type: "integer", example: 200 },
+                  message: {
+                    type: "string",
+                    example: "Your request was processed successfully.",
+                  },
+                  data: { type: "object" },
+                },
+              },
+            },
+          },
+        },
+        201: {
+          description: "Created",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  status: { type: "string", example: "success" },
+                  code: { type: "integer", example: 201 },
+                  message: {
+                    type: "string",
+                    example: "Your request was successful. The resource has been created.",
+                  },
+                  data: { type: "object" },
+                },
+              },
+            },
+          },
+        },
+        400: {
+          description: "Bad Request",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  status: { type: "string", example: "error" },
+                  code: { type: "integer", example: 400 },
+                  message: {
+                    type: "string",
+                    example: "Invalid request. Some required parameters are missing or incorrect.",
+                  },
+                  errors: {
+                    type: "array",
+                    example: [{ field1: "message1" }, { field2: "message2" }],
+                  },
+                },
+              },
+            },
+          },
+        },
+        401: {
+          description: "Unauthorized",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  status: { type: "string", example: "error" },
+                  code: { type: "integer", example: 401 },
+                  message: {
+                    type: "string",
+                    example: "Authentication required. Please log in.",
+                  },
+                  errorType: { type: "string", example: "AUTH_ERROR" },
+                },
+              },
+            },
+          },
+        },
+
+        403: {
+          description: "Forbidden",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  status: { type: "string", example: "error" },
+                  code: { type: "integer", example: 403 },
+                  message: {
+                    type: "string",
+                    example: "You do not have permission to access this resource.",
+                  },
+                },
+              },
+            },
+          },
+        },
+        404: {
+          description: "Not Found",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  status: { type: "string", example: "error" },
+                  code: { type: "integer", example: 404 },
+                  message: {
+                    type: "string",
+                    example: "The requested resource could not be found.",
+                  },
+                },
+              },
+            },
+          },
+        },
+        419: {
+          description: "Authentication Timeout",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  status: { type: "string", example: "error" },
+                  code: { type: "integer", example: 419 },
+                  message: {
+                    type: "string",
+                    example: "Authentication Timeout. Please log in again.",
+                  },
+                },
+              },
+            },
+          },
+        },
+        500: {
+          description: "Internal Server Error",
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  status: { type: "string", example: "error" },
+                  code: { type: "integer", example: 500 },
+                  message: {
+                    type: "string",
+                    example: "Something went wrong on our end.",
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     },
     security: [
       {

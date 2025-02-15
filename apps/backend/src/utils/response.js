@@ -1,34 +1,40 @@
-function createResponse(res, statusCode, message, data = null, errorType = null, errors = []) {
+const createResponse = (res, statusCode, message, options = {}) => {
+  const { data, errorType, errors } = options;
+
   const response = {
     status: statusCode < 400 ? "success" : "error",
     code: statusCode,
     message,
+    ...(data && { data }),
+    ...(errorType && { errorType }),
+    ...(errors?.length && { errors }),
   };
 
-  if (data) response.data = data;
-  if (errorType) response.errorType = errorType;
-  if (errors.length > 0) response.errors = errors;
-
   return res.status(statusCode).json(response);
-}
+};
 
 const responseHandler = {
-  success: (res, message = "Success", data = null) => createResponse(res, 200, message, data),
+  success: (res, message = "Your request was processed successfully.", data) =>
+    createResponse(res, 200, message, { data }),
 
-  badRequest: (res, message = "Bad Request: The request contains invalid or missing parameters.", errors = []) =>
-    createResponse(res, 400, message, null, null, errors),
+  created: (res, message = "Your request was successful. The resource has been created.", data) =>
+    createResponse(res, 201, message, { data }),
 
-  created: (res, message = "Resource created successfully.", data = null) => createResponse(res, 201, message, data),
+  badRequest: (res, message = "Invalid request. Some required parameters are missing or incorrect.", errors = []) =>
+    createResponse(res, 400, message, { errors }),
 
-  unauthorized: (res, message = "Unauthorized: Please log in to access this resource.", errorType) =>
-    createResponse(res, 401, message, null, errorType),
-  forbidden: (res, message = "Forbidden: You don't have permission to access this resource.") =>
+  unauthorized: (res, message = "Authentication required. Please log in.", errorType = "AUTH_ERROR") =>
+    createResponse(res, 401, message, { errorType }),
+
+  forbidden: (res, message = "You do not have permission to access this resource.") =>
     createResponse(res, 403, message),
 
-  notFound: (res, message = "Not Found: The requested resource could not be found.") =>
-    createResponse(res, 404, message),
+  sessionExpired: (res, message = "Your session has expired. Please log in again.") =>
+    createResponse(res, 419, message),
 
-  internalServerError: (res) => createResponse(res, 500, "Internal Server Error: Something went wrong on our end."),
+  notFound: (res, message = "The requested resource could not be found.") => createResponse(res, 404, message),
+
+  internalServerError: (res, message = "Something went wrong on our end.") => createResponse(res, 500, message),
 };
 
 export default responseHandler;
