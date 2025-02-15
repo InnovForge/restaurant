@@ -12,12 +12,12 @@ const authRestaurant =
   async (req, res, next) => {
     const userId = req.userId;
     const { restaurantId } = req.params;
-    console.log("userId :>> ", req.params);
+    // console.log("userId :>> ", req.params);
     try {
       const role = await restaurantModel.getUserRestaurantRole(userId, restaurantId);
 
       if (!role || (allowedRoles.length > 0 && !allowedRoles.includes(role))) {
-        return responseHandler.forbidden(res);
+        return responseHandler.forbidden(res, undefined, "FORBIDDEN");
       }
       next();
     } catch (err) {

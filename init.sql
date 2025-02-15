@@ -72,6 +72,7 @@ CREATE TABLE IF NOT EXISTS foods (
     available bool,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW() ON UPDATE NOW(),
+    UNIQUE (restaurant_id, name),
     FOREIGN KEY (restaurant_id) REFERENCES restaurants(restaurant_id) ON DELETE CASCADE
 );
 

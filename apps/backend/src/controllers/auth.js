@@ -43,12 +43,17 @@ export const register = async (req, res) => {
     responseHandler.created(res);
   } catch (error) {
     if (error.code === "ER_DUP_ENTRY") {
-      return responseHandler.badRequest(res, "ER_DUP_ENTRY", [
-        {
-          field: "username",
-          message: "Username already exists",
-        },
-      ]);
+      return responseHandler.badRequest(
+        res,
+        undefined,
+        [
+          {
+            field: "username",
+            message: "Username already exists",
+          },
+        ],
+        "ER_DUP_ENTRY",
+      );
     }
     console.log("error :>> ", error);
     return responseHandler.internalServerError(res);
@@ -65,7 +70,7 @@ export const refreshToken = async (req, res) => {
 
     jwt.verify(refreshToken, process.env.JWT_REFRESH_TOKEN, async (err, user) => {
       if (err) {
-        return responseHandler.sessionExpired(res);
+        return responseHandler.unauthorized(res, undefined, "TOKEN_EXPIRED");
       }
       createNewAccessToken(res, user.userId);
       return responseHandler.created(res);

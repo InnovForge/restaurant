@@ -82,6 +82,7 @@ const options = {
                     type: "string",
                     example: "Invalid request. Some required parameters are missing or incorrect.",
                   },
+                  errorType: { type: "string", example: "BAD_REQUEST" },
                   errors: {
                     type: "array",
                     example: [{ field1: "message1" }, { field2: "message2" }],
@@ -100,17 +101,16 @@ const options = {
                 properties: {
                   status: { type: "string", example: "error" },
                   code: { type: "integer", example: 401 },
+                  errorType: { type: "string", example: "AUTH_ERROR" },
                   message: {
                     type: "string",
                     example: "Authentication required. Please log in.",
                   },
-                  errorType: { type: "string", example: "AUTH_ERROR" },
                 },
               },
             },
           },
         },
-
         403: {
           description: "Forbidden",
           content: {
@@ -120,6 +120,7 @@ const options = {
                 properties: {
                   status: { type: "string", example: "error" },
                   code: { type: "integer", example: 403 },
+                  errorType: { type: "string", example: "FORBIDDEN" },
                   message: {
                     type: "string",
                     example: "You do not have permission to access this resource.",
@@ -138,27 +139,10 @@ const options = {
                 properties: {
                   status: { type: "string", example: "error" },
                   code: { type: "integer", example: 404 },
+                  errorType: { type: "string", example: "NOT_FOUND" },
                   message: {
                     type: "string",
                     example: "The requested resource could not be found.",
-                  },
-                },
-              },
-            },
-          },
-        },
-        419: {
-          description: "Authentication Timeout",
-          content: {
-            "application/json": {
-              schema: {
-                type: "object",
-                properties: {
-                  status: { type: "string", example: "error" },
-                  code: { type: "integer", example: 419 },
-                  message: {
-                    type: "string",
-                    example: "Authentication Timeout. Please log in again.",
                   },
                 },
               },
@@ -174,6 +158,7 @@ const options = {
                 properties: {
                   status: { type: "string", example: "error" },
                   code: { type: "integer", example: 500 },
+                  errorType: { type: "string", example: "SERVER_ERROR" },
                   message: {
                     type: "string",
                     example: "Something went wrong on our end.",

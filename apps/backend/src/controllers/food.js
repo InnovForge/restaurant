@@ -1,5 +1,5 @@
 import foodModel from "../models/food.js";
-import responseHandler from "../utils/response.js";
+import responseHandler, { ERROR_TYPE } from "../utils/response.js";
 import { uploadFileFood } from "../utils/s3.js";
 import { validateFields } from "../utils/validate-fields.js";
 
@@ -22,6 +22,19 @@ export const createFood = async (req, res) => {
 
     return responseHandler.created(res, undefined, { foodId });
   } catch (error) {
+    if (error.code === "ER_DUP_ENTRY") {
+      return responseHandler.badRequest(
+        res,
+        undefined,
+        [
+          {
+            field: "name",
+            message: "Username already exists",
+          },
+        ],
+        "ER_DUP_ENTRY",
+      );
+    }
     console.log("error :>> ", error);
     return responseHandler.internalServerError(res);
   }

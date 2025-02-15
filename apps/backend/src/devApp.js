@@ -24,7 +24,7 @@ async function waitForMinIO(retries = 10, delay = 5000) {
       await new Promise((resolve) => setTimeout(resolve, delay));
     }
   }
-  throw new Error("❌ MinIO failed to start within the expected time.");
+  throw new Error("MinIO failed to start within the expected time.");
 }
 
 nodemon
@@ -32,7 +32,6 @@ nodemon
     (async () => {
       await waitForMinIO();
       await ensureBucketExists("users");
-      await ensureBucketExists("foods");
       await ensureBucketExists("restaurants");
     })();
 
