@@ -24,8 +24,28 @@ router.use("/restaurant", authenticateJWT);
  *         required: true
  *         description: The restaurant ID (id của nhà hàng)
  *     responses:
- *         201:
- *          $ref: '#/components/responses/201'
+ *        201:
+ *         description: Created
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "success"
+ *                 code:
+ *                   type: integer
+ *                   example: 201
+ *                 message:
+ *                   type: string
+ *                   example: "Your request was successful. The resource has been created."
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     foodId:
+ *                       type: string
+ *                       example: "123456789101112"
  *         400:
  *          $ref: '#/components/responses/400'
  *         401:
