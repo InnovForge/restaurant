@@ -69,8 +69,8 @@ router.post("/restaurant", restaurantController.createRestaurant);
 
 /**
  * @openapi
- * /api/v1/restaurant/{id}:
- *   put:
+ * /api/v1/restaurant/{restaurantId}:
+ *   patch:
  *     summary: Cập nhật thông tin nhà hàng
  *     tags:
  *       - restaurant
@@ -79,7 +79,7 @@ router.post("/restaurant", restaurantController.createRestaurant);
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: restaurantId
  *         required: true
  *         description: ID của nhà hàng
  *         schema:
@@ -134,12 +134,16 @@ router.post("/restaurant", restaurantController.createRestaurant);
  *       500:
  *         $ref: '#/components/responses/500'
  */
-router.put("/restaurant/:id", authRestaurant([ROLE.owner, ROLE.manager]), restaurantController.updateRestaurant);
+router.patch(
+  "/restaurant/:restaurantId",
+  authRestaurant([ROLE.owner, ROLE.manager]),
+  restaurantController.updateRestaurant,
+);
 
 /**
  * @openapi
- * /api/v1/restaurant/{id}/images:
- *   put:
+ * /api/v1/restaurant/{restaurantId}/images:
+ *   patch:
  *     summary: upload ảnh cho nhà hàng
  *     tags:
  *       - restaurant
@@ -148,7 +152,7 @@ router.put("/restaurant/:id", authRestaurant([ROLE.owner, ROLE.manager]), restau
  *     - bearerAuth: []
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: restaurantId
  *         required: true
  *         description: ID của nhà hàng
  *         schema:
@@ -179,8 +183,8 @@ router.put("/restaurant/:id", authRestaurant([ROLE.owner, ROLE.manager]), restau
  *       500:
  *         $ref: '#/components/responses/500'
  */
-router.put(
-  "/restaurant/:id/images",
+router.patch(
+  "/restaurant/:restaurantId/images",
   authRestaurant([ROLE.owner, ROLE.manager]),
   upload.fields([
     { name: "coverUrl", maxCount: 1 },
@@ -188,4 +192,5 @@ router.put(
   ]),
   restaurantController.uploadRestaurantImage,
 );
+
 export default router;

@@ -3,7 +3,7 @@ import responseHandler from "../utils/response.js";
 import { uploadFileUser } from "../utils/s3.js";
 
 export const updateUser = async (req, res) => {
-  const { id } = req.params;
+  const id = req.userId;
   const { name, gender, email, username, password, phone_number, role } = req.body;
   try {
     const updatedStatus = await userModel.updateUser(id, {

@@ -7,7 +7,7 @@ import { validateFields } from "../utils/validate-fields.js";
 
 export const login = async (req, res) => {
   const { username, password } = req.body;
-  const errors = validateFields({ username, password });
+  const errors = validateFields(req.body, ["username", "password"], true);
   if (errors) {
     return responseHandler.badRequest(res, undefined, errors);
   }
@@ -27,7 +27,7 @@ export const login = async (req, res) => {
 export const register = async (req, res) => {
   const { username, password, name } = req.body;
 
-  const errors = validateFields({ username, password, name });
+  const errors = validateFields(req.body, ["username", "password", "name"], true);
 
   if (errors) {
     return responseHandler.badRequest(res, undefined, errors);
@@ -57,7 +57,6 @@ export const register = async (req, res) => {
 
 export const refreshToken = async (req, res) => {
   try {
-    // console.log("refreshToken", req.cookies);
     const { refreshToken } = req.cookies;
 
     if (!refreshToken) {

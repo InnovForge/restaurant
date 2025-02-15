@@ -4,7 +4,7 @@ import { uploadFileRestaurant } from "../utils/s3.js";
 import { validateFields } from "../utils/validate-fields.js";
 
 export const updateRestaurant = async (req, res) => {
-  const { id } = req.params;
+  const { restaurantId } = req.params;
   const { name, phoneNumber } = req.body;
   const { address } = req.body;
   try {
@@ -15,7 +15,7 @@ export const updateRestaurant = async (req, res) => {
       latitude: address.latitude,
     };
 
-    await restaurantModel.updateRestaurant(id, {
+    await restaurantModel.updateRestaurant(restaurantId, {
       name,
       address: fAddress,
       phone_number: phoneNumber,
@@ -30,7 +30,7 @@ export const updateRestaurant = async (req, res) => {
 export const createRestaurant = async (req, res) => {
   const { name, address, phoneNumber } = req.body;
 
-  const errors = validateFields({ name, address, phoneNumber });
+  const errors = validateFields(req.body, ["name", "address", "phoneNumber"], true);
 
   if (errors) {
     return responseHandler.badRequest(res, undefined, errors);
@@ -39,13 +39,13 @@ export const createRestaurant = async (req, res) => {
   const userId = req.userId;
 
   try {
-    await restaurantModel.createRestaurant(userId, {
+    const restaurantId = await restaurantModel.createRestaurant(userId, {
       name,
       address,
       phoneNumber,
     });
 
-    return responseHandler.created(res);
+    return responseHandler.created(res, undefined, { restaurantId });
   } catch (error) {
     console.log("error :>> ", error);
     return responseHandler.internalServerError(res);
@@ -54,7 +54,7 @@ export const createRestaurant = async (req, res) => {
 
 export const uploadRestaurantImage = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { restaurantId } = req.params;
     const files = req.files || {};
     const coverUrl = files.coverUrl || [];
     const logoUrl = files.logoUrl || [];
@@ -66,13 +66,13 @@ export const uploadRestaurantImage = async (req, res) => {
     const object = {};
 
     if (coverUrl.length > 0) {
-      object.cover_url = await uploadFileRestaurant(`${id}/cover`, coverUrl[0]);
+      object.cover_url = await uploadFileRestaurant(`${restaurantId}/cover`, coverUrl[0]);
     }
     if (logoUrl.length > 0) {
-      object.logo_url = await uploadFileRestaurant(`${id}/logo`, logoUrl[0]);
+      object.logo_url = await uploadFileRestaurant(`${restaurantId}/logo`, logoUrl[0]);
     }
 
-    if (object.length > 0) await restaurantModel.updateRestaurant(id, object);
+    if (object.length > 0) await restaurantModel.updateRestaurant(restaurantId, object);
 
     return responseHandler.success(res);
   } catch (error) {

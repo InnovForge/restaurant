@@ -56,14 +56,13 @@ const restaurantModel = {
    * @param {string} restaurantData.phoneNumber - Phone number of the restaurant
    * @param {string} restaurantData.coverUrl - Cover URL of the restaurant
    */
-
   async createRestaurant(userId, restaurantData) {
     const { name, address, phoneNumber } = restaurantData;
     const { addressLine1, addressLine2, longitude, latitude } = address;
 
     const connection = await pool.getConnection();
     try {
-      await connection.beginTransaction(); // Bắt đầu transaction
+      await connection.beginTransaction();
 
       const addressId = nanoidNumbersOnly();
       const restaurantId = nanoidNumbersOnly();
@@ -85,7 +84,7 @@ const restaurantModel = {
       ]);
 
       await connection.commit();
-      return true;
+      return restaurantId;
     } catch (error) {
       await connection.rollback();
       throw new Error(error);
@@ -95,7 +94,7 @@ const restaurantModel = {
   },
 
   async getUserRestaurantRole(userId, restaurantId) {
-    const [rows] = await pool.execute("SELECT role FROM restaurant_managers WHERE user_id = ? AND restaurant_id = ?", [
+    const [rows] = await pool.query("SELECT role FROM restaurant_managers WHERE user_id = ? AND restaurant_id = ?", [
       userId,
       restaurantId,
     ]);
