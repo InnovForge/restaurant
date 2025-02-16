@@ -29,7 +29,7 @@ export const geocode = async (req, res) => {
   try {
     const data = await (await fetch(URL)).json();
     const locations = processLocationResults(data);
-    return responseHandler.success(res, locations);
+    return responseHandler.success(res, undefined, locations);
   } catch (error) {
     logger.error("Error during geocoding:", error);
     return responseHandler.internalServerError(res);
@@ -43,7 +43,7 @@ export const revGeocode = async (req, res) => {
   try {
     const data = await (await fetch(URL)).json();
     const locations = processLocationResults(data);
-    return responseHandler.success(res, locations);
+    return responseHandler.success(res, undefined, locations);
   } catch (error) {
     console.log("error :>> ", error);
     responseHandler.internalServerError(res);
@@ -54,7 +54,7 @@ export const revGeocode = async (req, res) => {
 export const countRoute = async (req, res) => {
   const { waypoints } = req.query;
   const data = await service.countRoute(waypoints);
-  return responseHandler.success(res, data);
+  return responseHandler.success(res, undefined, data);
 };
 
 /* // HERE MAPS
