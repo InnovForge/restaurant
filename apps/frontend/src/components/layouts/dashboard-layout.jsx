@@ -33,7 +33,7 @@ import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useRef } from "react";
 import useOutsideClick from "@/hooks/use-outside-click";
 import useAddressStore from "@/stores/useAddressStore";
-import { X, Utensils, CookingPot, ArrowLeft, MapPin, Search } from "lucide-react";
+import { X, Utensils, ArrowLeft, MapPin, Search, History } from "lucide-react";
 import Cart from "@/features/cart/components/cart";
 
 export const DashboardLayout = ({ children }) => {
@@ -51,14 +51,14 @@ export const DashboardLayout = ({ children }) => {
 
   const navItems = [
     {
-      name: "Món ăn",
-      href: "/food",
+      name: "Trang chủ",
+      href: "/home",
       icon: Utensils,
     },
     {
-      name: "Bàn ăn",
-      href: "/table",
-      icon: CookingPot,
+      name: "Lịch sử",
+      href: "/history",
+      icon: History,
     },
   ];
 

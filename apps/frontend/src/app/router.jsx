@@ -13,6 +13,7 @@ import OrdersPage from "./routes/admin/orders/page";
 import OrderDetail from "./routes/admin/orders/detail";
 import TableManagement from "./routes/admin/table/page";
 import AddTable from "./routes/admin/table/addtable";
+import OrderHistory from "./routes/app/order-history";
 
 const NOT_FOUND = React.lazy(() => import("./routes/not-found"));
 
@@ -32,8 +33,12 @@ export const createAppRouter = () =>
           element: <Home />,
         },
         {
-          path: "/food",
+          path: "/home",
           element: <Food />,
+        },
+        {
+          path: "/history",
+          element: <OrderHistory />,
         },
       ],
     },
