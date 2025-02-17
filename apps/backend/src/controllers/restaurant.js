@@ -80,3 +80,14 @@ export const uploadRestaurantImage = async (req, res) => {
     return responseHandler.internalServerError(res);
   }
 };
+
+export const getRestaurant = async (req, res) => {
+  const { restaurantId } = req.params;
+  try {
+    const restaurant = await restaurantModel.getRestaurant(restaurantId);
+    return responseHandler.success(res, undefined, restaurant);
+  } catch (error) {
+    console.log("error :>> ", error);
+    return responseHandler.internalServerError(res);
+  }
+};
