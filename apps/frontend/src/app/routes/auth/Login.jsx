@@ -5,25 +5,29 @@ import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
+import { api } from "@/lib/api-client";
 
 // Schema kiểm tra đầu vào
 const formSchema = z.object({
   username: z.string().min(2, { message: "Username must be at least 2 characters." }),
-  pass: z.string().min(2, { message: "Password must be at least 2 characters." }),
+  password: z.string().min(2, { message: "Password must be at least 2 characters." }),
 });
 
 const Login = () => {
   const form = useForm({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      username: "",
-      pass: "",
-    },
   });
 
   // Hàm xử lý khi submit form
-  const onSubmit = (values) => {
-    console.log(values);
+  const onSubmit = async (values) => {
+    try {
+      const data = await api.post("/v1/auth/login", values);
+
+      console.log(data.data);
+    } catch (error) {
+      console.log("err", error);
+    }
+    //   values.preventDefault();
   };
 
   return (
@@ -42,7 +46,7 @@ const Login = () => {
           <h6>Plese login to continue to your account.</h6>
         </div>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             {/* Username Input */}
             <FormField
               control={form.control}
@@ -60,7 +64,7 @@ const Login = () => {
             {/* Password Input */}
             <FormField
               control={form.control}
-              name="pass"
+              name="password"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Password</FormLabel>
