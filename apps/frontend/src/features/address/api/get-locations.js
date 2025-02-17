@@ -36,7 +36,7 @@ export const getReverseGeocode = async () => {
     lat = location.latitude;
     lng = location.longitude;
   }
-  const response = await api.get(`/v1/revgeocode?latitude=${lat}&longitude=${lng}`);
+  const response = await api.get(`/v1/geocode/reverse?latitude=${lat}&longitude=${lng}`);
   // console.log("response", response);
   if (!response.status === 200) {
     throw new Error(`Failed to fetch locations: ${response.statusText}`);

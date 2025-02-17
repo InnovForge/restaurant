@@ -90,8 +90,8 @@ const SearchLocation = ({ value, setValue }) => {
   const handleCurrentGeocode = async () => {
     setIsFetching(true);
     const res = await getReverseGeocode();
-    setSearchValue(res.data[0].title);
-    setValue(res.data[0]);
+    setSearchValue(res.data.title);
+    setValue(res.data);
     setIsFetching(false);
   };
 

@@ -1,8 +1,10 @@
 import React from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { Spinner } from "@/components/ui/spinner";
+import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 
 export const AppProvider = ({ children }) => {
+  const [queryClient] = React.useState(() => new QueryClient());
   return (
     <React.Suspense
       fallback={
@@ -11,8 +13,11 @@ export const AppProvider = ({ children }) => {
         </div>
       }
     >
-      <Toaster />
-      {children}
+      <QueryClientProvider client={queryClient}>
+        <Toaster />
+
+        {children}
+      </QueryClientProvider>
     </React.Suspense>
   );
 };

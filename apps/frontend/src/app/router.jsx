@@ -1,5 +1,6 @@
 import React, { useMemo } from "react";
 import { createBrowserRouter, RouterProvider } from "react-router";
+import { useQueryClient } from "@tanstack/react-query";
 import Login from "./routes/auth/Login";
 import { default as AppRoot, ErrorBoundary as AppRootErrorBoundary } from "./routes/app/root";
 import Home from "./routes/app/home";
@@ -20,7 +21,17 @@ import RestaurantUpdateInfoForm from "./routes/admin/infor/res/infor_update";
 
 const NOT_FOUND = React.lazy(() => import("./routes/not-found"));
 
-export const createAppRouter = () =>
+const convert = (queryClient) => (m) => {
+  const { clientLoader, clientAction, default: Component, ...rest } = m;
+  return {
+    ...rest,
+    loader: clientLoader?.(queryClient),
+    action: clientAction?.(queryClient),
+    Component,
+  };
+};
+
+export const createAppRouter = (queryClient) =>
   createBrowserRouter([
     {
       path: "/login",
@@ -98,12 +109,14 @@ export const createAppRouter = () =>
     },
     {
       path: "*",
-      element: <NOT_FOUND />,
+      lazy: () => import("./routes/not-found").then(convert(queryClient)),
     },
   ]);
 
 export const AppRouter = () => {
-  const router = useMemo(() => createAppRouter(), []);
+  const queryClient = useQueryClient();
+
+  const router = useMemo(() => createAppRouter(queryClient), [queryClient]);
 
   return <RouterProvider router={router} />;
 };

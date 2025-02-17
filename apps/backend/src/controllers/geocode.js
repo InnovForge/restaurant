@@ -43,10 +43,36 @@ export const revGeocode = async (req, res) => {
   try {
     const data = await (await fetch(URL)).json();
     const locations = processLocationResults(data);
-    return responseHandler.success(res, undefined, locations);
+    // console.log("locations :>> ", locations);
+    return responseHandler.success(res, undefined, locations[0]);
   } catch (error) {
     console.log("error :>> ", error);
     responseHandler.internalServerError(res);
+  }
+};
+
+export const ipGeocode = async (req, res) => {
+  const url = `https://api.geoapify.com/v1/ipinfo?apiKey=${process.env.GEOAPIFY_API_KEY}`;
+
+  try {
+    // Fetch and parse the response
+    const response = await fetch(url);
+    const data = await response.json();
+
+    // Destructure and prepare the response data
+    const locationData = {
+      title: data.state.name,
+      state: data.state.name,
+      latitude: data.location.latitude,
+      longitude: data.location.longitude,
+    };
+
+    // Return the location data
+    return responseHandler.success(res, undefined, locationData);
+  } catch (error) {
+    // Log the error and send an internal server error response
+    console.error("Error fetching geolocation data:", error);
+    return responseHandler.internalServerError(res);
   }
 };
 

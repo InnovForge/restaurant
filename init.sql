@@ -6,7 +6,7 @@
 CREATE TABLE IF NOT EXISTS users (
   	user_id VARCHAR(16) PRIMARY KEY,
   	name VARCHAR(60) NOT NULL,
-  	gender TINYINT CHECK (gender IN (0, 1, 2, 9)), -- 0 unknown / 1 male / 2 female  / 0  "Not applicable / Not disclosed"
+  	gender TINYINT CHECK (gender IN (0, 1, 2, 9)), -- 0 unknown / 1 male / 2 female  / 9  "Not applicable / Not disclosed"
   	username VARCHAR(30) NOT NULL UNIQUE,
   	password VARCHAR(60) NOT NULL,
   	email VARCHAR(255),

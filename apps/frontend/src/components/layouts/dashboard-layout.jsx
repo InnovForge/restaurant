@@ -41,12 +41,12 @@ export const DashboardLayout = ({ children }) => {
   const [isOpenDialog, setIsOpenDialog] = useState(false);
   const [isOpenSheet, setIsOpenSheet] = useState(false);
   const isDesktop = useMediaQuery("(min-width: 768px)");
-  const { addresses, addAddress } = useAddressStore();
+  const { addresses, setAddress } = useAddressStore();
   const handleAdd = () => {
-    addAddress(value);
+    setAddress(value);
   };
 
-  console.log(value);
+  // console.log(value);
   console.log(addresses);
 
   const navItems = [
@@ -201,7 +201,12 @@ export const DashboardLayout = ({ children }) => {
           </div>
         </div>
       </header>
-      <main className="flex-1 w-full max-w-7xl m-auto px-2 my-2">{children}</main>
+      <main className="flex-1 w-full max-w-7xl m-auto px-2 my-2">
+        {addresses.forEach((address) => {
+          <p>{address.title}</p>;
+        })}
+        {children}
+      </main>
       <footer className="bg-background/60 backdrop-blur supports-[backdrop-filter]:bg-background p-2 border-t">
         <div className="flex justify-between items-start max-w-7xl m-auto">
           <div className="flex flex-col items-stretch h-full">
