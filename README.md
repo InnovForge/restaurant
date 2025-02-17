@@ -12,7 +12,7 @@ pnpm run setup
 ## 🚀 Getting Started with Dev (required pnpm)
 1. **Start the development server(inlucde docker)**
 ```sh
-pnpm dev
+pnpm dev # (include docker pnpm docker:up)
 ```
 2. **Open the source code and start editing!**
 - Client: site running at `http://localhost:5174`
@@ -25,11 +25,16 @@ pnpm dev
 ## Commands (root project)
 ```sh
 pnpm dev  #  (include docker pnpm docker:start)
-pnpm docker:build # or npm run docker:build # build docker image
-pnpm docker:start # or npm run docker:start # start docker container
-pnpm docker:restart # or npm run docker:restart # restart docker
-pnpm docker:stop # or npm run docker:stop # stop docker container
-pnpm docker:up # or npm run docker:up # build and start docker container  
-pnpm docker:down # or npm run docker:down # stop docker and remove container
-pnpm docker:clean # or npm run docker:clean # remove docker container and image
+pnpm dev:fe  # start client
+pnpm dev:be  # start server and run docker:up
+pnpm docker:build  # build docker image
+pnpm docker:start  # start docker container
+pnpm docker:restart  # restart docker
+pnpm docker:stop  # stop docker container
+pnpm docker:up # build and start docker container  
+pnpm docker:down # stop docker and remove container
+pnpm docker:clean # remove docker container and image
+pnpm lint # lint code
+pnpm lint:fix # lint and fix code
+pnpm format # format code
 ```

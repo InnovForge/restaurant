@@ -6,10 +6,10 @@ const router = Router();
  * @openapi
  * /api/v1/auth/login:
  *   post:
- *     summary: login a user
+ *     summary: đăng nhập người dùng
  *     tags:
  *       - auth
- *     description: login with the provided details.
+ *     description: Đăng nhập người dùng.
  *     requestBody:
  *       required: true
  *       content:
@@ -29,39 +29,36 @@ const router = Router();
  *                 example: cdio@team1
  *     responses:
  *       200:
- *         description: User login successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: success
- *                 code:
- *                   type: number
- *                   example: 200
- *                 message:
- *                   type: string
- *                   example: Login successfully
- *       400:
- *         description: Bad request, invalid input
+ *         $ref: "#/components/responses/200"
  *       401:
- *        description: Unauthorized, invalid username or password
+ *         description: Unauthorized
+ *         content:
+ *            application/json:
+ *             schema:
+ *              type: object
+ *              properties:
+ *                 status:
+ *                  type: string
+ *                  example: "error"
+ *                 code:
+ *                  type: integer
+ *                  example: 401
+ *                 message:
+ *                  type: string,
+ *                  example: "Unauthorized, invalid username or password"
  *       500:
- *         description: Internal server error
+ *         $ref: "#/components/responses/500"
  */
-
 router.post("/auth/login", authController.login);
 
 /**
  * @openapi
  * /api/v1/auth/register:
  *   post:
- *     summary: register a user
+ *     summary: đăng ký người dùng
  *     tags:
  *       - auth
- *     description: register with the provided details.
+ *     description: Đăng ký một người dùng mới.
  *     requestBody:
  *       required: true
  *       content:
@@ -85,11 +82,11 @@ router.post("/auth/login", authController.login);
  *                 example: team1
  *     responses:
  *       201:
- *         description: User created successfully
+ *         $ref: "#/components/responses/201"
  *       400:
- *         description: Bad request, invalid input
+ *         $ref: "#/components/responses/400"
  *       500:
- *         description: Internal server error
+ *         $ref: "#/components/responses/500"
  */
 router.post("/auth/register", authController.register);
 

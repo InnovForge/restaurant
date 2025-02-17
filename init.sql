@@ -1,7 +1,7 @@
 -- MYSQL (9.1.0) 
 -- cdio@team1
 
-DROP TABLE IF EXISTS users, addresses, user_addresses, restaurants, restaurant_managers, food_categories, foods, bills , food_category_mapping, bill_items , reviews, reservations;
+-- DROP TABLE IF EXISTS users, addresses, user_addresses, restaurants, restaurant_managers, food_categories, foods, bills , food_category_mapping, bill_items , reviews, reservations;
 
 CREATE TABLE IF NOT EXISTS users (
   	user_id VARCHAR(16) PRIMARY KEY,
@@ -20,12 +20,12 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE TABLE IF NOT EXISTS addresses (
 	address_id VARCHAR(16) PRIMARY KEY,
-	address_line1 VARCHAR(255),
+	address_line1 VARCHAR(255) NOT NULL,
 	address_line2 VARCHAR(255),
 	longitude DECIMAL(11,8),
 	latitude DECIMAL(10,8),
 	created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-  	updated_at TIMESTAMP NOT NULL DEFAULT NOW() ON UPDATE NOW() 
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW() ON UPDATE NOW() 
 );
 
 CREATE TABLE IF NOT EXISTS user_addresses (
@@ -44,15 +44,18 @@ CREATE TABLE IF NOT EXISTS restaurants (
 	phone_number VARCHAR(15),
 	logo_url VARCHAR(255),
 	cover_url VARCHAR(255),
+  created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMP NOT NULL DEFAULT NOW() ON UPDATE NOW(),
 	FOREIGN KEY (address_id) REFERENCES addresses(address_id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS restaurant_managers (
     user_id VARCHAR(16) NOT NULL,
     restaurant_id VARCHAR(16) NOT NULL,
-    role ENUM('manager', 'staff') NOT NULL,
+    role ENUM('owner','manager', 'staff') NOT NULL,
     PRIMARY KEY (user_id, restaurant_id),
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW() ON UPDATE NOW(),
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
     FOREIGN KEY (restaurant_id) REFERENCES restaurants(restaurant_id) ON DELETE CASCADE
 );
@@ -69,6 +72,7 @@ CREATE TABLE IF NOT EXISTS foods (
     available bool,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW() ON UPDATE NOW(),
+    UNIQUE (restaurant_id, name),
     FOREIGN KEY (restaurant_id) REFERENCES restaurants(restaurant_id) ON DELETE CASCADE
 );
 
@@ -96,6 +100,8 @@ CREATE TABLE IF NOT EXISTS reservations (
     table_number INT NOT NULL,
     reservation_datetime TIMESTAMP DEFAULT NOW() NOT NULL,
     reservation_status ENUM('pending', 'confirmed', 'completed', 'cancelled') NOT NULL DEFAULT 'pending',
+  	created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+	  updated_at TIMESTAMP NOT NULL DEFAULT NOW() ON UPDATE NOW(),
     FOREIGN KEY (restaurant_id) REFERENCES restaurants(restaurant_id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );

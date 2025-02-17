@@ -1,15 +1,15 @@
 import { Router } from "express";
 import * as userController from "../controllers/user.js";
 import multer from "multer";
+import { authenticateJWT } from "../middlewares/auth.js";
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 const router = Router();
 
-// TODO: remove this route
-router.get("/user", userController.getAllUsers);
+router.use("/user", authenticateJWT);
 
-router.put("/user/:id", userController.updateUser);
+router.patch("/user", userController.updateUser);
 
-router.put("/user/:id/avatar", upload.single("avatar"), userController.updateUserAvatar);
+router.patch("/user/avatar", upload.single("avatar"), userController.updateUserAvatar);
 
 export default router;

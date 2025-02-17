@@ -4,6 +4,8 @@
 	"description": "",
 	"scripts": {
 		"dev": "concurrently \"pnpm --filter backend-restaurant dev\" \"pnpm --filter frontend-restaurant dev\" \"pnpm docker:up\"",
+    "dev:be":"concurrently \"pnpm --filter backend-restaurant dev\" \"pnpm docker:up\"",
+    "dev:fe": "pnpm --filter frontend-restaurant dev",
 		"lint": "concurrently  \"pnpm --filter frontend-restaurant lint\" \"pnpm --filter backend-restaurant lint\"",
     "lint:fix": "concurrently  \"pnpm --filter frontend-restaurant lint:fix\" \"pnpm --filter backend-restaurant lint:fix\"",
     "prettier": "concurrently  \"pnpm --filter frontend-restaurant prettier\" \"pnpm --filter backend-restaurant prettier\"",

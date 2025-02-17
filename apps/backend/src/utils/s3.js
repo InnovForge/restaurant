@@ -13,3 +13,31 @@ export const uploadFileUser = async (objectName, file) => {
     console.error("Error uploading file:", error);
   }
 };
+
+export const uploadFileRestaurant = async (objectName, file) => {
+  const BUCKET_NAME = "restaurants";
+  try {
+    await minioClient.putObject(BUCKET_NAME, objectName, file.buffer, file.size, {
+      "Content-Type": file.mimetype,
+    });
+    const protocol = process.env.MINIO_PORT === "443" ? "https" : "http";
+    const fileUrl = `${protocol}://${process.env.MINIO_HOST}:${process.env.MINIO_PORT}/${BUCKET_NAME}/${objectName}`;
+    return fileUrl;
+  } catch (error) {
+    console.error("Error uploading file:", error);
+  }
+};
+
+export const uploadFileFood = async (objectName, file) => {
+  const BUCKET_NAME = "restaurants";
+  try {
+    await minioClient.putObject(BUCKET_NAME, objectName, file.buffer, file.size, {
+      "Content-Type": file.mimetype,
+    });
+    const protocol = process.env.MINIO_PORT === "443" ? "https" : "http";
+    const fileUrl = `${protocol}://${process.env.MINIO_HOST}:${process.env.MINIO_PORT}/${BUCKET_NAME}/${objectName}`;
+    return fileUrl;
+  } catch (error) {
+    console.error("Error uploading file:", error);
+  }
+};

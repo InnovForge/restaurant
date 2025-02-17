@@ -1,15 +1,105 @@
 import { pool } from "../configs/mysql.js";
+import { nanoidNumbersOnly } from "../utils/nanoid.js";
 
 const restaurantModel = {
-  async updateRestaurant(userId, userData) {
-    const { name, email, password } = userData;
-    const [result] = await pool.query("UPDATE restaurants SET name = ?, email = ?, password = ? WHERE id = ?", [
-      name,
-      email,
-      password,
+  async updateRestaurant(restaurantId, restaurantData) {
+    const address = restaurantData.address;
+    const connection = await pool.getConnection();
+    try {
+      await connection.beginTransaction();
+      const fields = [];
+      const values = [];
+
+      for (const [key, value] of Object.entries(restaurantData)) {
+        if (value !== undefined && value !== null) {
+          if (key !== "address") {
+            values.push(value);
+            fields.push(`${key} = ?`);
+          }
+        }
+      }
+      if (fields.length !== 0) {
+        values.push(restaurantId);
+        const sql = `UPDATE restaurants SET ${fields.join(", ")} WHERE restaurant_id = ?`;
+        await connection.query(sql, values);
+      }
+
+      const fieldsAddress = [];
+      const valuesAddress = [];
+      for (const [key, value] of Object.entries(address)) {
+        if (value !== undefined && value !== null) {
+          valuesAddress.push(value);
+          fieldsAddress.push(`${key} = ?`);
+        }
+      }
+      if (fieldsAddress.length !== 0) {
+        valuesAddress.push(restaurantId);
+        const sqlAddress = `UPDATE addresses SET ${fieldsAddress.join(", ")} WHERE address_id = ?`;
+        await connection.query(sqlAddress, valuesAddress);
+      }
+      await connection.commit();
+      return true;
+    } catch (error) {
+      await connection.rollback();
+      throw new Error(error);
+    } finally {
+      connection.release();
+    }
+  },
+
+  /*
+   * Create a restaurant
+   * @param {string} userId - ID of the user who creates the restaurant
+   * @param {Object} restaurantData - Data of the restaurant
+   * @param {string} restaurantData.name - Name of the restaurant
+   * @param {Object} restaurantData.address - Address of the restaurant
+   * @param {string} restaurantData.phoneNumber - Phone number of the restaurant
+   * @param {string} restaurantData.coverUrl - Cover URL of the restaurant
+   */
+  async createRestaurant(userId, restaurantData) {
+    const { name, address, phoneNumber } = restaurantData;
+    const { addressLine1, addressLine2, longitude, latitude } = address;
+
+    const connection = await pool.getConnection();
+    try {
+      await connection.beginTransaction();
+
+      const addressId = nanoidNumbersOnly();
+      const restaurantId = nanoidNumbersOnly();
+
+      await connection.query(
+        "INSERT INTO addresses (address_id, address_line1, address_line2, longitude, latitude) VALUES (?, ?, ?, ?, ?)",
+        [addressId, addressLine1, addressLine2, longitude, latitude],
+      );
+
+      await connection.query(
+        "INSERT INTO restaurants (restaurant_id, name, phone_number, address_id) VALUES (?, ?, ?, ?)",
+        [restaurantId, name, phoneNumber, addressId],
+      );
+
+      await connection.query("INSERT INTO restaurant_managers (user_id, restaurant_id, role) VALUES (?, ?, ?)", [
+        userId,
+        restaurantId,
+        "owner",
+      ]);
+
+      await connection.commit();
+      return restaurantId;
+    } catch (error) {
+      await connection.rollback();
+      throw new Error(error);
+    } finally {
+      connection.release();
+    }
+  },
+
+  async getUserRestaurantRole(userId, restaurantId) {
+    const [rows] = await pool.query("SELECT role FROM restaurant_managers WHERE user_id = ? AND restaurant_id = ?", [
       userId,
+      restaurantId,
     ]);
-    return result.affectedRows > 0;
+    return rows.length > 0 ? rows[0].role : null;
   },
 };
+
 export default restaurantModel;

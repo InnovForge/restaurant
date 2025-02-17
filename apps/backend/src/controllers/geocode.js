@@ -25,14 +25,14 @@ export const geocode = async (req, res) => {
     bias = `&bias=circle:${longitude},${latitude},3000|countrycode:vn`;
   }
   const URL = `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(q)}&filter=countrycode:vn${bias}&format=json&apiKey=${process.env.GEOAPIFY_API_KEY}`;
-  logger.info("Geoapify Geocode URL:", URL);
+  // logger.info("Geoapify Geocode URL:", URL);
   try {
     const data = await (await fetch(URL)).json();
     const locations = processLocationResults(data);
-    return responseHandler.success(res, "Locations found", locations);
+    return responseHandler.success(res, undefined, locations);
   } catch (error) {
     logger.error("Error during geocoding:", error);
-    return responseHandler.internalServerError(res, error.message);
+    return responseHandler.internalServerError(res);
   }
 };
 
@@ -43,10 +43,10 @@ export const revGeocode = async (req, res) => {
   try {
     const data = await (await fetch(URL)).json();
     const locations = processLocationResults(data);
-    return responseHandler.success(res, "Locations found", locations);
+    return responseHandler.success(res, undefined, locations);
   } catch (error) {
-    logger.error("Error during reverse geocoding:", error);
-    responseHandler.internalServerError(res, error.message);
+    console.log("error :>> ", error);
+    responseHandler.internalServerError(res);
   }
 };
 
@@ -54,7 +54,7 @@ export const revGeocode = async (req, res) => {
 export const countRoute = async (req, res) => {
   const { waypoints } = req.query;
   const data = await service.countRoute(waypoints);
-  return responseHandler.success(res, "Route found", data);
+  return responseHandler.success(res, undefined, data);
 };
 
 /* // HERE MAPS

@@ -1,15 +1,25 @@
-function validateFields(fields, optionalFields = []) {
+function validateFields(fields, validFields, requiredFields = []) {
   const errors = [];
+  const validSet = new Set(validFields);
+  const fieldKeys = Object.keys(fields);
 
-  Object.keys(fields).forEach((field) => {
-    if (!optionalFields.includes(field) && !fields[field]) {
-      errors.push({
-        field,
-        message: `${field.charAt(0).toUpperCase() + field.slice(1)} is required`,
-      });
+  const requiredSet = requiredFields === true ? validSet : new Set(requiredFields);
+
+  for (const field of fieldKeys) {
+    if (!validSet.has(field)) {
+      errors.push({ field, message: `${capitalize(field)} is not allowed` });
     }
-  });
+  }
 
-  return errors.length > 0 ? errors : null;
+  for (const field of requiredSet) {
+    if (!(field in fields) || fields[field] === "") {
+      errors.push({ field, message: `${capitalize(field)} is required` });
+    }
+  }
+
+  return errors.length ? errors : null;
 }
+
+const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
+
 export { validateFields };

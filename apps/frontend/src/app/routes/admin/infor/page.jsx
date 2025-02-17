@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function UserInfoForm() {
   // lay anh
@@ -31,8 +32,19 @@ export default function UserInfoForm() {
                   <Input id="username" defaultValue="ABC" />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="gender">Giới tính :</Label>
-                  <Input id="gender" defaultValue="XYZ" />
+                  <Label htmlFor="username">Giới tính: </Label>
+                  <Select>
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Chọn giới tính" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectItem value="0">Không xác định</SelectItem>
+                        <SelectItem value="1">Nam</SelectItem>
+                        <SelectItem value="2">Nữ</SelectItem>
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="dob">Ngày sinh :</Label>
