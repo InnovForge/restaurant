@@ -6,6 +6,9 @@ import { useState } from "react";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function UserInfoForm() {
+  // call api
+  //const f = await api.get("/v1/restaurant/4878868981511538")
+  //console.log(f);
   // lay anh
   const [image, setImage] = useState(null);
   // xu ly anh khi an vao nut thay doi anh

@@ -100,6 +100,16 @@ const restaurantModel = {
     ]);
     return rows.length > 0 ? rows[0].role : null;
   },
+  async getRestaurant(restaurantId) {
+    const [rows] = await pool.query(
+      `SELECT r.restaurant_id, r.name, r.phone_number, a.address_line1, a.address_line2, a.longitude, a.latitude
+      FROM restaurants r
+      JOIN addresses a ON r.address_id = a.address_id
+      WHERE r.restaurant_id = ?`,
+      [restaurantId],
+    );
+    return rows[0];
+  },
 };
 
 export default restaurantModel;
