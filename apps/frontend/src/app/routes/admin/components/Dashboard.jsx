@@ -23,6 +23,10 @@ export default function DashboardLayout({ children }) {
             <User className="inline-block mr-2" size={18} />
             Thông tin
           </Link>
+          <Link to="/admin/nhahang" className="block px-4 py-2 text-gray-600 hover:bg-gray-100 hover:text-gray-800">
+            <User className="inline-block mr-2" size={18} />
+            Thông tin nhà hàng
+          </Link>
           <Link to="/admin/thongke" className="block px-4 py-2 text-gray-600 hover:bg-gray-100 hover:text-gray-800">
             <Home className="inline-block mr-2" size={18} />
             Thống kê

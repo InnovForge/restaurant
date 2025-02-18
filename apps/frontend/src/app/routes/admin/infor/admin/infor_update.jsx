@@ -3,12 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-export default function UserInfoForm() {
-  // call api
-  //const f = await api.get("/v1/restaurant/4878868981511538")
-  //console.log(f);
+export default function UserUpdateInfoForm() {
   // lay anh
   const [image, setImage] = useState(null);
   // xu ly anh khi an vao nut thay doi anh
@@ -35,31 +31,24 @@ export default function UserInfoForm() {
                   <Input id="username" defaultValue="ABC" />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="username">Giới tính: </Label>
-                  <Select>
-                    <SelectTrigger className="w-[180px]">
-                      <SelectValue placeholder="Chọn giới tính" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectItem value="0">Không xác định</SelectItem>
-                        <SelectItem value="1">Nam</SelectItem>
-                        <SelectItem value="2">Nữ</SelectItem>
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
+                  <Label htmlFor="role">Vai trò: </Label>
+                  <Input id="role" defaultValue="admin/staff" />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="dob">Ngày sinh :</Label>
-                  <Input id="dob" defaultValue="11/11/1111" />
+                  <Label htmlFor="gioitinh">Giới tính: </Label>
+                  <Input id="gioitinh" defaultValue="Nam" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="ngaysinh">Ngày sinh :</Label>
+                  <Input id="ngaysinh" defaultValue="1/1/1111" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="email">Email :</Label>
-                  <Input id="email" type="email" defaultValue="ABC@gmail.com" />
+                  <Input id="email" defaultValue="ABC@gmail.com" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="phone">Điện thoại :</Label>
-                  <Input id="phone" defaultValue="0935******" />
+                  <Input id="phone" defaultValue="0202020" />
                 </div>
               </div>
               <div className="flex flex-col items-center space-y-2">
@@ -82,30 +71,25 @@ export default function UserInfoForm() {
             <h2 className="text-lg font-semibold mb-4">Địa chỉ</h2>
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="street">Địa chỉ/Tổ/Thôn :</Label>
-                <Input id="street" defaultValue="abc" />
+                <Label htmlFor="street">address_line1 :</Label>
+                <Input id="street" defaultValue="Da Nang" />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="ward">Phường/Xã :</Label>
-                <Input id="ward" defaultValue="xyz" />
+                <Label htmlFor="ward">address_line2 :</Label>
+                <Input id="ward" defaultValue="70 Cao Ba Quat" />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="district">Quận/Huyện :</Label>
-                <Input id="district" defaultValue="abc" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="city">Tỉnh/Thành phố :</Label>
-                <Input id="city" defaultValue="xyz" />
+                <Label htmlFor="longitude">longitude :</Label>
+                <Input id="longitude" defaultValue="106.70089700" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="country">Quốc gia :</Label>
-                <Input id="country" defaultValue="Việt Nam" />
+                <Input id="country" defaultValue="VN" />
               </div>
             </div>
           </div>
-
           <div className="flex justify-center">
-            <Button className="w-32">Sửa thông tin</Button>
+            <Button className="w-32">Sửa</Button>
           </div>
         </CardContent>
       </Card>

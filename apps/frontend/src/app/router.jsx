@@ -5,7 +5,6 @@ import { default as AppRoot, ErrorBoundary as AppRootErrorBoundary } from "./rou
 import Home from "./routes/app/home";
 import Food from "./routes/app/food";
 import HomeAdmin from "./routes/admin/page";
-import UserInfoForm from "./routes/admin/infor/page";
 import Overview from "./routes/admin/overview/page";
 import MenuPage from "./routes/admin/menu/page";
 import AddFood from "./routes/admin/menu/addfood";
@@ -14,6 +13,10 @@ import OrderDetail from "./routes/admin/orders/detail";
 import TableManagement from "./routes/admin/table/page";
 import AddTable from "./routes/admin/table/addtable";
 import OrderHistory from "./routes/app/order-history";
+import UserInfoForm from "./routes/admin/infor/admin/infor";
+import UserUpdateInfoForm from "./routes/admin/infor/admin/infor_update";
+import RestaurantInfoForm from "./routes/admin/infor/res/infor";
+import RestaurantUpdateInfoForm from "./routes/admin/infor/res/infor_update";
 
 const NOT_FOUND = React.lazy(() => import("./routes/not-found"));
 
@@ -50,6 +53,18 @@ export const createAppRouter = () =>
         {
           index: true,
           element: <UserInfoForm />,
+        },
+        {
+          path: "suathongtin",
+          element: <UserUpdateInfoForm />,
+        },
+        {
+          path: "nhahang",
+          element: <RestaurantInfoForm />,
+        },
+        {
+          path: "nhahang/suathongtin",
+          element: <RestaurantUpdateInfoForm />,
         },
         {
           path: "thongke",
