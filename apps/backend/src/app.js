@@ -5,6 +5,7 @@ import dotenvFlow from "dotenv-flow";
 import { logger } from "./utils/logger.js";
 import cookieParser from "cookie-parser";
 import swaggerDocs from "./swagger.js";
+import { camelCase } from "./middlewares/camelCase.js";
 
 dotenvFlow.config();
 const app = express();
@@ -14,14 +15,17 @@ const corsOptions = {
   origin: process.env.CLIENT_URL || "http://localhost:5174",
   credentials: true,
 };
+
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cors(corsOptions));
+app.use("/api", camelCase());
+
 app.use("/api", router);
 
 app.get("/", async (req, res) => {
-  res.send("Hello World!");
+  res.send("Hello World! this is backend server cdio@team1");
 });
 
 app.listen(PORT, () => {
