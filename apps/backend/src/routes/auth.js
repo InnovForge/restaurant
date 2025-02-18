@@ -90,5 +90,36 @@ router.post("/auth/login", authController.login);
  */
 router.post("/auth/register", authController.register);
 
+/**
+ * @openapi
+ * /api/v1/auth/refreshToken:
+ *   post:
+ *     summary: làm mới token
+ *     tags:
+ *       - auth
+ *     description: Làm mới token.
+ *     responses:
+ *       200:
+ *         $ref: "#/components/responses/200"
+ *       500:
+ *         $ref: "#/components/responses/500"
+ */
 router.post("/auth/refreshToken", authController.refreshToken);
+
+/**
+ * @openapi
+ * /api/v1/auth/logout:
+ *   post:
+ *     summary: đăng xuất người dùng
+ *     tags:
+ *       - auth
+ *     description: Đăng xuất người dùng.
+ *     responses:
+ *       200:
+ *         $ref: "#/components/responses/200"
+ *       500:
+ *         $ref: "#/components/responses/500"
+ */
+router.post("/auth/logout", authController.logout);
+
 export default router;
