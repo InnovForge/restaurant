@@ -54,6 +54,14 @@ export const createAppRouter = (queryClient) =>
           path: "/history",
           element: <OrderHistory />,
         },
+        {
+          path: "/checkout",
+          lazy: () => import("./routes/app/checkout").then(convert(queryClient)),
+        },
+        {
+          path: "/me",
+          lazy: () => import("./routes/app/me").then(convert(queryClient)),
+        },
       ],
     },
     {

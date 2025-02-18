@@ -10,6 +10,9 @@ const authenticateJWT = (req, res, next) => {
 
   jwt.verify(token, process.env.JWT_ACCESS_TOKEN, (err, decoded) => {
     if (err) {
+      res.clearCookie("accessToken");
+      res.clearCookie("refreshToken");
+
       return responseHandler.unauthorized(res, undefined, "REFRESH_TOKEN_EXPIRED");
     }
     req.userId = decoded.userId;

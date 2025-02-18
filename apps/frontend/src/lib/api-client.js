@@ -16,20 +16,22 @@ api.interceptors.request.use(authRequestInterceptor);
 // NOTE: This is a workaround for the issue with axios interceptors
 let isRefeshing = false;
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    return response;
+  },
   async (error) => {
     const originalRequest = error.config;
     console.log("error", error);
     if (
       error.response?.status === 401 &&
       !originalRequest._retry &&
-      error.response.data?.errorType === "ACCESS_TOKEN_EXPIRED"
+      error.response.data?.errorType === "REFRESH_TOKEN_EXPIRED"
     ) {
       if (!isRefeshing) {
         isRefeshing = true;
         try {
           const { status } = await api.post(
-            "/auth/refreshToken",
+            "/v1/auth/refreshToken",
             {},
             {
               withCredentials: true,

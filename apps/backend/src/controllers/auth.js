@@ -80,3 +80,10 @@ export const refreshToken = async (req, res) => {
     return responseHandler.internalServerError(res);
   }
 };
+
+export const logout = async (req, res) => {
+  res.clearCookie("refreshToken");
+  res.clearCookie("accessToken");
+
+  return responseHandler.success(res);
+};

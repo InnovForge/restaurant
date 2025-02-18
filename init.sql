@@ -28,14 +28,18 @@ CREATE TABLE IF NOT EXISTS addresses (
     updated_at TIMESTAMP NOT NULL DEFAULT NOW() ON UPDATE NOW() 
 );
 
+
 CREATE TABLE IF NOT EXISTS user_addresses (
-	user_address_id VARCHAR(16) PRIMARY KEY,
-	address_id VARCHAR(16) NOT NULL,
-	user_id VARCHAR(16) NOT NULL,
-	phone_number VARCHAR(15),
-	FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
-	FOREIGN KEY (address_id) REFERENCES addresses(address_id) ON DELETE CASCADE
+    user_address_id VARCHAR(16) PRIMARY KEY,
+    address_id VARCHAR(16) NOT NULL,
+    user_id VARCHAR(16) NOT NULL,
+    phone_number VARCHAR(15),
+    is_default BOOLEAN DEFAULT false,
+    CONSTRAINT unique_default_address UNIQUE (user_id, is_default),  -- Đảm bảo chỉ có 1 địa chỉ mặc định cho mỗi người dùng
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (address_id) REFERENCES addresses(address_id) ON DELETE CASCADE
 );
+
 
 CREATE TABLE IF NOT EXISTS restaurants (
 	restaurant_id VARCHAR(16) PRIMARY KEY,

@@ -77,7 +77,7 @@ export const ipGeocode = async (req, res) => {
 };
 
 // TODO: this is test func route
-export const countRoute = async (req, res) => {
+export const distance = async (req, res) => {
   const { waypoints } = req.query;
   const data = await service.countRoute(waypoints);
   return responseHandler.success(res, undefined, data);

@@ -28,12 +28,12 @@ const Cart = () => {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="icon" className="gap-1">
-          <ShoppingCart />
+        <div className="flex items-center justify-center gap-1 p-1 mr-5 rounded-md hover:bg-accent hover:text-accent-foregroundrounded-md cursor-pointer">
+          <ShoppingCart className="w-6 h-6" />
           <span>1</span>
-        </Button>
+        </div>
       </PopoverTrigger>
-      <PopoverContent className="w-[440px] h-fit flex flex-col">
+      <PopoverContent align="end" className="w-[440px] h-fit flex flex-col">
         <header className="pb-4 border-b">
           <h3 className="text-lg font-medium leading-none">Giỏ đồ ăn</h3>
         </header>

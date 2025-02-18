@@ -1,8 +1,8 @@
 import { Router } from "express";
 import * as restaurantController from "../controllers/restaurant.js";
-import { authenticateJWT } from "../middlewares/auth.js";
+import { authenticateJWT } from "../middlewares/authenticate.js";
 import multer from "multer";
-import { authRestaurant, ROLE } from "../middlewares/authRestaurant.js";
+import { authRestaurant, ROLE } from "../middlewares/roleRestaurant.js";
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 const router = Router();
@@ -212,6 +212,7 @@ router.patch(
   ]),
   restaurantController.uploadRestaurantImage,
 );
+
 /**
  * @openapi
  * /api/v1/restaurant/{restaurantId}:

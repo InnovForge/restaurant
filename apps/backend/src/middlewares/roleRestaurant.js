@@ -12,7 +12,6 @@ const authRestaurant =
   async (req, res, next) => {
     const userId = req.userId;
     const { restaurantId } = req.params;
-    // console.log("userId :>> ", req.params);
     try {
       const role = await restaurantModel.getUserRestaurantRole(userId, restaurantId);
 

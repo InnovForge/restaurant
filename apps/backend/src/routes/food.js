@@ -1,7 +1,7 @@
 import { Router } from "express";
 import * as foodController from "../controllers/food.js";
-import { authRestaurant, ROLE } from "../middlewares/authRestaurant.js";
-import { authenticateJWT } from "../middlewares/auth.js";
+import { authRestaurant, ROLE } from "../middlewares/roleRestaurant.js";
+import { authenticateJWT } from "../middlewares/authenticate.js";
 import multer from "multer";
 
 const storage = multer.memoryStorage();

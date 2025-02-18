@@ -3,6 +3,7 @@ import { api } from "@/lib/api-client";
 import useAddressStore from "@/stores/useAddressStore";
 import { useQuery } from "@tanstack/react-query";
 import { Outlet } from "react-router";
+import useAuthUserStore from "@/stores/useAuthUserStore";
 
 export const ErrorBoundary = () => {
   return <div>Something went wrong!</div>;
@@ -40,21 +41,37 @@ const getReverseGeocode = async () => {
   }
 };
 
+const checkUser = async () => {
+  try {
+    const response = await api.get("/v1/user");
+    return response.data;
+  } catch (error) {
+    return null;
+  }
+};
 const AppRoot = () => {
   const { setAddress } = useAddressStore();
-  const { isPending, isFetching } = useQuery({
-    queryKey: ["address"],
+  const { setAuthUser, authUser } = useAuthUserStore();
+
+  const { isFetching, isPending } = useQuery({
+    queryKey: ["authUser"],
     queryFn: async () => {
-      const data = await getReverseGeocode();
-      // console.log("data", data);
-      setAddress(data.data);
-      return data;
+      const user = await checkUser();
+      // console.log("user", user);
+      if (user === null || user.data.address === null || user.data.address === undefined) {
+        const geocode = await getReverseGeocode();
+        if (user) setAuthUser(user.data);
+        setAddress(geocode.data);
+        return;
+      }
+      setAuthUser(user.data);
+      return user.data;
     },
     staleTime: Infinity,
-    gcTime: Infinity,
+    enabled: !authUser,
   });
 
-  return isPending || isFetching ? (
+  return isFetching ? (
     <div>Loading...</div>
   ) : (
     <DashboardLayout>

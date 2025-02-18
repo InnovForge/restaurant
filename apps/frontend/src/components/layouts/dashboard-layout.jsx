@@ -3,7 +3,7 @@ import logo from "@/assets/react.svg";
 import thongbaobocongthuong from "@/assets/images/thongbaobocongthuong.png";
 import food from "@/assets/images/food.jpg";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router";
+import { Link, NavLink } from "react-router";
 import SearchLocation from "@/features/address/components/search-location";
 import { Input } from "@/components/ui/input";
 import {
@@ -28,13 +28,18 @@ import {
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 import { useMediaQuery } from "@/hooks/use-media-query";
-import { Menu } from "lucide-react";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useRef } from "react";
 import useOutsideClick from "@/hooks/use-outside-click";
 import useAddressStore from "@/stores/useAddressStore";
-import { X, Utensils, ArrowLeft, MapPin, Search, History } from "lucide-react";
+import { X, Utensils, ArrowLeft, MapPin, Search, History, Menu, LogOut, User } from "lucide-react";
 import Cart from "@/features/cart/components/cart";
+import useAuthUserStore from "@/stores/useAuthUserStore";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { PopoverContent, PopoverTrigger, Popover } from "@/components/ui/popover";
+import { api } from "@/lib/api-client";
+import { useNavigate } from "react-router";
+import { Separator } from "../ui/separator";
 
 export const DashboardLayout = ({ children }) => {
   const [value, setValue] = useState(null);
@@ -42,12 +47,10 @@ export const DashboardLayout = ({ children }) => {
   const [isOpenSheet, setIsOpenSheet] = useState(false);
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const { addresses, setAddress } = useAddressStore();
+  const { authUser } = useAuthUserStore();
   const handleAdd = () => {
     setAddress(value);
   };
-
-  // console.log(value);
-  console.log(addresses);
 
   const navItems = [
     {
@@ -83,7 +86,7 @@ export const DashboardLayout = ({ children }) => {
                         </SheetDescription>
                       </SheetHeader>
                     </VisuallyHidden>
-                    <Link to="/" className="flex items-center gap-1 pb-3" onClick={() => setIsOpenSheet(false)}>
+                    <Link to="/home" className="flex items-center gap-1 pb-3" onClick={() => setIsOpenSheet(false)}>
                       <img src={logo} className="logo react w-[30x] h-[30px]" alt="React logo" />
                     </Link>
                     <div className="flex flex-col items-start gap-2">
@@ -104,7 +107,7 @@ export const DashboardLayout = ({ children }) => {
                   </SheetContent>
                 </Sheet>
 
-                <Link to="/" className="flex items-center gap-1">
+                <Link to="/home" className="flex items-center gap-1">
                   <img src={logo} className="logo react w-[30x] h-[30px]" alt="React logo" />
                   <h1 className="text-xl font-semibold hidden md:block">CIDO</h1>
                 </Link>
@@ -140,25 +143,36 @@ export const DashboardLayout = ({ children }) => {
                 </div>
               </div>
             </div>
-            <div className="gap-1 items-center flex">
+            <div className="flex gap-2">
               <Cart />
-              <Button variant="ghost" asChild>
-                <Link to="/login">Đăng nhập</Link>
-              </Button>
-              <Button variant="outline" asChild>
-                <Link to="/register">Đăng kí</Link>
-              </Button>
+              {authUser ? (
+                <UserPopover />
+              ) : (
+                <div className="gap-1 items-center flex">
+                  <Button variant="ghost" asChild>
+                    <Link to="/login">Đăng nhập</Link>
+                  </Button>
+                  <Button variant="outline" asChild>
+                    <Link to="/register">Đăng kí</Link>
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
           <div className="flex h-8 justify-end items-center gap-2">
-            <div className="hidden md:flex gap-2">
+            <div className="hidden md:flex gap-2 ">
               {navItems.map((item) => (
-                <Link to={item.href} key={item.name} className="flex items-center gap-1">
-                  <Button variant="ghost">
-                    {item.icon && <item.icon className="w-5 h-5" />}
-                    {item.name}
-                  </Button>
-                </Link>
+                <NavLink to={item.href} key={item.name}>
+                  {({ isActive }) => (
+                    <Button
+                      variant="ghost"
+                      className={`flex relative items-center gap-1 ${isActive ? "text-primary hover:text-primary font-bold after:content-[''] after:absolute  after:h-0.5 after:bg-primary after:bottom-0 after:transition-all after:duration-300 after:w-full after:scale-x-100" : "after:w-0"}`}
+                    >
+                      {item.icon && <item.icon className="w-5 h-5" />}
+                      {item.name}
+                    </Button>
+                  )}
+                </NavLink>
               ))}
             </div>
             <div className="md:hidden flex justify-between w-full gap-2 items-center">
@@ -356,5 +370,68 @@ ${index === focusedIndex ? "bg-accent" : ""}`}
         </ul>
       )}
     </div>
+  );
+};
+
+const UserPopover = () => {
+  const { authUser } = useAuthUserStore();
+  const navigate = useNavigate();
+  const handleLogout = () => {
+    const res = api.post("/v1/auth/logout");
+    navigate(0);
+
+    console.log("logout");
+  };
+
+  const [popoverOpen, setPopoverOpen] = useState(false);
+
+  const items = [
+    { icon: User, path: "/me", label: "Your profile" },
+    { icon: Utensils, path: "/admin", label: "Admin" },
+  ];
+
+  return (
+    <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
+      <PopoverTrigger>
+        <Avatar className="border">
+          <AvatarImage src={authUser.avatarUrl} />
+          <AvatarFallback>{authUser.name}</AvatarFallback>
+        </Avatar>
+      </PopoverTrigger>
+      <PopoverContent align="end" className="p-2">
+        <div className="flex gap-2 items-center">
+          <Avatar className="border">
+            <AvatarImage src={authUser.avatarUrl} />
+            <AvatarFallback>{authUser.name}</AvatarFallback>
+          </Avatar>
+          <div className="flex flex-col">
+            <p className="font-bold">{authUser.name}</p>
+            <p className="text-xs text-accent-foreground">{authUser.username}</p>
+          </div>
+        </div>
+        <Separator className="my-2" />
+        <div className="flex flex-col gap-2">
+          {items.map((item) => (
+            <Link
+              to={item.path}
+              key={item.label}
+              className="flex gap-2 text-sm hover:bg-accent hover:text-accent-foreground p-1.5 rounded-md"
+              onClick={() => setPopoverOpen(false)}
+            >
+              <item.icon className="w-5 h-5" />
+              <p>{item.label}</p>
+            </Link>
+          ))}
+          <Separator />
+          <div
+            onClick={handleLogout}
+            className="flex gap-2 text-sm hover:bg-accent hover:text-accent-foreground p-1.5 rounded-md"
+          >
+            <LogOut className="w-5 h-5" />
+            Đăng xuất
+          </div>
+        </div>
+      </PopoverContent>
+    </Popover>
   );
 };

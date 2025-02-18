@@ -5,23 +5,45 @@ import { uploadFileUser } from "../utils/s3.js";
 import { toPng } from "jdenticon";
 
 const userModel = {
-  // TODO: Remove this function
-  /**
-   * Lấy danh sách tất cả người dùng.
-   * @returns {Promise<Array>} Danh sách người dùng.
-   */
-  async getAllUsers() {
-    const [rows] = await pool.query("SELECT * FROM users");
-    return rows;
-  },
-
   /**
    * Lấy thông tin một người dùng theo ID.
    * @param {number} userId - ID của người dùng.
    * @returns {Promise<Object|null>} Người dùng hoặc `null` nếu không tìm thấy.
    */
   async getUserById(userId) {
-    const [rows] = await pool.query("SELECT * FROM users WHERE id = ?", [userId]);
+    const query = `SELECT 
+    u.user_id,
+    u.name,
+    u.username,
+    u.email,
+    u.avatar_url,
+    IF(
+        COUNT(a.address_id) = 0, 
+        '[]', 
+        JSON_ARRAYAGG(
+            JSON_OBJECT(
+                'address_id', a.address_id,
+                'address_line1', a.address_line1,
+                'address_line2', a.address_line2,
+                'longitude', a.longitude,
+                'latitude', a.latitude,
+                'is_default', ua.is_default,
+                'created_at', a.created_at,
+                'updated_at', a.updated_at
+            )
+        )
+    ) AS addresses
+FROM users u
+LEFT JOIN user_addresses ua ON u.user_id = ua.user_id
+LEFT JOIN addresses a ON ua.address_id = a.address_id
+WHERE u.user_id = ?
+GROUP BY u.user_id;
+`;
+
+    const [rows] = await pool.query(query, [userId]);
+    if (rows.length > 0) {
+      rows[0].addresses = JSON.parse(rows[0].addresses);
+    }
     return rows[0] || null;
   },
 

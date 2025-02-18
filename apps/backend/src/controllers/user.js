@@ -4,7 +4,7 @@ import { uploadFileUser } from "../utils/s3.js";
 
 export const updateUser = async (req, res) => {
   const id = req.userId;
-  const { name, gender, email, username, password, phone_number, role } = req.body;
+  const { name, gender, email, username, password, phoneNumber, role } = req.body;
   try {
     const updatedStatus = await userModel.updateUser(id, {
       name,
@@ -13,7 +13,7 @@ export const updateUser = async (req, res) => {
       username,
       password,
       role,
-      phone_number,
+      phone_number: phoneNumber,
     });
     if (!updatedStatus) {
       return responseHandler.badRequest(res);
@@ -36,6 +36,20 @@ export const updateUserAvatar = async (req, res) => {
       return responseHandler.badRequest(res);
     }
     return responseHandler.created(res);
+  } catch (error) {
+    console.log("error :>> ", error);
+    return responseHandler.internalServerError(res);
+  }
+};
+
+export const getUserFromToken = async (req, res) => {
+  const id = req.userId;
+  try {
+    const user = await userModel.getUserById(id);
+    if (!user) {
+      return responseHandler.badRequest(res);
+    }
+    return responseHandler.success(res, undefined, user);
   } catch (error) {
     console.log("error :>> ", error);
     return responseHandler.internalServerError(res);

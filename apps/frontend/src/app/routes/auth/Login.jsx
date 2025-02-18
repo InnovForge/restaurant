@@ -6,6 +6,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { api } from "@/lib/api-client";
+import { useNavigate } from "react-router";
 
 // Schema kiểm tra đầu vào
 const formSchema = z.object({
@@ -14,16 +15,18 @@ const formSchema = z.object({
 });
 
 const Login = () => {
+  const navigate = useNavigate();
   const form = useForm({
     resolver: zodResolver(formSchema),
   });
 
   // Hàm xử lý khi submit form
-  const onSubmit = async (values) => {
+  const onSubmit = async (value) => {
     try {
-      const data = await api.post("/v1/auth/login", values);
-
-      console.log(data.data);
+      const res = await api.post("/v1/auth/login", value);
+      if (res.status === 200) {
+        navigate("/home");
+      }
     } catch (error) {
       console.log("err", error);
     }
