@@ -1,5 +1,6 @@
 import { Router } from "express";
 import * as geocodeController from "../controllers/geocode.js";
+import { apiCache } from "../middlewares/apiCache.js";
 const router = Router();
 
 /**
@@ -78,7 +79,7 @@ const router = Router();
  *         500:
  *          $ref: '#/components/responses/500'
  */
-router.get("/geocode", geocodeController.geocode);
+router.get("/geocode", apiCache, geocodeController.geocode);
 
 /**
  * @openapi
@@ -146,7 +147,7 @@ router.get("/geocode", geocodeController.geocode);
  *         500:
  *          $ref: '#/components/responses/500'
  */
-router.get("/geocode/reverse", geocodeController.revGeocode);
+router.get("/geocode/reverse", apiCache, geocodeController.revGeocode);
 
 /**
  * @openapi
@@ -258,7 +259,7 @@ router.get("/geocode/ip", geocodeController.ipGeocode);
  *        500:
  *          $ref: '#/components/responses/500'
  */
-router.get("/geocode/distance", geocodeController.distance);
+router.get("/geocode/distance", apiCache, geocodeController.distance);
 
 // router.get("/location", locationController.searchLocationHere);
 export default router;

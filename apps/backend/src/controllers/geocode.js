@@ -1,3 +1,4 @@
+import { cacheResponse } from "../middlewares/apiCache.js";
 import * as service from "../services/geocode.js";
 import { logger } from "../utils/logger.js";
 import responseHandler from "../utils/response.js";
@@ -29,6 +30,7 @@ export const geocode = async (req, res) => {
   try {
     const data = await (await fetch(URL)).json();
     const locations = processLocationResults(data);
+    cacheResponse(req.originalUrl, locations, 7 * 24 * 60 * 60); // 7 days
     return responseHandler.success(res, undefined, locations);
   } catch (error) {
     logger.error("Error during geocoding:", error);
@@ -43,7 +45,7 @@ export const revGeocode = async (req, res) => {
   try {
     const data = await (await fetch(URL)).json();
     const locations = processLocationResults(data);
-    // console.log("locations :>> ", locations);
+    cacheResponse(req.originalUrl, locations[0], 7 * 24 * 60 * 60); // 7 days
     return responseHandler.success(res, undefined, locations[0]);
   } catch (error) {
     console.log("error :>> ", error);
@@ -80,6 +82,7 @@ export const ipGeocode = async (req, res) => {
 export const distance = async (req, res) => {
   const { waypoints } = req.query;
   const data = await service.countRoute(waypoints);
+  cacheResponse(req.originalUrl, data, 7 * 24 * 60 * 60); // 7 days
   return responseHandler.success(res, undefined, data);
 };
 
