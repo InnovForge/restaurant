@@ -1,9 +1,7 @@
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import { createBrowserRouter, RouterProvider } from "react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import Login from "./routes/auth/Login";
 import { default as AppRoot, ErrorBoundary as AppRootErrorBoundary } from "./routes/app/root";
-import Home from "./routes/app/home";
 import Food from "./routes/app/food";
 import HomeAdmin from "./routes/admin/page";
 import Overview from "./routes/admin/overview/page";
@@ -13,13 +11,10 @@ import OrdersPage from "./routes/admin/orders/page";
 import OrderDetail from "./routes/admin/orders/detail";
 import TableManagement from "./routes/admin/table/page";
 import AddTable from "./routes/admin/table/addtable";
-import OrderHistory from "./routes/app/order-history";
 import UserInfoForm from "./routes/admin/infor/admin/infor";
 import UserUpdateInfoForm from "./routes/admin/infor/admin/infor_update";
 import RestaurantInfoForm from "./routes/admin/infor/res/infor";
 import RestaurantUpdateInfoForm from "./routes/admin/infor/res/infor_update";
-
-const NOT_FOUND = React.lazy(() => import("./routes/not-found"));
 
 const convert = (queryClient) => (m) => {
   const { clientLoader, clientAction, default: Component, ...rest } = m;
@@ -35,7 +30,11 @@ export const createAppRouter = (queryClient) =>
   createBrowserRouter([
     {
       path: "/login",
-      element: <Login />,
+      lazy: () => import("./routes/auth/login").then(convert(queryClient)),
+    },
+    {
+      path: "/register",
+      lazy: () => import("./routes/auth/register").then(convert(queryClient)),
     },
     {
       path: "/",
@@ -44,7 +43,7 @@ export const createAppRouter = (queryClient) =>
       children: [
         {
           index: true,
-          element: <Home />,
+          lazy: () => import("./routes/app/home").then(convert(queryClient)),
         },
         {
           path: "/home",
@@ -52,7 +51,7 @@ export const createAppRouter = (queryClient) =>
         },
         {
           path: "/history",
-          element: <OrderHistory />,
+          lazy: () => import("./routes/app/order-history").then(convert(queryClient)),
         },
         {
           path: "/checkout",
@@ -61,6 +60,10 @@ export const createAppRouter = (queryClient) =>
         {
           path: "/me",
           lazy: () => import("./routes/app/me").then(convert(queryClient)),
+        },
+        {
+          path: "/d/restaurants",
+          lazy: () => import("./routes/app/dashboard-restaurants").then(convert(queryClient)),
         },
       ],
     },

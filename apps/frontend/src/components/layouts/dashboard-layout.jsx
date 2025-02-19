@@ -32,7 +32,7 @@ import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useRef } from "react";
 import useOutsideClick from "@/hooks/use-outside-click";
 import useAddressStore from "@/stores/useAddressStore";
-import { X, Utensils, ArrowLeft, MapPin, Search, History, Menu, LogOut, User } from "lucide-react";
+import { X, Utensils, ArrowLeft, MapPin, Search, History, Menu, LogOut, User, Home } from "lucide-react";
 import Cart from "@/features/cart/components/cart";
 import useAuthUserStore from "@/stores/useAuthUserStore";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -56,7 +56,7 @@ export const DashboardLayout = ({ children }) => {
     {
       name: "Trang chủ",
       href: "/home",
-      icon: Utensils,
+      icon: Home,
     },
     {
       name: "Lịch sử",
@@ -86,7 +86,7 @@ export const DashboardLayout = ({ children }) => {
                         </SheetDescription>
                       </SheetHeader>
                     </VisuallyHidden>
-                    <Link to="/home" className="flex items-center gap-1 pb-3" onClick={() => setIsOpenSheet(false)}>
+                    <Link to="/" className="flex items-center gap-1 pb-3" onClick={() => setIsOpenSheet(false)}>
                       <img src={logo} className="logo react w-[30x] h-[30px]" alt="React logo" />
                     </Link>
                     <div className="flex flex-col items-start gap-2">
@@ -107,7 +107,7 @@ export const DashboardLayout = ({ children }) => {
                   </SheetContent>
                 </Sheet>
 
-                <Link to="/home" className="flex items-center gap-1">
+                <Link to="/" className="flex items-center gap-1">
                   <img src={logo} className="logo react w-[30x] h-[30px]" alt="React logo" />
                   <h1 className="text-xl font-semibold hidden md:block">CIDO</h1>
                 </Link>
@@ -168,7 +168,9 @@ export const DashboardLayout = ({ children }) => {
                       variant="ghost"
                       className={`flex relative items-center gap-1 ${isActive ? "text-primary hover:text-primary font-bold after:content-[''] after:absolute  after:h-0.5 after:bg-primary after:bottom-0 after:transition-all after:duration-300 after:w-full after:scale-x-100" : "after:w-0"}`}
                     >
-                      {item.icon && <item.icon className="w-5 h-5" />}
+                      {item.icon && (
+                        <item.icon className={`w-5 h-5 ${isActive ? "scale-125 duration-300" : "scale-100"}`} />
+                      )}
                       {item.name}
                     </Button>
                   )}
@@ -386,8 +388,8 @@ const UserPopover = () => {
   const [popoverOpen, setPopoverOpen] = useState(false);
 
   const items = [
-    { icon: User, path: "/me", label: "Your profile" },
-    { icon: Utensils, path: "/admin", label: "Admin" },
+    { icon: User, path: "/me", label: "Hồ sơ của bạn" },
+    { icon: Utensils, path: "/d/restaurants", label: "Quản trị nhà hàng" },
   ];
 
   return (
