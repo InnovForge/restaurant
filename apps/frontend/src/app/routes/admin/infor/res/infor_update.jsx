@@ -2,12 +2,32 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { api } from "@/lib/api-client";
 
 export default function RestaurantUpdateInfoForm() {
-  // lay anh
+  const [restaurantInfor, setRestaurantInfor] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Lấy dữ liệu nhà hàng từ API
+  useEffect(() => {
+    async function fetchRestaurantData() {
+      try {
+        const res = await api.get("/v1/restaurant/0844993977846124");
+        setRestaurantInfor(res.data.data);
+      } catch (err) {
+        console.error("Lỗi lấy dữ liệu:", err);
+        setError(err.response?.data?.message || "Không thể lấy dữ liệu");
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchRestaurantData();
+  }, []);
+
+  // Xử lý ảnh
   const [image, setImage] = useState(null);
-  // xu ly anh khi an vao nut thay doi anh
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (file) {
@@ -15,11 +35,38 @@ export default function RestaurantUpdateInfoForm() {
       setImage(imageUrl);
     }
   };
+
+  // Xử lý cập nhật thông tin
+  const handleUpdate = async () => {
+    try {
+      const updatedData = {
+        name: document.getElementById("name").value,
+        phoneNumber: document.getElementById("phone").value,
+        address: {
+          addressLine1: document.getElementById("addressLine1").value,
+          addressLine2: document.getElementById("addressLine2").value,
+          longitude: document.getElementById("longitude").value,
+          latitude: document.getElementById("latitude").value,
+        },
+      };
+
+      const res = await api.patch(`/v1/restaurant/0844993977846124`, updatedData);
+      alert("Cập nhật thành công!");
+      setRestaurantInfor(res.data.data);
+    } catch (err) {
+      console.error("Lỗi cập nhật:", err);
+      alert("Cập nhật thất bại!");
+    }
+  };
+
+  if (loading) return <p>Đang tải...</p>;
+  if (error) return <p className="text-red-500">{error}</p>;
+
   return (
     <div className="container mx-auto p-4">
       <Card>
         <CardHeader>
-          <CardTitle>Thông tins</CardTitle>
+          <CardTitle>Thông tin nhà hàng</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           <div>
@@ -28,15 +75,15 @@ export default function RestaurantUpdateInfoForm() {
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="name">Tên nhà hàng :</Label>
-                  <Input id="name" defaultValue="0202020" />
+                  <Input id="name" defaultValue={restaurantInfor?.name || ""} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="email">Email :</Label>
-                  <Input id="email" defaultValue="0202020" />
+                  <Input id="email" defaultValue={restaurantInfor?.email || ""} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="phone">Điện thoại :</Label>
-                  <Input id="phone" defaultValue="0202020" />
+                  <Input id="phone" defaultValue={restaurantInfor?.phoneNumber || ""} />
                 </div>
               </div>
               <div className="flex flex-col items-center space-y-2">
@@ -59,29 +106,27 @@ export default function RestaurantUpdateInfoForm() {
             <h2 className="text-lg font-semibold mb-4">Địa chỉ</h2>
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="street">address_line1 :</Label>
-                <Input id="street" defaultValue="0202020" />
+                <Label htmlFor="addressLine1">Địa chỉ 1 :</Label>
+                <Input id="addressLine1" defaultValue={restaurantInfor?.addressLine1 || ""} />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="ward">address_line2 :</Label>
-                <Input id="ward" defaultValue="0202020" />
+                <Label htmlFor="addressLine2">Địa chỉ 2 :</Label>
+                <Input id="addressLine2" defaultValue={restaurantInfor?.addressLine2 || ""} />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="district">longitude :</Label>
-                <Input id="district" defaultValue="0202020" />
+                <Label htmlFor="longitude">Kinh độ :</Label>
+                <Input id="longitude" defaultValue={restaurantInfor?.longitude || ""} />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="city">latitude :</Label>
-                <Input id="city" defaultValue="0202020" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="country">Quốc gia :</Label>
-                <Input id="country" defaultValue="0202020" />
+                <Label htmlFor="latitude">Vĩ độ :</Label>
+                <Input id="latitude" defaultValue={restaurantInfor?.latitude || ""} />
               </div>
             </div>
           </div>
           <div className="flex justify-center">
-            <Button className="w-32">Sửa</Button>
+            <Button className="w-32" onClick={handleUpdate}>
+              Sửa
+            </Button>
           </div>
         </CardContent>
       </Card>

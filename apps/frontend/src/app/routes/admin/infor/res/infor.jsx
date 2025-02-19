@@ -13,6 +13,7 @@ export default function RestaurantInfoForm() {
     async function fetchRestaurantData() {
       try {
         const res = await api.get("/v1/restaurant/0844993977846124");
+        console.log(res.data);
         setRestaurantInfor(res.data.data);
       } catch (err) {
         console.error("Lỗi lấy dữ liệu:", err);
@@ -31,7 +32,7 @@ export default function RestaurantInfoForm() {
     <div className="container mx-auto p-4">
       <Card>
         <CardHeader>
-          <CardTitle>Thông tins</CardTitle>
+          <CardTitle>Thông tin</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           <div>
@@ -65,9 +66,6 @@ export default function RestaurantInfoForm() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="city">latitude :{restaurantInfor?.latitude || "null"}</Label>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="country">Quốc gia : Viet Nam</Label>
               </div>
             </div>
           </div>
