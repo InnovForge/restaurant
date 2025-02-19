@@ -3,8 +3,8 @@
 	"version": "1.0.0",
 	"description": "",
 	"scripts": {
-		"dev": "concurrently \"pnpm --filter backend-restaurant dev\" \"pnpm --filter frontend-restaurant dev\" \"pnpm docker:up\"",
-		"dev:be": "concurrently \"pnpm --filter backend-restaurant dev\" \"pnpm docker:up\"",
+		"dev": "concurrently \"pnpm docker:up\" \"pnpm --filter backend-restaurant dev\" \"pnpm --filter frontend-restaurant dev\"",
+		"dev:be": "concurrently \"pnpm docker:up\" \"pnpm --filter backend-restaurant dev\"",
 		"dev:fe": "pnpm --filter frontend-restaurant dev",
 		"lint": "concurrently  \"pnpm --filter frontend-restaurant lint\" \"pnpm --filter backend-restaurant lint\"",
 		"lint:fix": "concurrently  \"pnpm --filter frontend-restaurant lint:fix\" \"pnpm --filter backend-restaurant lint:fix\"",
@@ -12,9 +12,9 @@
 		"prettier:fix": "concurrently  \"pnpm --filter frontend-restaurant prettier:fix\" \"pnpm --filter backend-restaurant prettier:fix\"",
 		"format": "concurrently  \"pnpm --filter frontend-restaurant format\" \"pnpm --filter backend-restaurant format\"",
 		"lint:staged": "lint-staged",
-		"dev:clean": "concurrently  \"pnpm --filter frontend-restaurant clean\" \"pnpm --filter backend-restaurant clean\" \"pnpm clean\"",
-		"clean": "rimraf ./node_modules/",
-    "clean:all": "concurrently  \"pnpm dev:clean\" \"pnpm docker:clean\"",
+    "clean:deps":"concurrently \"pnpm --filter backend-restaurant clean:dep\" \"pnpm --filter frontend-restaurant clean:dep\" \"pnpm clean:dep\"",
+		"clean:dep": "rimraf ./node_modules/",
+		"clean:all": "concurrently  \"pnpm clean:deps\" \"pnpm docker:clean\"",
 		"setup": "pnpm install --frozen-lockfile && pnpm docker:build",
 		"docker:build": "docker compose -f docker-compose.dev.yml --env-file .env.development build",
 		"docker:preview": "docker compose --env-file .env.development up",
@@ -34,14 +34,12 @@
 		"concurrently": "^9.1.2",
 		"eslint": "^9.17.0",
 		"husky": "^9.1.7",
-		"lint-staged": "^15.4.3"
+		"lint-staged": "^15.4.3",
+		"rimraf": "^6.0.1"
 	},
 	"lint-staged": {
 		"apps/frontend/**/*.{js,ts,tsx,jsx}": "pnpm --filter frontend-restaurant lint:fix",
 		"apps/frontend/**/*.{css,scss,yaml}": "pnpm --filter frontend-restaurant prettier:fix",
 		"apps/backend/**/*.{js,ts}": "pnpm --filter backend-restaurant lint:fix"
-	},
-	"dependencies": {
-		"rimraf": "^6.0.1"
 	}
 }

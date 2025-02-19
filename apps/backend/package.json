@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "cross-env NODE_ENV=development node -r dotenv-flow/config ./src/devApp.js",
     "start": "node -r dotenv-flow/config ./src/app.js",
-    "clean": "rimraf ./node_modules/",
+    "clean:dep": "rimraf ./node_modules/",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "prettier": "prettier . --check",
