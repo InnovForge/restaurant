@@ -34,7 +34,21 @@ services:
         required: false # default 
       - path: .env.development
         required: false
+  redis:
+    image: redis:7.4.2-alpine
+    container_name: redis-rt
+    restart: always
+    ports:
+      - "${REDIS_PORT}:6379"
+    volumes:
+      - redis_volume:/data
+    env_file:
+      - path: .env
+        required: false # default 
+      - path: .env.development
+        required: false
 
 volumes:
   mysql_volume:
   minio_volume:
+  redis_volume:

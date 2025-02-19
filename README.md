@@ -12,6 +12,7 @@
 - **MySQL**: `http://localhost:3307` (user: team1, pass: cdio@team1)
 - **Minio (Storage)**: `http://localhost:9002` (kho lưu trữ file)
 - **Minio (Console)**: `http://localhost:9003` (user: team1, pass: cdio@team1) (giao diện quản lý Minio)
+- **Redis**: `http://localhost:6380` (cơ sở dữ liệu cache)
 
 # 🚀 Hướng dẫn sử dụng 
 
