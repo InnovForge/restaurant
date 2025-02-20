@@ -14,4 +14,8 @@ router.patch("/user/avatar", upload.single("avatar"), userController.updateUserA
 
 router.get("/user", userController.getUserFromToken);
 
+router.get("/user/:id", userController.getUser);
+
+router.get("/user/name/:name", userController.getUserName);
+
 export default router;

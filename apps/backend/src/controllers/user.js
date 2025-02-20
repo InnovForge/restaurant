@@ -55,3 +55,31 @@ export const getUserFromToken = async (req, res) => {
     return responseHandler.internalServerError(res);
   }
 };
+
+export const getUser = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const user = await userModel.getUserById(id);
+    if (!user) {
+      return responseHandler.badRequest(res);
+    }
+    return responseHandler.success(res, undefined, user);
+  } catch (error) {
+    console.log("error :>> ", error);
+    return responseHandler.internalServerError(res);
+  }
+};
+
+export const getUserName = async (req, res) => {
+  const { name } = req.params;
+  try {
+    const user = await userModel.getUserByUsername(name);
+    if (!user) {
+      return responseHandler.badRequest(res);
+    }
+    return responseHandler.success(res, undefined, user);
+  } catch (error) {
+    console.log("error :>> ", error);
+    return responseHandler.internalServerError(res);
+  }
+};
