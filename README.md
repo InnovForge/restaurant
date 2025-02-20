@@ -22,10 +22,11 @@ pnpm run setup
 ```
 
 ## Chạy ứng dụng
+ [
 
 - **Chạy Docker**:
   ```sh
-  pnpm docker:start
+  pnpm docker:up -d
   ```
 - **Chạy toàn bộ ứng dụng** (frontend & backend):
   ```sh
