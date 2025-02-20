@@ -15,6 +15,7 @@ import UserUpdateInfoForm from "./routes/admin/infor/admin/infor_update";
 import RestaurantInfoForm from "./routes/admin/infor/res/infor";
 import RestaurantUpdateInfoForm from "./routes/admin/infor/res/infor_update";
 import HomeAdmin from "./routes/admin/dashboard-restaurants";
+import { ProtectedRoute } from "@/components/protected-route";
 
 const convert = (queryClient) => (m) => {
   const { clientLoader, clientAction, default: Component, ...rest } = m;
@@ -38,16 +39,16 @@ export const createAppRouter = (queryClient) =>
     },
     {
       path: "/",
+      lazy: () => import("./routes/landing").then(convert(queryClient)),
+    },
+    {
+      path: "/",
       element: <AppRoot />,
       ErrorBoundary: AppRootErrorBoundary,
       children: [
         {
-          index: true,
-          lazy: () => import("./routes/app/home").then(convert(queryClient)),
-        },
-        {
           path: "home",
-          lazy: () => import("./routes/app/food").then(convert(queryClient)),
+          lazy: () => import("./routes/app/home").then(convert(queryClient)),
         },
         {
           path: "history",
@@ -69,7 +70,12 @@ export const createAppRouter = (queryClient) =>
     },
     {
       path: "/d/restaurants/:restaurantId",
-      element: <HomeAdmin />,
+      element: (
+        <ProtectedRoute>
+          <HomeAdmin />
+        </ProtectedRoute>
+      ),
+
       ErrorBoundary: AppRootErrorBoundary,
       children: [
         {

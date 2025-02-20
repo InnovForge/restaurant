@@ -17,7 +17,6 @@ export const AppProvider = ({ children }) => {
       <SocketProvider>
         <QueryClientProvider client={queryClient}>
           <Toaster />
-
           {children}
         </QueryClientProvider>
       </SocketProvider>

@@ -4,6 +4,7 @@ import useAddressStore from "@/stores/useAddressStore";
 import { useQuery } from "@tanstack/react-query";
 import { Outlet } from "react-router";
 import useAuthUserStore from "@/stores/useAuthUserStore";
+import Loading from "@/components/ui/loading";
 
 export const ErrorBoundary = () => {
   return <div>Something went wrong!</div>;
@@ -75,7 +76,7 @@ const AppRoot = () => {
   });
 
   return isFetching ? (
-    <div>Loading...</div>
+    <Loading />
   ) : (
     <DashboardLayout>
       <Outlet />

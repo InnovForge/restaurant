@@ -2,10 +2,13 @@ import { Link } from "react-router";
 import { Home, Utensils, ShoppingBag, User, Table } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useParams } from "react-router";
+import useAuthUserStore from "@/stores/useAuthUserStore";
 
 export default function DashboardLayout({ children }) {
   let { restaurantId } = useParams();
-  console.log(restaurantId);
+  const { authUser } = useAuthUserStore();
+
+  console.log(restaurantId, authUser);
 
   const menuItems = [
     { path: "infor", icon: User, label: "Thông tin" },
