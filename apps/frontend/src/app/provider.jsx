@@ -2,6 +2,7 @@ import React from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { Spinner } from "@/components/ui/spinner";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
+import { SocketProvider } from "@/context/socket";
 
 export const AppProvider = ({ children }) => {
   const [queryClient] = React.useState(() => new QueryClient());
@@ -13,11 +14,13 @@ export const AppProvider = ({ children }) => {
         </div>
       }
     >
-      <QueryClientProvider client={queryClient}>
-        <Toaster />
+      <SocketProvider>
+        <QueryClientProvider client={queryClient}>
+          <Toaster />
 
-        {children}
-      </QueryClientProvider>
+          {children}
+        </QueryClientProvider>
+      </SocketProvider>
     </React.Suspense>
   );
 };

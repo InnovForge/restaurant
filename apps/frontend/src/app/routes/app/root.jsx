@@ -57,18 +57,18 @@ const AppRoot = () => {
     queryKey: ["authUser"],
     queryFn: async () => {
       const user = await checkUser();
-      // console.log("user", user);
-      if (user === null || user.data.address === null || user.data.address === undefined) {
+      if (!user || user?.data?.addresses.length === 0) {
         const geocode = await getReverseGeocode();
-        if (user) {
-          setAuthUser(user.data);
-        }
-        // console.log("geocode", geocode);
         setAddress(geocode.data);
-        return null;
+      } else if (user?.data?.addresses.length > 0) {
+        setAddress(user.data.addresses[0]);
       }
-      setAuthUser(user.data);
-      return user.data;
+
+      if (user?.data) {
+        setAuthUser(user.data);
+        return user.data;
+      }
+      return null;
     },
     staleTime: Infinity,
     enabled: !authUser,
