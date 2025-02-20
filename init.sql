@@ -22,8 +22,8 @@ CREATE TABLE IF NOT EXISTS addresses (
 	address_id VARCHAR(16) PRIMARY KEY,
 	address_line1 VARCHAR(255) NOT NULL,
 	address_line2 VARCHAR(255),
-	longitude DECIMAL(11,8),
-	latitude DECIMAL(10,8),
+  longitude DECIMAL(11,8) NOT NULL,
+  latitude DECIMAL(10,8) NOT NULL,
 	created_at TIMESTAMP NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMP NOT NULL DEFAULT NOW() ON UPDATE NOW() 
 );
