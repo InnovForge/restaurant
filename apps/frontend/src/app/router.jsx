@@ -3,6 +3,19 @@ import { createBrowserRouter, RouterProvider } from "react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { default as AppRoot, ErrorBoundary as AppRootErrorBoundary } from "./routes/app/root";
 
+import Overview from "./routes/admin/overview/page";
+import MenuPage from "./routes/admin/menu/page";
+import AddFood from "./routes/admin/menu/addfood";
+import OrdersPage from "./routes/admin/orders/page";
+import OrderDetail from "./routes/admin/orders/detail";
+import TableManagement from "./routes/admin/table/page";
+import AddTable from "./routes/admin/table/addtable";
+import UserInfoForm from "./routes/admin/infor/admin/infor";
+import UserUpdateInfoForm from "./routes/admin/infor/admin/infor_update";
+import RestaurantInfoForm from "./routes/admin/infor/res/infor";
+import RestaurantUpdateInfoForm from "./routes/admin/infor/res/infor_update";
+import HomeAdmin from "./routes/admin/dashboard-restaurants";
+
 const convert = (queryClient) => (m) => {
   const { clientLoader, clientAction, default: Component, ...rest } = m;
   return {
@@ -33,65 +46,75 @@ export const createAppRouter = (queryClient) =>
           lazy: () => import("./routes/app/home").then(convert(queryClient)),
         },
         {
-          path: "/home",
+          path: "home",
           lazy: () => import("./routes/app/food").then(convert(queryClient)),
         },
         {
-          path: "/history",
+          path: "history",
           lazy: () => import("./routes/app/order-history").then(convert(queryClient)),
         },
         {
-          path: "/checkout",
+          path: "checkout",
           lazy: () => import("./routes/app/checkout").then(convert(queryClient)),
         },
         {
-          path: "/me",
+          path: "me",
           lazy: () => import("./routes/app/me").then(convert(queryClient)),
         },
         {
           path: "/d/restaurants",
-          lazy: () => import("./routes/app/admin/dashboard-restaurants").then(convert(queryClient)),
-          children: [
-            {
-              path: "infor",
-              children: [
-                { index: true, lazy: () => import("./routes/app/admin/infor/res/infor").then(convert(queryClient)) },
-                {
-                  path: "update",
-                  lazy: () => import("./routes/app/admin/infor/res/infor_update").then(convert(queryClient)),
-                },
-              ],
-            },
-            {
-              path: "menu",
-              children: [
-                { index: true, lazy: () => import("./routes/app/admin/menu/page").then(convert(queryClient)) },
-                { path: "themmon", lazy: () => import("./routes/app/admin/menu/addfood").then(convert(queryClient)) },
-              ],
-            },
-            {
-              path: "hoadon",
-              children: [
-                { index: true, lazy: () => import("./routes/app/admin/orders/page").then(convert(queryClient)) },
-                { path: "chitiet", lazy: () => import("./routes/app/admin/orders/detail").then(convert(queryClient)) },
-              ],
-            },
-            {
-              path: "thongke",
-              lazy: () => import("./routes/app/admin/overview/page").then(convert(queryClient)),
-            },
-            {
-              path: "provider",
-              lazy: () => import("./routes/app/admin/provider/admin_provider").then(convert(queryClient)),
-            },
-            {
-              path: "ban",
-              children: [
-                { index: true, lazy: () => import("./routes/app/admin/table/page").then(convert(queryClient)) },
-                { path: "themban", lazy: () => import("./routes/app/admin/table/addtable").then(convert(queryClient)) },
-              ],
-            },
-          ],
+          lazy: () => import("./routes/app/dashboard-restaurants").then(convert(queryClient)),
+        },
+      ],
+    },
+    {
+      path: "/d/restaurants/:restaurantId",
+      element: <HomeAdmin />,
+      ErrorBoundary: AppRootErrorBoundary,
+      children: [
+        {
+          index: true,
+          element: <UserInfoForm />,
+        },
+        {
+          path: "suathongtin",
+          element: <UserUpdateInfoForm />,
+        },
+        {
+          path: "nhahang",
+          element: <RestaurantInfoForm />,
+        },
+        {
+          path: "nhahang/suathongtin",
+          element: <RestaurantUpdateInfoForm />,
+        },
+        {
+          path: "thongke",
+          element: <Overview />,
+        },
+        {
+          path: "menu",
+          element: <MenuPage />,
+        },
+        {
+          path: "menu/themmon",
+          element: <AddFood />,
+        },
+        {
+          path: "hoadon",
+          element: <OrdersPage />,
+        },
+        {
+          path: "hoadon/chitiet",
+          element: <OrderDetail />,
+        },
+        {
+          path: "ban",
+          element: <TableManagement />,
+        },
+        {
+          path: "ban/themban",
+          element: <AddTable />,
         },
       ],
     },
