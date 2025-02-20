@@ -78,10 +78,9 @@ export const ipGeocode = async (req, res) => {
   }
 };
 
-// TODO: this is test func route
 export const distance = async (req, res) => {
   const { waypoints } = req.query;
-  const data = await service.countRoute(waypoints);
+  const data = await service.distance(waypoints);
   cacheResponse(req.originalUrl, data, 7 * 24 * 60 * 60); // 7 days
   return responseHandler.success(res, undefined, data);
 };

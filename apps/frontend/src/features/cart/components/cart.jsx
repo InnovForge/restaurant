@@ -28,7 +28,7 @@ const Cart = () => {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <div className="flex items-center justify-center gap-1 p-1 mr-5 rounded-md hover:bg-accent hover:text-accent-foregroundrounded-md cursor-pointer">
+        <div className="flex items-center justify-center gap-1 p-1 mr-3 rounded-md hover:bg-accent hover:text-accent-foregroundrounded-md cursor-pointer">
           <ShoppingCart className="w-6 h-6" />
           <span>1</span>
         </div>

@@ -62,9 +62,10 @@ const AppRoot = () => {
         const geocode = await getReverseGeocode();
         if (user) {
           setAuthUser(user.data);
-          setAddress(geocode.data);
         }
-        return;
+        // console.log("geocode", geocode);
+        setAddress(geocode.data);
+        return null;
       }
       setAuthUser(user.data);
       return user.data;

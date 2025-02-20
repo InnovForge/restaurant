@@ -172,4 +172,117 @@ router.patch(
   foodController.uploadFoodImage,
 );
 
+/**
+ * @openapi
+ * /api/v1/food:
+ *   get:
+ *     summary: Lấy danh sách món ăn của nhà hàng
+ *     tags:
+ *       - food
+ *     parameters:
+ *       - in: query
+ *         name: latitude
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Vĩ độ của vị trí hiện tại
+ *       - in: query
+ *         name: longitude
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Kinh độ của vị trí hiện tại
+ *       - in: query
+ *         name: radius
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           default: 10000
+ *         description: Bán kính tìm kiếm (mét)
+ *     responses:
+ *       200:
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "success"
+ *                 code:
+ *                   type: integer
+ *                   example: 200
+ *                 message:
+ *                   type: string
+ *                   example: "Your request was processed successfully."
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       restaurantName:
+ *                         type: string
+ *                         example: "Cơm Hà Nội"
+ *                       restaurantId:
+ *                         type: string
+ *                         example: "3470463054406434"
+ *                       addressLine1:
+ *                         type: string
+ *                         example: "Da Nang"
+ *                       addressLine2:
+ *                         type: string
+ *                         example: "Suite 456"
+ *                       longitude:
+ *                         type: string
+ *                         example: "108.22150000"
+ *                       latitude:
+ *                         type: string
+ *                         example: "16.06850000"
+ *                       foods:
+ *                         type: array
+ *                         items:
+ *                           type: object
+ *                           properties:
+ *                             foodId:
+ *                               type: string
+ *                               example: "5098209683571802"
+ *                             name:
+ *                               type: string
+ *                               example: "Cơm gà"
+ *                             price:
+ *                               type: integer
+ *                               example: 20000
+ *                             description:
+ *                               type: string
+ *                               example: "Cơm siêu ngon"
+ *                             imageUrl:
+ *                               type: string
+ *                               nullable: true
+ *                               example: null
+ *                       distanceInfo:
+ *                         type: object
+ *                         properties:
+ *                           straightLineDistance:
+ *                             type: number
+ *                             example: 1577.911052409428
+ *                           distance:
+ *                             type: number
+ *                             example: 2091
+ *                           distanceUnits:
+ *                             type: string
+ *                             example: "meters"
+ *                           duration:
+ *                             type: number
+ *                             example: 3.072866666666667
+ *                           durationUnits:
+ *                             type: string
+ *                             example: "minutes"
+ *       400:
+ *         $ref: '#/components/responses/400'
+ *       500:
+ *         $ref: '#/components/responses/500'
+ */
+router.get("/food", foodController.getAllFood);
+
 export default router;
