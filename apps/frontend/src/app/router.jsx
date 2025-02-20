@@ -2,7 +2,6 @@ import { useMemo } from "react";
 import { createBrowserRouter, RouterProvider } from "react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { default as AppRoot, ErrorBoundary as AppRootErrorBoundary } from "./routes/app/root";
-import Food from "./routes/app/food";
 
 const convert = (queryClient) => (m) => {
   const { clientLoader, clientAction, default: Component, ...rest } = m;
@@ -35,7 +34,7 @@ export const createAppRouter = (queryClient) =>
         },
         {
           path: "/home",
-          element: <Food />,
+          lazy: () => import("./routes/app/food").then(convert(queryClient)),
         },
         {
           path: "/history",

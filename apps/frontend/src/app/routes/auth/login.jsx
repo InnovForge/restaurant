@@ -25,7 +25,7 @@ const Login = () => {
     try {
       const res = await api.post("/v1/auth/login", value);
       if (res.status === 200) {
-        navigate("/home");
+        window.location.href = "/home";
       }
     } catch (error) {
       console.log("err", error);
