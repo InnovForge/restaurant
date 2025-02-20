@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import { Home, Utensils, ShoppingBag, User, LogOut, Table } from "lucide-react";
+import { Home, Utensils, ShoppingBag, User, Table } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function DashboardLayout({ children }) {
@@ -19,33 +19,37 @@ export default function DashboardLayout({ children }) {
           </div>
         </div>
         <nav className="mt-6">
-          <Link to="/admin" className="block px-4 py-2 text-gray-600 hover:bg-gray-100 hover:text-gray-800">
+          <Link
+            to="/d/restaurants/infor"
+            className="block px-4 py-2 text-gray-600 hover:bg-gray-100 hover:text-gray-800"
+          >
             <User className="inline-block mr-2" size={18} />
             Thông tin
           </Link>
-          <Link to="/admin/nhahang" className="block px-4 py-2 text-gray-600 hover:bg-gray-100 hover:text-gray-800">
-            <User className="inline-block mr-2" size={18} />
-            Thông tin nhà hàng
-          </Link>
-          <Link to="/admin/thongke" className="block px-4 py-2 text-gray-600 hover:bg-gray-100 hover:text-gray-800">
+          <Link
+            to="/d/restaurants/thongke"
+            className="block px-4 py-2 text-gray-600 hover:bg-gray-100 hover:text-gray-800"
+          >
             <Home className="inline-block mr-2" size={18} />
             Thống kê
           </Link>
-          <Link to="/admin/menu" className="block px-4 py-2 text-gray-600 hover:bg-gray-100 hover:text-gray-800">
+          <Link
+            to="/d/restaurants/menu"
+            className="block px-4 py-2 text-gray-600 hover:bg-gray-100 hover:text-gray-800"
+          >
             <Utensils className="inline-block mr-2" size={18} />
             Menu
           </Link>
-          <Link to="/admin/hoadon" className="block px-4 py-2 text-gray-600 hover:bg-gray-100 hover:text-gray-800">
+          <Link
+            to="/d/restaurants/hoadon"
+            className="block px-4 py-2 text-gray-600 hover:bg-gray-100 hover:text-gray-800"
+          >
             <ShoppingBag className="inline-block mr-2" size={18} />
             Hóa đơn
           </Link>
-          <Link to="/admin/ban" className="block px-4 py-2 text-gray-600 hover:bg-gray-100 hover:text-gray-800">
+          <Link to="/d/restaurants/ban" className="block px-4 py-2 text-gray-600 hover:bg-gray-100 hover:text-gray-800">
             <Table className="inline-block mr-2" size={18} />
             Bàn ăn
-          </Link>
-          <Link to="/login" className="block px-4 py-2 text-gray-800  hover:bg-gray-500 hover:text-gray-800 mt-4 ">
-            <LogOut className="inline-block mr-2" size={18} />
-            Logout
           </Link>
         </nav>
       </aside>

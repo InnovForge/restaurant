@@ -69,7 +69,7 @@ export default function UserInfoForm() {
             </div>
           </div>
           <div className="flex justify-center">
-            <Link to="/admin/suathongtin">
+            <Link to="/d/restaurants/infor/update">
               <Button className="w-32">Sửa thông tin</Button>
             </Link>
           </div>

@@ -75,7 +75,7 @@ const MenuPage = () => {
       <div className="border rounded-md shadow-md bg-white">
         <div className="border-b p-4 flex justify-between">
           <h2 className="text-xl font-bold">Quản Lý Món Ăn</h2>
-          <Link to="/admin/menu/themmon">
+          <Link to="/d/restaurants/menu/themmon">
             <Button>
               <PlusCircle className="h-5 w-5 mr-2" />
               Thêm món ăn

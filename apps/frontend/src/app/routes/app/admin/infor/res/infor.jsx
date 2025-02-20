@@ -70,7 +70,7 @@ export default function RestaurantInfoForm() {
             </div>
           </div>
           <div className="flex justify-center">
-            <Link to="/admin/nhahang/suathongtin">
+            <Link to="/d/restaurants/infor/update">
               <Button className="w-32">Sửa thông tin</Button>
             </Link>
           </div>

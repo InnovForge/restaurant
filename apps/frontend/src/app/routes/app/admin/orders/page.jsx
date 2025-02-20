@@ -1,34 +1,20 @@
 import { useState } from "react";
 import { ChevronLeft, ChevronRight, PlusCircle, Search } from "lucide-react";
 import { Link } from "react-router";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Table, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
+
 // dữ liệu giả
 const data = [
-  { id: "1", seats: 4, status: "Sẵn sàng" },
-  { id: "2", seats: 6, status: "Đang sử dụng" },
-  { id: "3", seats: 8, status: "Sẵn sàng" },
-  { id: "4", seats: 2, status: "Đang sử dụng" },
+  { id: "1", seats: 4, status: "Đã thanh toán" },
+  { id: "2", seats: 6, status: "Đã thanh toán" },
+  { id: "3", seats: 8, status: "Chưa thanh toán" },
+  { id: "4", seats: 2, status: "Đã thanh toán" },
 ];
 
-const TableManagement = () => {
-  const [editItem, setEditItem] = useState({});
-
-  const handleEditClick = (item) => {
-    setEditItem(item);
-  };
+const OrdersPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 4;
@@ -45,13 +31,7 @@ const TableManagement = () => {
     <div className="container mx-auto p-6">
       <div className="border rounded-md shadow-md bg-white">
         <div className="border-b p-4 flex justify-between">
-          <h2 className="text-xl font-bold">Quản Lý Bàn Ăn</h2>
-          <Link to="/admin/ban/themban">
-            <Button>
-              <PlusCircle className="h-5 w-5 mr-2" />
-              Thêm bàn
-            </Button>
-          </Link>
+          <h2 className="text-xl font-bold">Quản Lý Hóa đơn</h2>
         </div>
         <div className="p-4">
           <div className="flex flex-wrap gap-4 mb-4">
@@ -69,59 +49,27 @@ const TableManagement = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>ID Bàn</TableHead>
-                  <TableHead>Số Lượng Chỗ Ngồi</TableHead>
-                  <TableHead>Tình Trạng</TableHead>
-                  <TableHead className="text-right">Sửa / Xóa</TableHead>
+                  <TableHead>Mã hóa đơn</TableHead>
+                  <TableHead className="text-center">Tình Trạng</TableHead>
+                  <TableHead className="text-right">Chi tiết</TableHead>
                 </TableRow>
               </TableHeader>
               <tbody>
                 {paginatedData.map((item) => (
                   <TableRow key={item.id}>
                     <TableCell>{item.id}</TableCell>
-                    <TableCell>{item.seats}</TableCell>
-                    <TableCell>
-                      <Badge variant={item.status === "Sẵn sàng" ? "Sẵn sàng" : "Đang sử dụng"}>{item.status}</Badge>
+                    <TableCell className="text-center">
+                      <Badge variant={item.status === "Đã thanh toán" ? "Đã thanh toán" : "Chưa thanh toán"}>
+                        {item.status}
+                      </Badge>
                     </TableCell>
                     <TableCell className="text-right">
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button variant="outline">Sửa</Button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-[425px]">
-                          <DialogHeader>
-                            <DialogTitle>Sửa bàn</DialogTitle>
-                            <DialogDescription>
-                              Thực hiện thay đổi bàn của bạn tại đây. Nhấp vào sửa khi bạn hoàn tất.
-                            </DialogDescription>
-                          </DialogHeader>
-                          <div className="grid gap-4 py-4">
-                            <div className="grid grid-cols-4 items-center gap-4">
-                              <Label htmlFor="soluong" className="text-right">
-                                Số lượng
-                              </Label>
-                              <Input
-                                id="soluong"
-                                type="number"
-                                value={editItem.quanlity || ""}
-                                onChange={(e) =>
-                                  setEditItem({
-                                    ...editItem,
-                                    quanlity: e.target.value,
-                                  })
-                                }
-                                className="col-span-3"
-                              />
-                            </div>
-                          </div>
-                          <DialogFooter>
-                            <Button type="submit">Sửa</Button>
-                          </DialogFooter>
-                        </DialogContent>
-                      </Dialog>
-                      <Button size="sm" variant="outline" className="text-red-500 ml-2">
-                        Xóa
-                      </Button>
+                      <Link to="/d/restaurants/hoadon/chitiet">
+                        <Button>
+                          <PlusCircle cclassName="w-25" />
+                          Xem chi tiết
+                        </Button>
+                      </Link>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -168,4 +116,4 @@ const TableManagement = () => {
   );
 };
 
-export default TableManagement;
+export default OrdersPage;
