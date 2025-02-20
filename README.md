@@ -22,8 +22,7 @@ pnpm run setup
 ```
 
 ## Chạy ứng dụng
- [
-
+ 
 - **Chạy Docker**:
   ```sh
   pnpm docker:up -d
