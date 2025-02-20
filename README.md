@@ -1,4 +1,4 @@
-# React + MySql + Express + Docker + Minio
+# React + MySql + Express + Docker + Minio + Redis
 
 ## Yêu cầu
 - [Node.js](https://nodejs.org/en/)
@@ -22,7 +22,12 @@ pnpm run setup
 ```
 
 ## Chạy ứng dụng
-- **Chạy toàn bộ ứng dụng** (bao gồm Docker, frontend & backend):
+
+- **Chạy Docker**:
+  ```sh
+  pnpm docker:start
+  ```
+- **Chạy toàn bộ ứng dụng** (frontend & backend):
   ```sh
   pnpm dev
   ```
@@ -30,7 +35,7 @@ pnpm run setup
   ```sh
   pnpm dev:fe
   ```
-- **Chạy backend (bao gồm Docker)**:
+- **Chạy backend**:
   ```sh
   pnpm dev:be
   ```

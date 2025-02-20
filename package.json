@@ -3,8 +3,8 @@
 	"version": "1.0.0",
 	"description": "",
 	"scripts": {
-		"dev": "concurrently \"pnpm docker:up\" \"pnpm --filter backend-restaurant dev\" \"pnpm --filter frontend-restaurant dev\"",
-		"dev:be": "concurrently \"pnpm docker:up\" \"pnpm --filter backend-restaurant dev\"",
+		"dev": "concurrently \"pnpm --filter backend-restaurant dev\" \"pnpm --filter frontend-restaurant dev\"",
+		"dev:be": "concurrently \"pnpm --filter backend-restaurant dev\"",
 		"dev:fe": "pnpm --filter frontend-restaurant dev",
 		"lint": "concurrently  \"pnpm --filter frontend-restaurant lint\" \"pnpm --filter backend-restaurant lint\"",
 		"lint:fix": "concurrently  \"pnpm --filter frontend-restaurant lint:fix\" \"pnpm --filter backend-restaurant lint:fix\"",
