@@ -91,3 +91,15 @@ export const getRestaurant = async (req, res) => {
     return responseHandler.internalServerError(res);
   }
 };
+
+export const getRestaurantByUserId = async (req, res) => {
+  const userId = req.userId;
+  // console.log("userId :>> ", userId);
+  try {
+    const restaurant = await restaurantModel.getRestaurantByUserId(userId);
+    return responseHandler.success(res, undefined, restaurant);
+  } catch (error) {
+    console.log("error :>> ", error);
+    return responseHandler.internalServerError(res);
+  }
+};

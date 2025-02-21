@@ -110,6 +110,31 @@ const restaurantModel = {
     );
     return rows[0];
   },
+
+  async getRestaurantByUserId(userId) {
+    const [rows] = await pool.query(
+      `
+SELECT 
+    r.restaurant_id,
+    r.name AS restaurant_name,
+    r.phone_number,
+    r.logo_url,
+    r.cover_url,
+    rm.role,
+    r.created_at,
+    r.updated_at
+FROM 
+    restaurant_managers rm
+JOIN 
+    restaurants r ON rm.restaurant_id = r.restaurant_id
+WHERE 
+    rm.user_id = ?;
+
+`,
+      [userId],
+    );
+    return rows;
+  },
 };
 
 export default restaurantModel;
