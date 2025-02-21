@@ -35,7 +35,7 @@ export const register = async (req, res) => {
 
   try {
     await userModel.createUser({
-      username,
+      username: username.toLowerCase(),
       password,
       name,
     });
