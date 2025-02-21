@@ -10,12 +10,11 @@ import OrdersPage from "./routes/admin/orders/page";
 import OrderDetail from "./routes/admin/orders/detail";
 import TableManagement from "./routes/admin/table/page";
 import AddTable from "./routes/admin/table/addtable";
-import UserInfoForm from "./routes/admin/infor/admin/infor";
-import UserUpdateInfoForm from "./routes/admin/infor/admin/infor_update";
 import RestaurantInfoForm from "./routes/admin/infor/res/infor";
 import RestaurantUpdateInfoForm from "./routes/admin/infor/res/infor_update";
 import HomeAdmin from "./routes/admin/dashboard-restaurants";
 import { ProtectedRoute } from "@/components/protected-route";
+import { RestaurantProvider } from "@/context/restaurant";
 
 const convert = (queryClient) => (m) => {
   const { clientLoader, clientAction, default: Component, ...rest } = m;
@@ -72,7 +71,11 @@ export const createAppRouter = (queryClient) =>
       path: "/d/restaurants/:restaurantId",
       element: (
         <ProtectedRoute>
-          <HomeAdmin />
+          <RestaurantProvider>
+            {" "}
+            {/* Bọc Provider ở đây */}
+            <HomeAdmin />
+          </RestaurantProvider>
         </ProtectedRoute>
       ),
 
@@ -80,18 +83,10 @@ export const createAppRouter = (queryClient) =>
       children: [
         {
           index: true,
-          element: <UserInfoForm />,
-        },
-        {
-          path: "suathongtin",
-          element: <UserUpdateInfoForm />,
-        },
-        {
-          path: "nhahang",
           element: <RestaurantInfoForm />,
         },
         {
-          path: "nhahang/suathongtin",
+          path: "suathongtin",
           element: <RestaurantUpdateInfoForm />,
         },
         {

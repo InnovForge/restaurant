@@ -11,11 +11,12 @@ export default function DashboardLayout({ children }) {
   console.log(restaurantId, authUser);
 
   const menuItems = [
-    { path: "infor", icon: User, label: "Thông tin" },
+    { path: "", icon: User, label: "Thông tin" },
     { path: "thongke", icon: Home, label: "Thống kê" },
     { path: "menu", icon: Utensils, label: "Menu" },
     { path: "hoadon", icon: ShoppingBag, label: "Hóa đơn" },
     { path: "ban", icon: Table, label: "Bàn ăn" },
+    { path: "home", icon: Home, label: "Home" },
   ];
 
   return (

@@ -4,15 +4,17 @@ import { Label } from "@/components/ui/label";
 import { api } from "@/lib/api-client";
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
+import { useRestaurant } from "@/context/restaurant";
 export default function RestaurantInfoForm() {
   const [restaurantInfor, setRestaurantInfor] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
+  const { restaurantId } = useRestaurant();
+  console.log("infor" + restaurantId);
   useEffect(() => {
     async function fetchRestaurantData() {
       try {
-        const res = await api.get("/v1/restaurant/0844993977846124");
+        const res = await api.get(`/v1/restaurant/${restaurantId}`);
         console.log(res.data);
         setRestaurantInfor(res.data.data);
       } catch (err) {
@@ -70,7 +72,7 @@ export default function RestaurantInfoForm() {
             </div>
           </div>
           <div className="flex justify-center">
-            <Link to="/d/restaurants/infor/update">
+            <Link to={`/d/restaurants/${restaurantId}/suathongtin`}>
               <Button className="w-32">Sửa thông tin</Button>
             </Link>
           </div>

@@ -4,17 +4,18 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState, useEffect } from "react";
 import { api } from "@/lib/api-client";
-
+import { useRestaurant } from "@/context/restaurant";
 export default function RestaurantUpdateInfoForm() {
   const [restaurantInfor, setRestaurantInfor] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { restaurantId } = useRestaurant();
 
   // Lấy dữ liệu nhà hàng từ API
   useEffect(() => {
     async function fetchRestaurantData() {
       try {
-        const res = await api.get("/v1/restaurant/0844993977846124");
+        const res = await api.get(`/v1/restaurant/${restaurantId}`);
         setRestaurantInfor(res.data.data);
       } catch (err) {
         console.error("Lỗi lấy dữ liệu:", err);
