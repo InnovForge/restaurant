@@ -51,7 +51,7 @@ export default function RestaurantUpdateInfoForm() {
         },
       };
 
-      const res = await api.patch(`/v1/restaurant/0844993977846124`, updatedData);
+      const res = await api.patch(`/v1/restaurant/${restaurantId}`, updatedData);
       alert("Cập nhật thành công!");
       setRestaurantInfor(res.data.data);
     } catch (err) {

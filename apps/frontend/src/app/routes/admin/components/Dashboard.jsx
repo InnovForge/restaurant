@@ -16,7 +16,6 @@ export default function DashboardLayout({ children }) {
     { path: "menu", icon: Utensils, label: "Menu" },
     { path: "hoadon", icon: ShoppingBag, label: "Hóa đơn" },
     { path: "ban", icon: Table, label: "Bàn ăn" },
-    { path: "home", icon: Home, label: "Home" },
   ];
 
   return (
@@ -45,6 +44,10 @@ export default function DashboardLayout({ children }) {
               {label}
             </Link>
           ))}
+          <Link to={"/home"} className="block px-4 py-2 text-gray-600 hover:bg-gray-100 hover:text-gray-800">
+            <Home className="inline-block mr-2" size={18} />
+            Home
+          </Link>
           {/* 					<Link
 						to={`/d/restaurants/${restaurantId}/infor`}
 						className="block px-4 py-2 text-gray-600 hover:bg-gray-100 hover:text-gray-800"
