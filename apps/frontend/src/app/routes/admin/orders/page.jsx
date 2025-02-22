@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-
+import { useRestaurant } from "@/context/restaurant";
 // dữ liệu giả
 const data = [
   { id: "1", seats: 4, status: "Đã thanh toán" },
@@ -15,6 +15,7 @@ const data = [
 ];
 
 const OrdersPage = () => {
+  const { restaurantId } = useRestaurant();
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 4;
@@ -64,7 +65,7 @@ const OrdersPage = () => {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
-                      <Link to="/d/restaurants/hoadon/chitiet">
+                      <Link to={`/d/restaurants/${restaurantId}/hoadon/chitiet`}>
                         <Button>
                           <PlusCircle cclassName="w-25" />
                           Xem chi tiết
