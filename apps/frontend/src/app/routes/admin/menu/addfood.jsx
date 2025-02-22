@@ -3,9 +3,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useRestaurant } from "@/context/restaurant";
+import { api } from "@/lib/api-client";
 
 const AddFood = () => {
   const [image, setImage] = useState(null);
+  const { restaurantId } = useRestaurant();
+
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (file) {
@@ -13,6 +17,23 @@ const AddFood = () => {
       setImage(imageUrl);
     }
   };
+
+  const handleAdd = async () => {
+    try {
+      const addFood = {
+        name: document.getElementById("name").value,
+        price: document.getElementById("price").value,
+        description: document.getElementById("description").value,
+      };
+
+      const res = await api.post(`/v1/restaurant/${restaurantId}/food`, addFood);
+      alert("Thêm món thành công!");
+    } catch (err) {
+      console.error("Lỗi thêm:", err);
+      alert("Cập nhật thất bại!");
+    }
+  };
+
   return (
     <div className="container mx-auto p-4">
       <Card>
@@ -32,8 +53,8 @@ const AddFood = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="quanlity">Số lượng:</Label>
-                <Input id="quanlity" placeholder="Nhập số lượng" type="number" />
+                <Label htmlFor="description">Mô tả:</Label>
+                <Input id="description" placeholder="Nhập mô tả" />
               </div>
             </div>
 
@@ -53,7 +74,9 @@ const AddFood = () => {
           </div>
 
           <div className="mt-6">
-            <Button className="w-full">Thêm món ăn</Button>
+            <Button className="w-full" onClick={handleAdd}>
+              Thêm món ăn
+            </Button>
           </div>
         </CardContent>
       </Card>

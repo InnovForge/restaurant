@@ -16,53 +16,36 @@ import { Input } from "@/components/ui/input";
 import { Table, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
-
-const data = [
-  {
-    id: "1",
-    name: "Tôm hùm nướng phô mai",
-    image: "https://th.bing.com/th/id/R.55dc200d2ae8b273a1bcbca98649326c?rik=AhNTTXII5H%2bfuA&pid=ImgRaw&r=0",
-    quanlity: 10,
-    status: "Còn",
-    price: "100000",
-  },
-  {
-    id: "2",
-    name: "Cua biển hấp",
-    image: "https://th.bing.com/th/id/R.0f6e3e1a3be694277bb55f97413184cb?rik=FWiarVBsSUPCsw&pid=ImgRaw&r=0",
-    quanlity: 8,
-    status: "Còn",
-    price: "100000",
-  },
-  {
-    id: "3",
-    name: "Cá hồi sống japan",
-    image: "https://th.bing.com/th/id/R.0115459b088f47c0db067984869da484?rik=Qp%2bSSrrufjFq9Q&pid=ImgRaw&r=0",
-    quanlity: 5,
-    status: "Còn",
-    price: "100000",
-  },
-  {
-    id: "4",
-    name: "Mực hấp bia",
-    image: "https://daubepgiadinh.vn/wp-content/uploads/2019/01/muc-hap-bia-600x400.jpg",
-    quanlity: 12,
-    status: "Còn",
-    price: "100000",
-  },
-];
+import { useRestaurant } from "@/context/restaurant";
+import { useEffect } from "react";
+import { api } from "@/lib/api-client";
 
 const MenuPage = () => {
+  // http://localhost:3001/api/v1/food?latitude=16.060035&longitude=108.209648
   const [editItem, setEditItem] = useState({});
-
+  const [foods, setFoods] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const { restaurantId } = useRestaurant();
   const handleEditClick = (item) => {
     setEditItem(item);
   };
-  const [searchTerm, setSearchTerm] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
+  useEffect(() => {
+    async function fetchRestaurantData() {
+      try {
+        const res = await api.get(`v1/food?latitude=16.060035&longitude=108.209648`);
+        console.log(res.data.data[0].foods);
+        setFoods(res.data.data[0].foods);
+      } catch (err) {
+        console.error("Lỗi lấy dữ liệu:", err);
+      }
+    }
+
+    fetchRestaurantData();
+  }, []);
   const itemsPerPage = 4;
 
-  const filteredData = data.filter((item) =>
+  const filteredData = foods.filter((item) =>
     Object.values(item).some((value) => value.toString().toLowerCase().includes(searchTerm.toLowerCase())),
   );
 
@@ -75,7 +58,7 @@ const MenuPage = () => {
       <div className="border rounded-md shadow-md bg-white">
         <div className="border-b p-4 flex justify-between">
           <h2 className="text-xl font-bold">Quản Lý Món Ăn</h2>
-          <Link to="/d/restaurants/menu/themmon">
+          <Link to={`/d/restaurants/${restaurantId}/menu/themmon`}>
             <Button>
               <PlusCircle className="h-5 w-5 mr-2" />
               Thêm món ăn
@@ -103,7 +86,7 @@ const MenuPage = () => {
                   <TableHead>Hình ảnh</TableHead>
                   <TableHead>Tên Món Ăn</TableHead>
                   <TableHead>Tình trạng</TableHead>
-                  <TableHead>Số Lượng</TableHead>
+                  <TableHead>Mô tả</TableHead>
                   <TableHead>Giá</TableHead>
                   <TableHead className="text-right">Sửa / Xóa</TableHead>
                 </TableRow>
@@ -119,7 +102,7 @@ const MenuPage = () => {
                     <TableCell>
                       <Badge variant={item.status === "Còn" ? "Tạm hết" : "Hết"}>{item.status}</Badge>
                     </TableCell>
-                    <TableCell>{item.quanlity}</TableCell>
+                    <TableCell>{item.description}</TableCell>
                     <TableCell>{item.price + " VNĐ"}</TableCell>
                     <TableCell className="text-right">
                       <Dialog>
@@ -188,17 +171,16 @@ const MenuPage = () => {
                               </select>
                             </div>
                             <div className="grid grid-cols-4 items-center gap-4">
-                              <Label htmlFor="soluong" className="text-right">
-                                Số lượng
+                              <Label htmlFor="mota" className="text-right">
+                                Mô tả
                               </Label>
                               <Input
-                                id="soluong"
-                                type="number"
-                                value={editItem.quanlity || ""}
+                                id="mota"
+                                value={editItem.description || ""}
                                 onChange={(e) =>
                                   setEditItem({
                                     ...editItem,
-                                    quanlity: e.target.value,
+                                    description: e.target.value,
                                   })
                                 }
                                 className="col-span-3"

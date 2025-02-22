@@ -97,3 +97,25 @@ pnpm run setup
   ```sh
   pnpm clean:all
   ```
+##  Dữ liệu:
+
+ ## 1. khởi tạo Dữ Liệu
+
+Lệnh này dùng để ghi dữ liệu vào cơ sở dữ liệu, giúp khởi tạo dữ liệu ban đầu hoặc thêm dữ liệu mẫu để kiểm thử.
+
+### Cách sử dụng:
+```sh
+pnpm seed 
+```
+- Các tùy chọn:
+ - **-y**: Bỏ qua xác nhận
+- Nếu không cung cấp mật khẩu, mật khẩu mặc định sẽ là cdio@team1
+
+ ## Xoá dữ liệu database
+
+```sh
+pnpm clean:db
+```
+- Các tùy chọn:
+ - **-y**: Bỏ qua xác nhận và xoá dữ liệu ngay lập tức.
+

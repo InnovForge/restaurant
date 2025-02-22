@@ -11,7 +11,7 @@ export default function DashboardLayout({ children }) {
   console.log(restaurantId, authUser);
 
   const menuItems = [
-    { path: "infor", icon: User, label: "Thông tin" },
+    { path: "", icon: User, label: "Thông tin" },
     { path: "thongke", icon: Home, label: "Thống kê" },
     { path: "menu", icon: Utensils, label: "Menu" },
     { path: "hoadon", icon: ShoppingBag, label: "Hóa đơn" },
@@ -44,41 +44,10 @@ export default function DashboardLayout({ children }) {
               {label}
             </Link>
           ))}
-          {/* 					<Link
-						to={`/d/restaurants/${restaurantId}/infor`}
-						className="block px-4 py-2 text-gray-600 hover:bg-gray-100 hover:text-gray-800"
-					>
-						<User className="inline-block mr-2" size={18} />
-						Thông tin
-					</Link>
-					<Link
-						to={`/d/restaurants/${restaurantId}/thongke`}
-						className="block px-4 py-2 text-gray-600 hover:bg-gray-100 hover:text-gray-800"
-					>
-						<Home className="inline-block mr-2" size={18} />
-						Thống kê
-					</Link>
-					<Link
-						to="/d/restaurants/menu"
-						className="block px-4 py-2 text-gray-600 hover:bg-gray-100 hover:text-gray-800"
-					>
-						<Utensils className="inline-block mr-2" size={18} />
-						Menu
-					</Link>
-					<Link
-						to="/d/restaurants/hoadon"
-						className="block px-4 py-2 text-gray-600 hover:bg-gray-100 hover:text-gray-800"
-					>
-						<ShoppingBag className="inline-block mr-2" size={18} />
-						Hóa đơn
-					</Link>
-					<Link
-						to="/d/restaurants/ban"
-						className="block px-4 py-2 text-gray-600 hover:bg-gray-100 hover:text-gray-800"
-					>
-						<Table className="inline-block mr-2" size={18} />
-						Bàn ăn
-					</Link> */}
+          <Link to={"/home"} className="block px-4 py-2 text-gray-600 hover:bg-gray-100 hover:text-gray-800">
+            <Home className="inline-block mr-2" size={18} />
+            Home
+          </Link>
         </nav>
       </aside>
 

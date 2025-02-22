@@ -5,7 +5,7 @@ import geocode from "./geocode.js";
 import auth from "./auth.js";
 import payment from "./payment.js";
 import food from "./food.js";
-
+import bill from "./bill.js";
 const router = Router();
 router.use("/v1", auth);
 router.use("/v1", user);
@@ -13,5 +13,6 @@ router.use("/v1", geocode);
 router.use("/v1", payment);
 router.use("/v1", restaurant);
 router.use("/v1", food);
+router.use("/v1", bill);
 
 export default router;
