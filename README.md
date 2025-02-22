@@ -14,7 +14,7 @@
 - **Minio (Console)**: `http://localhost:9003` (user: team1, password: cdio@team1) (giao diện quản lý Minio)
 - **Redis**: `http://localhost:6380` (cơ sở dữ liệu cache)
 
-> [!INFO]
+> [!TIP]
 > Mọi dịch vụ cần đăng nhập điều là username: team1, password: cdio@team1
 
 # 🚀 Hướng dẫn sử dụng 
