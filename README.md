@@ -9,10 +9,13 @@
 - **Client**: `http://localhost:5174`
 - **Server**: `http://localhost:3001`
 - **Swagger**: `http://localhost:3001/docs` (tài liệu API)
-- **MySQL**: `http://localhost:3307` (user: team1, pass: cdio@team1)
+- **MySQL**: `http://localhost:3307` (user: team1, password: cdio@team1)
 - **Minio (Storage)**: `http://localhost:9002` (kho lưu trữ file)
-- **Minio (Console)**: `http://localhost:9003` (user: team1, pass: cdio@team1) (giao diện quản lý Minio)
+- **Minio (Console)**: `http://localhost:9003` (user: team1, password: cdio@team1) (giao diện quản lý Minio)
 - **Redis**: `http://localhost:6380` (cơ sở dữ liệu cache)
+
+> [!INFO]
+> Mọi dịch vụ cần đăng nhập điều là username: team1, password: cdio@team1
 
 # 🚀 Hướng dẫn sử dụng 
 

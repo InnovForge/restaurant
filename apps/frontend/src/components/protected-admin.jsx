@@ -13,7 +13,7 @@ const checkUser = async () => {
   }
 };
 
-export const ProtectedRoute = ({ children }) => {
+export const ProtectedAdmin = ({ children }) => {
   const { authUser, setAuthUser } = useAuthUserStore();
   const { isFetching, isPending } = useQuery({
     queryKey: ["authUser"],

@@ -146,3 +146,5 @@ CREATE TABLE IF NOT EXISTS reviews (
     FOREIGN KEY (bill_id) REFERENCES bills(bill_id) ON DELETE CASCADE,
     FOREIGN KEY (food_id) REFERENCES foods(food_id) ON DELETE CASCADE
 );
+
+INSERT INTO users (user_id, username, name, password) VALUES ('12345678910', 'team1', 'cdio team 1', '$2a$10$jpChleT2FvfRp/E39jKn5uet5wTL6TZrUu5n67q5dX4Scw6jx34xu')
