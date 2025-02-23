@@ -98,7 +98,7 @@ CREATE TABLE IF NOT EXISTS food_category_mapping (
 );
 
 CREATE TABLE IF NOT EXISTS reservations (
-    reservation_id VARCHAR(16) PRIMARY KEY,
+    reservation_id VARCHAR(16) PRIMARY KEY, 
     restaurant_id VARCHAR(16) NOT NULL,
     user_id VARCHAR(16) NOT NULL,
     table_number INT NOT NULL,
