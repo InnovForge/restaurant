@@ -22,7 +22,7 @@ const MenuPage = () => {
     async function fetchData() {
       try {
         const res = await api.get(`v1/food?latitude=16.060035&longitude=108.209648`);
-        setFoods(res.data.data[0].foods);
+        setFoods(res.data.data.foods);
       } catch (err) {
         console.error("Lỗi lấy dữ liệu:", err);
       }
