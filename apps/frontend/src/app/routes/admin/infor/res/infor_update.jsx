@@ -43,6 +43,7 @@ export default function RestaurantUpdateInfoForm() {
       const updatedData = {
         name: document.getElementById("name").value,
         phoneNumber: document.getElementById("phone").value,
+        email: document.getElementById("email").value,
         address: {
           addressLine1: document.getElementById("addressLine1").value,
           addressLine2: document.getElementById("addressLine2").value,

@@ -5,7 +5,7 @@ import { validateFields } from "../utils/validate-fields.js";
 
 export const updateRestaurant = async (req, res) => {
   const { restaurantId } = req.params;
-  const { name, phoneNumber } = req.body;
+  const { name, phoneNumber, email } = req.body;
   const { address } = req.body;
   try {
     const fAddress = {
@@ -19,6 +19,7 @@ export const updateRestaurant = async (req, res) => {
       name,
       address: fAddress,
       phone_number: phoneNumber,
+      email: email,
     });
     return responseHandler.success(res);
   } catch (error) {
@@ -28,9 +29,9 @@ export const updateRestaurant = async (req, res) => {
 };
 
 export const createRestaurant = async (req, res) => {
-  const { name, address, phoneNumber } = req.body;
+  const { name, address, phoneNumber, email } = req.body;
 
-  const errors = validateFields(req.body, ["name", "address", "phoneNumber"], true);
+  const errors = validateFields(req.body, ["name", "address", "phoneNumber", "email"], true);
 
   if (errors) {
     return responseHandler.badRequest(res, undefined, errors);
@@ -43,6 +44,7 @@ export const createRestaurant = async (req, res) => {
       name,
       address,
       phoneNumber,
+      email,
     });
 
     return responseHandler.created(res, undefined, { restaurantId });

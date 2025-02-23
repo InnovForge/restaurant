@@ -57,7 +57,7 @@ const restaurantModel = {
    * @param {string} restaurantData.coverUrl - Cover URL of the restaurant
    */
   async createRestaurant(userId, restaurantData) {
-    const { name, address, phoneNumber } = restaurantData;
+    const { name, address, phoneNumber, email } = restaurantData;
     const { addressLine1, addressLine2, longitude, latitude } = address;
 
     const connection = await pool.getConnection();
@@ -73,8 +73,8 @@ const restaurantModel = {
       );
 
       await connection.query(
-        "INSERT INTO restaurants (restaurant_id, name, phone_number, address_id) VALUES (?, ?, ?, ?)",
-        [restaurantId, name, phoneNumber, addressId],
+        "INSERT INTO restaurants (restaurant_id, name, phone_number,email, address_id) VALUES (?, ?, ?, ?, ?)",
+        [restaurantId, name, phoneNumber, email, addressId],
       );
 
       await connection.query("INSERT INTO restaurant_managers (user_id, restaurant_id, role) VALUES (?, ?, ?)", [
@@ -102,7 +102,7 @@ const restaurantModel = {
   },
   async getRestaurant(restaurantId) {
     const [rows] = await pool.query(
-      `SELECT r.restaurant_id, r.name, r.phone_number, a.address_line1, a.address_line2, a.longitude, a.latitude
+      `SELECT r.restaurant_id, r.name, r.phone_number,r.email, a.address_line1, a.address_line2, a.longitude, a.latitude
       FROM restaurants r
       JOIN addresses a ON r.address_id = a.address_id
       WHERE r.restaurant_id = ?`,
@@ -118,6 +118,7 @@ SELECT
     r.restaurant_id,
     r.name AS restaurant_name,
     r.phone_number,
+    r.email,
     r.logo_url,
     r.cover_url,
     rm.role,
