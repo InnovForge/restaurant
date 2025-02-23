@@ -3,7 +3,6 @@ import { distance } from "../services/geocode.js";
 import responseHandler, { ERROR_TYPE } from "../utils/response.js";
 import { uploadFileFood } from "../utils/s3.js";
 import { validateFields } from "../utils/validate-fields.js";
-import * as service from "../services/geocode.js";
 
 export const createFood = async (req, res) => {
   const { name, price, description } = req.body;

@@ -1,6 +1,5 @@
 import { Router } from "express";
 import * as reservationController from "../controllers/reservation.js";
-import { authRestaurant, ROLE } from "../middlewares/roleRestaurant.js";
 import { authenticateJWT } from "../middlewares/authenticate.js";
 import multer from "multer";
 
@@ -50,3 +49,5 @@ router.use("/reservation", authenticateJWT);
  *          $ref: '#/components/responses/500'
  */
 router.post("/reservation", reservationController.createReservation);
+
+export default router;
