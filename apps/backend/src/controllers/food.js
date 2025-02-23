@@ -1,3 +1,4 @@
+import { cacheResponse } from "../middlewares/apiCache.js";
 import foodModel from "../models/food.js";
 import { distance } from "../services/geocode.js";
 import responseHandler, { ERROR_TYPE } from "../utils/response.js";
@@ -97,13 +98,15 @@ export const getAllFood = async (req, res) => {
         const distanceData = await distance(waypoints);
 
         const { estimated_distance, ...foodWithoutEstimate } = food;
-        return {
+        const data = {
           ...foodWithoutEstimate,
           distanceInfo: {
             straightLineDistance: estimated_distance,
             ...distanceData,
           },
         };
+        cacheResponse(req.originalUrl, data, 60 * 2); // 7 days
+        return data;
       }),
     );
     return responseHandler.success(res, undefined, updatedFoods);

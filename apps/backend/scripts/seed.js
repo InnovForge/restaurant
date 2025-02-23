@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs";
 import dotenvFlow from "dotenv-flow";
 import { nanoidNumbersOnly } from "../src/utils/nanoid.js";
 import readline from "readline";
+import { generateUniqueFoods } from "./generate/food.js";
 
 dotenvFlow.config();
 
@@ -129,7 +130,8 @@ const createFoods = async () => {
     for (let j = 0; j < NUMBER_OF_FOODS_PER_RESTAURANT; j++) {
       const food_id = nanoidNumbersOnly();
       const restaurant_id = restaurantIds[Math.floor(Math.random() * restaurantIds.length)];
-      const name = faker.commerce.productName();
+      const name = faker.helpers.arrayElement(generateUniqueFoods());
+
       const description = faker.lorem.sentences(2);
       const price = faker.number.float({
         min: 10000,
@@ -137,7 +139,8 @@ const createFoods = async () => {
         precision: 1000,
       });
       const price_type = "VND";
-      const image_url = faker.image.urlLoremFlickr({ category: "food" });
+      const image_url = faker.image.urlPicsumPhotos();
+
       const available = faker.datatype.boolean();
 
       await connection.execute(

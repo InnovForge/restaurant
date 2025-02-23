@@ -3,6 +3,7 @@ import * as foodController from "../controllers/food.js";
 import { authRestaurant, ROLE } from "../middlewares/roleRestaurant.js";
 import { authenticateJWT } from "../middlewares/authenticate.js";
 import multer from "multer";
+import { apiCache } from "../middlewares/apiCache.js";
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
@@ -185,12 +186,14 @@ router.patch(
  *         required: true
  *         schema:
  *           type: string
+ *           example: 16.060035
  *         description: Vĩ độ của vị trí hiện tại
  *       - in: query
  *         name: longitude
  *         required: true
  *         schema:
  *           type: string
+ *           example: 108.209648
  *         description: Kinh độ của vị trí hiện tại
  *       - in: query
  *         name: radius
@@ -259,7 +262,13 @@ router.patch(
  *                             imageUrl:
  *                               type: string
  *                               nullable: true
- *                               example: null
+ *                               example: "https://example.com/image.jpg"
+ *                             totalReview:
+ *                               type: integer
+ *                               example: 0
+ *                             averageRating:
+ *                               type: number
+ *                               example: 0
  *                       distanceInfo:
  *                         type: object
  *                         properties:
@@ -283,6 +292,6 @@ router.patch(
  *       500:
  *         $ref: '#/components/responses/500'
  */
-router.get("/food", foodController.getAllFood);
+router.get("/food", apiCache, foodController.getAllFood);
 
 export default router;
