@@ -44,6 +44,7 @@ CREATE TABLE IF NOT EXISTS user_addresses (
 CREATE TABLE IF NOT EXISTS restaurants (
 	restaurant_id VARCHAR(16) PRIMARY KEY,
 	name VARCHAR(100),
+  email VARCHAR(255),
 	address_id VARCHAR(16) UNIQUE NOT NULL,
 	phone_number VARCHAR(15),
 	logo_url VARCHAR(255),
