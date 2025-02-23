@@ -1,63 +1,48 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router";
-import { ChevronLeft, ChevronRight, PlusCircle, Search } from "lucide-react";
+import { ChevronLeft, ChevronRight, PlusCircle, Search, Edit, Trash } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-
-import { Table, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Table, TableCell, TableHead, TableHeader, TableRow, TableBody } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useRestaurant } from "@/context/restaurant";
-import { useEffect } from "react";
 import { api } from "@/lib/api-client";
 
 const MenuPage = () => {
-  // http://localhost:3001/api/v1/food?latitude=16.060035&longitude=108.209648
   const [editItem, setEditItem] = useState({});
   const [foods, setFoods] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const { restaurantId } = useRestaurant();
-  const handleEditClick = (item) => {
-    setEditItem(item);
-  };
+
   useEffect(() => {
-    async function fetchRestaurantData() {
+    async function fetchData() {
       try {
         const res = await api.get(`v1/food?latitude=16.060035&longitude=108.209648`);
-        console.log(res.data.data[0].foods);
         setFoods(res.data.data[0].foods);
       } catch (err) {
         console.error("Lỗi lấy dữ liệu:", err);
       }
     }
-
-    fetchRestaurantData();
+    fetchData();
   }, []);
-  const itemsPerPage = 4;
 
+  const itemsPerPage = 5;
   const filteredData = foods.filter((item) =>
     Object.values(item).some((value) => value.toString().toLowerCase().includes(searchTerm.toLowerCase())),
   );
-
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedData = filteredData.slice(startIndex, startIndex + itemsPerPage);
+  const paginatedData = filteredData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   return (
     <div className="container mx-auto p-6">
-      <div className="border rounded-md shadow-md bg-white">
-        <div className="border-b p-4 flex justify-between">
-          <h2 className="text-xl font-bold">Quản Lý Món Ăn</h2>
+      {/* Header */}
+      <div className="border rounded-xl shadow-lg bg-white">
+        <div className="flex justify-between items-center border-b p-6 bg-gray-100">
+          <h2 className="text-2xl font-bold">Quản Lý Món Ăn</h2>
           <Link to={`/d/restaurants/${restaurantId}/menu/themmon`}>
             <Button>
               <PlusCircle className="h-5 w-5 mr-2" />
@@ -65,19 +50,22 @@ const MenuPage = () => {
             </Button>
           </Link>
         </div>
-        <div className="p-4">
-          <div className="flex flex-wrap gap-4 mb-4">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+
+        {/* Search & Table */}
+        <div className="p-6">
+          <div className="flex flex-wrap gap-4 mb-6">
+            <div className="relative w-full">
+              <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
               <Input
                 className="pl-10"
-                placeholder="Tìm kiếm..."
+                placeholder="Tìm kiếm món ăn..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
           </div>
-          {/* bảng */}
+
+          {/* Bảng danh sách món ăn */}
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
@@ -88,167 +76,99 @@ const MenuPage = () => {
                   <TableHead>Tình trạng</TableHead>
                   <TableHead>Mô tả</TableHead>
                   <TableHead>Giá</TableHead>
-                  <TableHead className="text-right">Sửa / Xóa</TableHead>
+                  <TableHead className="text-right">Hành động</TableHead>
                 </TableRow>
               </TableHeader>
-              <tbody>
+              <TableBody>
                 {paginatedData.map((item) => (
                   <TableRow key={item.id}>
                     <TableCell>{item.id}</TableCell>
                     <TableCell>
-                      <img src={item.image} alt={item.name} className="w-16 h-16 object-cover rounded" />
+                      <img src={item.image} alt={item.name} className="w-16 h-16 object-cover rounded-lg" />
                     </TableCell>
                     <TableCell>{item.name}</TableCell>
                     <TableCell>
-                      <Badge variant={item.status === "Còn" ? "Tạm hết" : "Hết"}>{item.status}</Badge>
+                      <Badge variant={item.status === "Còn" ? "default" : "destructive"}>{item.status}</Badge>
                     </TableCell>
                     <TableCell>{item.description}</TableCell>
-                    <TableCell>{item.price + " VNĐ"}</TableCell>
-                    <TableCell className="text-right">
+                    <TableCell>{item.price.toLocaleString()} VNĐ</TableCell>
+                    <TableCell className="text-right flex gap-2">
+                      {/* Sửa món ăn */}
                       <Dialog>
                         <DialogTrigger asChild>
-                          <Button variant="outline" onClick={() => handleEditClick(item)}>
-                            Sửa
+                          <Button variant="outline" size="sm" onClick={() => setEditItem(item)}>
+                            <Edit className="h-4 w-4" />
                           </Button>
                         </DialogTrigger>
-                        <DialogContent className="sm:max-w-[425px]">
+                        <DialogContent>
                           <DialogHeader>
                             <DialogTitle>Sửa món ăn</DialogTitle>
-                            <DialogDescription>
-                              Thực hiện thay đổi cho món ăn của bạn tại đây. Nhấp vào sửa khi bạn hoàn tất.
-                            </DialogDescription>
                           </DialogHeader>
-                          <div className="grid gap-4 py-4">
-                            <div className="grid grid-cols-4 items-center gap-4">
-                              <Label htmlFor="hinhanh" className="text-right">
-                                Chọn ảnh
-                              </Label>
+                          <div className="space-y-4">
+                            <div>
+                              <Label>Tên món ăn</Label>
                               <Input
-                                id="hinhanh"
-                                value={editItem.image || ""}
-                                onChange={(e) =>
-                                  setEditItem({
-                                    ...editItem,
-                                    image: e.target.value,
-                                  })
-                                }
-                                className="col-span-3"
-                              />
-                            </div>
-                            <div className="grid grid-cols-4 items-center gap-4">
-                              <Label htmlFor="monan" className="text-right">
-                                Tên món ăn
-                              </Label>
-                              <Input
-                                id="monan"
                                 value={editItem.name || ""}
-                                onChange={(e) =>
-                                  setEditItem({
-                                    ...editItem,
-                                    name: e.target.value,
-                                  })
-                                }
-                                className="col-span-3"
+                                onChange={(e) => setEditItem({ ...editItem, name: e.target.value })}
                               />
                             </div>
-                            <div className="grid grid-cols-4 items-center gap-4">
-                              <Label htmlFor="tinhtrang" className="text-right">
-                                Tình trạng
-                              </Label>
-                              <select
-                                id="tinhtrang"
+                            <div>
+                              <Label>Hình ảnh</Label>
+                              <Input
+                                value={editItem.image || ""}
+                                onChange={(e) => setEditItem({ ...editItem, image: e.target.value })}
+                              />
+                            </div>
+                            <div>
+                              <Label>Tình trạng</Label>
+                              <Select
                                 value={editItem.status || ""}
-                                onChange={(e) =>
-                                  setEditItem({
-                                    ...editItem,
-                                    status: e.target.value,
-                                  })
-                                }
-                                className="col-span-3 border rounded-md px-3 py-2"
+                                onValueChange={(value) => setEditItem({ ...editItem, status: value })}
                               >
-                                <option value="Còn">Còn</option>
-                                <option value="Hết">Hết</option>
-                              </select>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Chọn tình trạng" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="Còn">Còn</SelectItem>
+                                  <SelectItem value="Hết">Hết</SelectItem>
+                                </SelectContent>
+                              </Select>
                             </div>
-                            <div className="grid grid-cols-4 items-center gap-4">
-                              <Label htmlFor="mota" className="text-right">
-                                Mô tả
-                              </Label>
+                            <div>
+                              <Label>Giá</Label>
                               <Input
-                                id="mota"
-                                value={editItem.description || ""}
-                                onChange={(e) =>
-                                  setEditItem({
-                                    ...editItem,
-                                    description: e.target.value,
-                                  })
-                                }
-                                className="col-span-3"
-                              />
-                            </div>
-                            <div className="grid grid-cols-4 items-center gap-4">
-                              <Label htmlFor="gia" className="text-right">
-                                Giá
-                              </Label>
-                              <Input
-                                id="gia"
                                 type="number"
                                 value={editItem.price || ""}
-                                onChange={(e) =>
-                                  setEditItem({
-                                    ...editItem,
-                                    price: e.target.value,
-                                  })
-                                }
-                                className="col-span-3"
+                                onChange={(e) => setEditItem({ ...editItem, price: e.target.value })}
                               />
                             </div>
                           </div>
-                          <DialogFooter>
-                            <Button type="submit">Sửa</Button>
-                          </DialogFooter>
+                          <Button type="submit" className="w-full mt-4">
+                            Cập nhật
+                          </Button>
                         </DialogContent>
                       </Dialog>
-                      <Button size="sm" variant="outline" className="text-red-500 ml-2">
-                        Xóa
+
+                      {/* Xóa món ăn */}
+                      <Button variant="destructive" size="sm">
+                        <Trash className="h-4 w-4" />
                       </Button>
                     </TableCell>
                   </TableRow>
                 ))}
-              </tbody>
+              </TableBody>
             </Table>
           </div>
-          {/* trang hiển thị */}
-          <div className="flex justify-between items-center mt-4">
+
+          <div className="flex justify-between items-center mt-6">
             <span className="text-sm">
-              Hiển thị {startIndex + 1} đến {Math.min(startIndex + itemsPerPage, filteredData.length)} trong số{" "}
-              {filteredData.length} mục
+              Hiển thị {currentPage} / {totalPages}
             </span>
-            <div className="flex items-center">
-              <Button
-                size="icon"
-                variant="outline"
-                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                disabled={currentPage === 1}
-              >
+            <div className="flex gap-2">
+              <Button variant="outline" size="icon" onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}>
                 <ChevronLeft className="h-4 w-4" />
               </Button>
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                <Button
-                  key={page}
-                  size="icon"
-                  variant={currentPage === page ? "default" : "outline"}
-                  onClick={() => setCurrentPage(page)}
-                >
-                  {page}
-                </Button>
-              ))}
-              <Button
-                size="icon"
-                variant="outline"
-                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                disabled={currentPage === totalPages}
-              >
+              <Button variant="outline" size="icon" onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}>
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
