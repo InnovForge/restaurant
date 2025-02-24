@@ -348,4 +348,74 @@ router.get("/restaurant/mine", restaurantController.getRestaurantByUserId);
  */
 router.get("/restaurant/:restaurantId", restaurantController.getRestaurant);
 
+/**
+ * @openapi
+ * /api/v1/restaurant/{restaurantId}/food:
+ *   get:
+ *     summary: Hiển thị tất cả món ăn theo nhà hàng
+ *     tags:
+ *       - restaurant
+ *     description: Hiển thị tất cả món ăn theo nhà hàng
+ *     tags:
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: restaurantId
+ *         required: true
+ *         description: ID của nhà hàng
+ *         schema:
+ *           type: string
+ *           example: "123456"
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - phoneNumber
+ *               - address
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: "Nhà hàng A"
+ *               phoneNumber:
+ *                 type: string
+ *                 pattern: "^\\d{10,15}$"
+ *                 example: "03673920124"
+ *               address:
+ *                 type: object
+ *                 required:
+ *                   - addressLine1
+ *                   - longitude
+ *                   - latitude
+ *                 properties:
+ *                   addressLine1:
+ *                     type: string
+ *                     example: "123 Nguyễn Trãi"
+ *                   addressLine2:
+ *                     type: string
+ *                     example: "P.7, Q.5"
+ *                   longitude:
+ *                     type: number
+ *                     example: 106.694
+ *                   latitude:
+ *                     type: number
+ *                     example: 10.762
+ *     responses:
+ *       200:
+ *         $ref: '#/components/responses/200'
+ *       400:
+ *         $ref: '#/components/responses/400'
+ *       401:
+ *         $ref: '#/components/responses/401'
+ *       403:
+ *         $ref: '#/components/responses/403'
+ *       500:
+ *         $ref: '#/components/responses/500'
+ */
+router.get("/restaurant/:restaurantId/foods", restaurantController.getAllFoodByResId);
+
 export default router;

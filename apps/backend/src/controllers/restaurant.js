@@ -105,3 +105,14 @@ export const getRestaurantByUserId = async (req, res) => {
     return responseHandler.internalServerError(res);
   }
 };
+
+export const getAllFoodByResId = async (req, res) => {
+  const { restaurantId } = req.params;
+  try {
+    const foods = await restaurantModel.GetAllFoodByResId(restaurantId);
+    return responseHandler.success(res, undefined, foods);
+  } catch (error) {
+    console.log("error :>> ", error);
+    return responseHandler.internalServerError(res);
+  }
+};

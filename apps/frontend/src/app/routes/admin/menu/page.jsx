@@ -18,11 +18,19 @@ const MenuPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const { restaurantId } = useRestaurant();
 
+  console.log("restaurantId " + restaurantId);
+
+  // useEffect(()=>{
+  //   async function fetchData() {
+
+  // },[]);
+
   useEffect(() => {
     async function fetchData() {
       try {
-        const res = await api.get(`v1/food?latitude=16.060035&longitude=108.209648`);
-        setFoods(res.data.data.foods);
+        const res = await api.get(`v1/restaurant/${restaurantId}/foods`);
+        console.log("Dữ liệu foods:", res.data.data[0]);
+        setFoods(res.data.data);
       } catch (err) {
         console.error("Lỗi lấy dữ liệu:", err);
       }

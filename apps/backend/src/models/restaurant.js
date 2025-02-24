@@ -136,6 +136,17 @@ WHERE
     );
     return rows;
   },
+
+  async GetAllFoodByResId(restaurantId) {
+    const [rows] = await pool.query(
+      `
+    SELECT  * FROM foods f
+WHERE f.restaurant_id = ?;
+`,
+      [restaurantId],
+    );
+    return rows;
+  },
 };
 
 export default restaurantModel;
