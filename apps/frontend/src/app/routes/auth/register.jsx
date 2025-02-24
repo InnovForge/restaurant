@@ -6,27 +6,32 @@ import { Input } from "@/components/ui/input";
 import { api } from "@/lib/api-client";
 import { useNavigate } from "react-router";
 
-// Schema kiểm tra đầu vào
+// Định nghĩa schema kiểm tra đầu vào bằng Zod
 const formSchema = z
   .object({
+    name: z.string().min(2, {
+      message: "Tên người có ít nhất 2 ký tự.",
+    }),
     username: z.string().min(2, {
-      message: "Username must be at least 2 characters.",
+      message: "Tên người dùng phải có ít nhất 2 ký tự.",
     }),
     email: z.string().email({ message: "Email không hợp lệ." }),
     phone: z
       .string()
-      .min(10, { message: "Số điện thoại phải có ít nhất 10 số." })
-      .regex(/^\d+$/, { message: "Số điện thoại chỉ chứa chữ số." }),
-    address: z.string().min(5, { message: "Địa chỉ phải có ít nhất 5 ký tự." }),
+      .min(10, { message: "Số điện thoại phải có ít nhất 10 chữ số." })
+      .regex(/^\d+$/, { message: "Số điện thoại chỉ được chứa chữ số." }),
     password: z.string().min(2, {
-      message: "Password must be at least 2 characters.",
+      message: "Mật khẩu phải có ít nhất 2 ký tự.",
     }),
     confirmPassword: z.string().min(2, {
-      message: "Confirm Password must be at least 2 characters.",
+      message: "Xác nhận mật khẩu phải có ít nhất 2 ký tự.",
+    }),
+    gender: z.enum(["male", "female", "other"], {
+      errorMap: () => ({ message: "Vui lòng chọn giới tính." }),
     }),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match.",
+    message: "Mật khẩu không khớp.",
     path: ["confirmPassword"],
   });
 
@@ -36,39 +41,59 @@ const Register = () => {
     resolver: zodResolver(formSchema),
   });
 
+  // Xử lý khi gửi biểu mẫu
   const onSubmit = async (value) => {
     try {
-      const res = await api.post("/v1/auth/login", value);
+      const res = await api.post("/v1/auth/register", value);
       if (res.status === 200) {
         window.location.href = "/home";
       }
     } catch (error) {
-      console.log("err", error);
+      console.log("Lỗi khi đăng ký:", error);
     }
   };
 
   return (
     <div
       className="flex justify-center items-center min-h-screen bg-cover bg-center"
-      style={{ backgroundImage: "url('/path-to-your-restaurant-image.jpg')" }}
+      style={{
+        backgroundImage:
+          "url('https://ezcloud.vn/wp-content/uploads/2024/06/khong-gian-ben-trong-nha-hang-anchor.webp')",
+      }}
     >
       <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-lg bg-opacity-90">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            {/* Trường nhập Tên  */}
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Tên </FormLabel>
+                  <FormControl>
+                    <Input placeholder="Nhập tên" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {/* Trường nhập Tên người dùng */}
             <FormField
               control={form.control}
               name="username"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Username</FormLabel>
+                  <FormLabel>Tên người dùng</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter your username" {...field} />
+                    <Input placeholder="Nhập tên người dùng" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
+            {/* Trường nhập Email */}
             <FormField
               control={form.control}
               name="email"
@@ -76,13 +101,14 @@ const Register = () => {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input type="email" placeholder="Enter your email" {...field} />
+                    <Input type="email" placeholder="Nhập email của bạn" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
+            {/* Trường nhập Số điện thoại */}
             <FormField
               control={form.control}
               name="phone"
@@ -97,54 +123,86 @@ const Register = () => {
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="address"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Địa chỉ</FormLabel>
-                  <FormControl>
-                    <Input type="text" placeholder="Nhập địa chỉ của bạn" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
+            {/* Trường nhập Mật khẩu */}
             <FormField
               control={form.control}
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Password</FormLabel>
+                  <FormLabel>Mật khẩu</FormLabel>
                   <FormControl>
-                    <Input type="password" placeholder="Enter your password" {...field} />
+                    <Input type="password" placeholder="Nhập mật khẩu" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
+            {/* Trường nhập Xác nhận mật khẩu */}
             <FormField
               control={form.control}
               name="confirmPassword"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Confirm Password</FormLabel>
+                  <FormLabel>Xác nhận mật khẩu</FormLabel>
                   <FormControl>
-                    <Input type="password" placeholder="Confirm your password" {...field} />
+                    <Input type="password" placeholder="Xác nhận mật khẩu" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
+            {/* Chọn Giới tính */}
+            <FormField
+              control={form.control}
+              name="gender"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Giới tính</FormLabel>
+                  <FormControl>
+                    <div className="flex space-x-4">
+                      <label className="flex items-center space-x-1">
+                        <input
+                          type="radio"
+                          value="male"
+                          checked={field.value === "male"}
+                          onChange={() => field.onChange("male")}
+                        />
+                        <span>Nam</span>
+                      </label>
+                      <label className="flex items-center space-x-1">
+                        <input
+                          type="radio"
+                          value="female"
+                          checked={field.value === "female"}
+                          onChange={() => field.onChange("female")}
+                        />
+                        <span>Nữ</span>
+                      </label>
+                      <label className="flex items-center space-x-1">
+                        <input
+                          type="radio"
+                          value="other"
+                          checked={field.value === "other"}
+                          onChange={() => field.onChange("other")}
+                        />
+                        <span>Khác</span>
+                      </label>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Nút gửi biểu mẫu */}
             <div>
               <button
                 type="submit"
                 className="w-full px-4 py-2 font-bold text-white bg-blue-600 rounded hover:bg-blue-700"
               >
-                Tạo tài khoản
+                Đăng ký
               </button>
             </div>
           </form>

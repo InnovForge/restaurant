@@ -67,7 +67,7 @@ GROUP BY u.user_id;
    */
   async createUser(userData) {
     const nanoid = nanoidNumbersOnly();
-    const { username, name, password } = userData;
+    const { username, name, password, gender, email, phoneNumber } = userData;
 
     const avatar = toPng(username, 512);
     const avatar_url = await uploadFileUser(`${nanoid}/avatar`, {
@@ -79,7 +79,7 @@ GROUP BY u.user_id;
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const result = await pool.query(
-      "INSERT INTO users (user_id, username, avatar_url, name, password) VALUES (?, ?, ?, ?, ?)",
+      "INSERT INTO users (user_id, username, avatar_url, name, password,gender,email,phoneNumber) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
       [nanoid, username, avatar_url, name, hashedPassword],
     );
 
