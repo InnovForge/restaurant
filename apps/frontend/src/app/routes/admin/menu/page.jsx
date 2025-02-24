@@ -84,7 +84,7 @@ const MenuPage = () => {
                   <TableRow key={item.id}>
                     <TableCell>{item.id}</TableCell>
                     <TableCell>
-                      <img src={item.image} alt={item.name} className="w-16 h-16 object-cover rounded-lg" />
+                      <img src={item.imageUrl} alt={item.name} className="w-16 h-16 object-cover rounded-lg" />
                     </TableCell>
                     <TableCell>{item.name}</TableCell>
                     <TableCell>
