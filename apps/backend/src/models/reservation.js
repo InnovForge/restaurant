@@ -58,6 +58,22 @@ const reservationModel = {
       return { success: false, message: error.message };
     }
   },
+  async getReservationsByRestaurantId(restaurantId) {
+    try {
+      const sql = `
+        SELECT r.reservation_id, r.table_number, r.reservation_status, u.full_name, u.phone_number
+        FROM reservations r
+        JOIN users u ON r.user_id = u.user_id
+        WHERE r.restaurant_id = ?
+      `;
+
+      const [rows] = await pool.execute(sql, [restaurantId]);
+      return rows;
+    } catch (error) {
+      console.error("Error getting reservations:", error);
+      return [];
+    }
+  },
 };
 
 export default reservationModel;

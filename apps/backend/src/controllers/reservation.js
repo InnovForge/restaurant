@@ -53,3 +53,16 @@ export const createReservation = async (req, res) => {
     return responseHandler.internalServerError(res);
   }
 };
+
+export const getReservationsByRestaurantId = async (req, res) => {
+  const { restaurantId } = req.params;
+
+  try {
+    const reservations = await reservationModel.getReservationsByRestaurantId(restaurantId);
+
+    return responseHandler.success(res, reservations);
+  } catch (error) {
+    console.log("Lỗi khi lấy danh sách đặt bàn: ", error);
+    return responseHandler.internalServerError(res);
+  }
+};

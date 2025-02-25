@@ -40,8 +40,11 @@ const MenuPage = () => {
 
   const itemsPerPage = 5;
   const filteredData = foods.filter((item) =>
-    Object.values(item).some((value) => value.toString().toLowerCase().includes(searchTerm.toLowerCase())),
+    Object.values(item).some((value) =>
+      value ? value.toString().toLowerCase().includes(searchTerm.toLowerCase()) : false,
+    ),
   );
+
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
   const paginatedData = filteredData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
