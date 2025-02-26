@@ -80,16 +80,17 @@ const createRestaurants = async () => {
     restaurantIds.push(restaurant_id);
     const name = faker.company.name();
     const address_id = addressIds.shift();
+    const description = faker.lorem.sentences(3);
     const phone_number = faker.phone.number({ style: "international" });
     const logo_url = faker.image.urlPicsumPhotos({ width: 200, height: 200 });
     const cover_url = faker.image.urlPicsumPhotos({ width: 800, height: 400 });
 
     await connection.execute(
       `
-      INSERT INTO restaurants (restaurant_id, name, address_id, phone_number, logo_url, cover_url)
-      VALUES (?, ?, ?, ?, ?, ?)
+      INSERT INTO restaurants (restaurant_id, name, description, address_id, phone_number, logo_url, cover_url)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
     `,
-      [restaurant_id, name, address_id, phone_number, logo_url, cover_url],
+      [restaurant_id, name, description, address_id, phone_number, logo_url, cover_url],
     );
 
     await connection.execute(
