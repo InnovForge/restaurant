@@ -18,4 +18,6 @@ router.get("/user/:id", userController.getUser);
 
 router.get("/user/name/:name", userController.getUserName);
 
+router.get("/user/:id/bill", userController.getBillsByUserId);
+
 export default router;

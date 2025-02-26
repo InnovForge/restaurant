@@ -35,6 +35,7 @@ const foodModel = {
   async getAllFood(latitude, longitude, radius = 10000) {
     const query = `SELECT 
     r.name AS restaurant_name,
+    r.logo_url AS restaurant_logo,
     r.restaurant_id,
     a.address_line1, 
     a.address_line2, 

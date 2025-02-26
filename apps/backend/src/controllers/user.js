@@ -83,3 +83,18 @@ export const getUserName = async (req, res) => {
     return responseHandler.internalServerError(res);
   }
 };
+
+export const getBillsByUserId = async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const bills = await userModel.getBillsByUserId(userId);
+    if (bills.length === 0) {
+      return responseHandler.notFound(res, "No bills found for this user.");
+    }
+    return responseHandler.success(res, "Bills retrieved successfully", bills);
+  } catch (error) {
+    console.error("Error:", error);
+    return responseHandler.internalServerError(res);
+  }
+};
