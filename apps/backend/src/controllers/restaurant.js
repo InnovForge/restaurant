@@ -57,29 +57,30 @@ export const createRestaurant = async (req, res) => {
 export const uploadRestaurantImage = async (req, res) => {
   try {
     const { restaurantId } = req.params;
-    const files = req.files || {};
-    const coverUrl = files.coverUrl || [];
-    const logoUrl = files.logoUrl || [];
+    const { cover: coverFiles = [], logo: logoFiles = [] } = req.files || {};
 
-    if (!coverUrl.length && !logoUrl.length) {
-      return responseHandler.badRequest(res);
+    if (coverFiles.length === 0 && logoFiles.length === 0) {
+      return responseHandler.badRequest(res, "Không có ảnh nào được tải lên.");
     }
 
-    const object = {};
+    const [coverUrl, logoUrl] = await Promise.all([
+      coverFiles[0] ? uploadFileRestaurant(`${restaurantId}/cover`, coverFiles[0]) : null,
+      logoFiles[0] ? uploadFileRestaurant(`${restaurantId}/logo`, logoFiles[0]) : null,
+    ]);
 
-    if (coverUrl.length > 0) {
-      object.cover_url = await uploadFileRestaurant(`${restaurantId}/cover`, coverUrl[0]);
+    const updateData = {
+      ...(coverUrl && { cover_url: coverUrl }),
+      ...(logoUrl && { logo_url: logoUrl }),
+    };
+
+    if (Object.keys(updateData).length > 0) {
+      await restaurantModel.updateRestaurant(restaurantId, updateData);
     }
-    if (logoUrl.length > 0) {
-      object.logo_url = await uploadFileRestaurant(`${restaurantId}/logo`, logoUrl[0]);
-    }
 
-    if (object.length > 0) await restaurantModel.updateRestaurant(restaurantId, object);
-
-    return responseHandler.success(res);
+    return responseHandler.success(res, "Cập nhật ảnh thành công.");
   } catch (error) {
-    console.log("error :>> ", error);
-    return responseHandler.internalServerError(res);
+    console.error("Lỗi upload ảnh nhà hàng: ", error);
+    return responseHandler.internalServerError(res, "Có lỗi xảy ra khi tải ảnh lên.");
   }
 };
 

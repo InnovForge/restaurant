@@ -3,7 +3,8 @@ import { nanoidNumbersOnly } from "../utils/nanoid.js";
 
 const restaurantModel = {
   async updateRestaurant(restaurantId, restaurantData) {
-    const address = restaurantData.address;
+    console.log("is data:", restaurantData);
+    const address = restaurantData?.address;
     const connection = await pool.getConnection();
     try {
       await connection.beginTransaction();
@@ -21,21 +22,24 @@ const restaurantModel = {
       if (fields.length !== 0) {
         values.push(restaurantId);
         const sql = `UPDATE restaurants SET ${fields.join(", ")} WHERE restaurant_id = ?`;
+        // console.log(sql);
         await connection.query(sql, values);
       }
 
       const fieldsAddress = [];
       const valuesAddress = [];
-      for (const [key, value] of Object.entries(address)) {
-        if (value !== undefined && value !== null) {
-          valuesAddress.push(value);
-          fieldsAddress.push(`${key} = ?`);
+      if (address) {
+        for (const [key, value] of Object.entries(address)) {
+          if (value !== undefined && value !== null) {
+            valuesAddress.push(value);
+            fieldsAddress.push(`${key} = ?`);
+          }
         }
-      }
-      if (fieldsAddress.length !== 0) {
-        valuesAddress.push(restaurantId);
-        const sqlAddress = `UPDATE addresses SET ${fieldsAddress.join(", ")} WHERE address_id = ?`;
-        await connection.query(sqlAddress, valuesAddress);
+        if (fieldsAddress.length !== 0) {
+          valuesAddress.push(restaurantId);
+          const sqlAddress = `UPDATE addresses SET ${fieldsAddress.join(", ")} WHERE address_id = ?`;
+          await connection.query(sqlAddress, valuesAddress);
+        }
       }
       await connection.commit();
       return true;
@@ -117,17 +121,22 @@ const restaurantModel = {
 SELECT 
     r.restaurant_id,
     r.name AS restaurant_name,
+    r.description,
     r.phone_number,
     r.email,
     r.logo_url,
     r.cover_url,
     rm.role,
+    a.address_line1,
+    a.address_line2,
     r.created_at,
     r.updated_at
 FROM 
     restaurant_managers rm
 JOIN 
     restaurants r ON rm.restaurant_id = r.restaurant_id
+JOIN 
+    addresses a ON r.address_id = a.address_id
 WHERE 
     rm.user_id = ?;
 

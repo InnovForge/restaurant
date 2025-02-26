@@ -6,7 +6,7 @@ import { authRestaurant, ROLE } from "../middlewares/roleRestaurant.js";
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 const router = Router();
-router.use("/restaurant", authenticateJWT);
+router.use("/restaurants", authenticateJWT);
 /**
  * @openapi
  * /api/v1/restaurant:
@@ -84,7 +84,7 @@ router.use("/restaurant", authenticateJWT);
  *       500:
  *         $ref: '#/components/responses/500'
  */
-router.post("/restaurant", restaurantController.createRestaurant);
+router.post("/restaurants", restaurantController.createRestaurant);
 
 /**
  * @openapi
@@ -154,7 +154,7 @@ router.post("/restaurant", restaurantController.createRestaurant);
  *         $ref: '#/components/responses/500'
  */
 router.patch(
-  "/restaurant/:restaurantId",
+  "/restaurants/:restaurantId",
   authRestaurant([ROLE.owner, ROLE.manager]),
   restaurantController.updateRestaurant,
 );
@@ -203,11 +203,11 @@ router.patch(
  *         $ref: '#/components/responses/500'
  */
 router.patch(
-  "/restaurant/:restaurantId/images",
+  "/restaurants/:restaurantId/images",
   authRestaurant([ROLE.owner, ROLE.manager]),
   upload.fields([
-    { name: "coverUrl", maxCount: 1 },
-    { name: "logoUrl", maxCount: 1 },
+    { name: "cover", maxCount: 1 },
+    { name: "logo", maxCount: 1 },
   ]),
   restaurantController.uploadRestaurantImage,
 );
@@ -277,7 +277,7 @@ router.patch(
  *       500:
  *         $ref: '#/components/responses/500'
  */
-router.get("/restaurant/mine", restaurantController.getRestaurantByUserId);
+router.get("/restaurants/mine", restaurantController.getRestaurantByUserId);
 
 /**
  * @openapi
@@ -346,7 +346,7 @@ router.get("/restaurant/mine", restaurantController.getRestaurantByUserId);
  *       500:
  *         $ref: '#/components/responses/500'
  */
-router.get("/restaurant/:restaurantId", restaurantController.getRestaurant);
+router.get("/restaurants/:restaurantId", restaurantController.getRestaurant);
 
 /**
  * @openapi

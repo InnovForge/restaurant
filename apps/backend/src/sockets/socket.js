@@ -11,8 +11,39 @@ export const initSocket = (server) => {
     },
   });
 
+  // io.use((socket, next) => {
+  // 	const cookies = socket.handshake.headers.cookie;
+  // 	const parsedCookies = cookie.parse(cookies);
+  // 	const accessToken = parsedCookies?.accessToken;
+  // 	if (accessToken) {
+  // 		jwt.verify(accessToken, process.env.JWT_ACCESS_TOKEN, (err, decoded) => {
+  // 			if (err) {
+  // 				// return responseHandler.unauthorized(
+  // 				// 	res,
+  // 				// 	undefined,
+  // 				// 	"REFRESH_TOKEN_EXPIRED",
+  // 				// );
+  // 			}
+  // 			socket.userId = decoded.userId;
+  // 			return next();
+  // 		});
+  // 	}
+  // 	return next(new Error("Authentication error"));
+  // });
+
   io.on("connection", (socket) => {
-    console.log(`Client connected: ${socket.id}`);
+    console.log("user connected", socket.id);
+
+    socket.on("joinRestaurantOrderRoom", (data) => {
+      console.log(data);
+      if (["owner", "staff", "manager"].includes(data.role)) {
+        const roomName = `restaurant-${data.restaurantId}-orders`;
+        socket.join(roomName);
+        console.log(`${socket.id} joined room: ${roomName}`);
+      } else {
+        console.log(`${socket.id} is not allowed to join room`, data.role);
+      }
+    });
 
     socket.on("disconnect", () => {
       console.log(`Client disconnected: ${socket.id}`);
@@ -20,7 +51,6 @@ export const initSocket = (server) => {
   });
 };
 
-export const emitNewOrder = (orderData) => {
-  // Phát sự kiện đến tất cả các client
-  io.emit("newOrder", orderData);
+export const emitNewOrder = (restaurantId, orderData) => {
+  io.to(`restaurant-${restaurantId}-orders`).emit("newOrder", orderData);
 };

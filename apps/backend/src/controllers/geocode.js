@@ -8,8 +8,13 @@ const processLocationResults = (data) => {
     return [];
   }
   return data.results.map((result) => ({
-    title: result.formatted,
-    state: result.state,
+    formatted: result.formatted,
+    addressLine1: result.address_line1,
+    addressLine2: result.address_line2,
+    country: result.country,
+    country_code: result.country_code,
+    city: result.city,
+    timezone: result.timezone,
     latitude: result.lat,
     longitude: result.lon,
     importance: result.rank.importance,
@@ -29,6 +34,7 @@ export const geocode = async (req, res) => {
   // logger.info("Geoapify Geocode URL:", URL);
   try {
     const data = await (await fetch(URL)).json();
+    // console.log(data);
     const locations = processLocationResults(data);
     cacheResponse(req.originalUrl, locations, 7 * 24 * 60 * 60); // 7 days
     return responseHandler.success(res, undefined, locations);
