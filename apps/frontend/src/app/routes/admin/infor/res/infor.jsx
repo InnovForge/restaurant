@@ -14,7 +14,7 @@ export default function RestaurantInfoForm() {
   useEffect(() => {
     async function fetchRestaurantData() {
       try {
-        const res = await api.get(`/v1/restaurant/${restaurantId}`);
+        const res = await api.get(`/v1/restaurants/${restaurantId}`);
         console.log(res.data);
         setRestaurantInfor(res.data.data);
       } catch (err) {
