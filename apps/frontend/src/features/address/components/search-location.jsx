@@ -5,11 +5,9 @@ import { LocateFixed } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SyncLoader } from "react-spinners";
 import { CircleX } from "lucide-react";
-import useAddressStore from "@/stores/useAddressStore";
 
-const SearchLocation = ({ value, setValue }) => {
-  const { addresses } = useAddressStore();
-  const [searchValue, setSearchValue] = useState(addresses[0]?.title ?? "");
+const SearchLocation = ({ value, onChange }) => {
+  const [searchValue, setSearchValue] = useState(value?.formatted || "");
   const [data, setData] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
   const [focusedIndex, setFocusedIndex] = useState(-1);
@@ -24,8 +22,8 @@ const SearchLocation = ({ value, setValue }) => {
       setIsOpen(query.length > 0);
       setFocusedIndex(-1);
 
-      if (setValue) {
-        setValue(null);
+      if (onChange) {
+        onChange(null);
       }
 
       if (timeoutIdRef.current) {
@@ -49,15 +47,15 @@ const SearchLocation = ({ value, setValue }) => {
         setData([]);
       }
     },
-    [setValue],
+    [onChange],
   );
 
   const handleLocationSelect = (location) => {
-    setSearchValue(location.title);
-    console.log(location);
+    setSearchValue(location.formatted);
+    // console.log(location);
     setIsOpen(false);
-    if (setValue) {
-      setValue(location);
+    if (onChange) {
+      onChange(location);
     }
   };
 
@@ -88,10 +86,11 @@ const SearchLocation = ({ value, setValue }) => {
   };
 
   const handleCurrentGeocode = async () => {
+    console.log("Getting current geocode");
     setIsFetching(true);
     const res = await getReverseGeocode();
-    setSearchValue(res.data.title);
-    setValue(res.data);
+    setSearchValue(res.data.formatted);
+    if (onChange) onChange(res.data);
     setIsFetching(false);
   };
 
@@ -114,7 +113,7 @@ const SearchLocation = ({ value, setValue }) => {
           </div>
         ) : (
           <div className="absolute top-1/2 right-[2px] -translate-y-1/2">
-            {searchValue === "" ? (
+            {searchValue === "" || searchValue == null ? (
               <Button type="button" variant="ghost" onClick={handleCurrentGeocode}>
                 <span>Vị trí hiện tại</span> <LocateFixed color="blue" />
               </Button>
@@ -126,7 +125,7 @@ const SearchLocation = ({ value, setValue }) => {
                 onClick={() => {
                   setSearchValue("");
                   setData([]);
-                  setValue(null);
+                  onChange(null);
                   inputRef.current.focus();
                 }}
               >
@@ -141,12 +140,12 @@ const SearchLocation = ({ value, setValue }) => {
           {data.length > 0
             ? data.map((location, index) => (
                 <li
-                  key={location.title}
+                  key={index}
                   className={`px-2 py-2 cursor-pointer hover:bg-accent ${index === focusedIndex ? "bg-accent" : ""}`}
                   onClick={() => handleLocationSelect(location)}
                   onMouseEnter={() => setFocusedIndex(index)}
                 >
-                  {location.title}
+                  {location.formatted}
                 </li>
               ))
             : null}

@@ -40,9 +40,14 @@ import { PopoverContent, PopoverTrigger, Popover } from "@/components/ui/popover
 import { api } from "@/lib/api-client";
 import { useNavigate } from "react-router";
 import { Separator } from "../ui/separator";
+import { generateAvatarInitial } from "@/utils/generateAvatarInitial";
 
 export const DashboardLayout = ({ children }) => {
   const [value, setValue] = useState(null);
+  const handleAressChange = (address) => {
+    setValue(address);
+  };
+  console.log(value);
   const [isOpenDialog, setIsOpenDialog] = useState(false);
   const [isOpenSheet, setIsOpenSheet] = useState(false);
   const isDesktop = useMediaQuery("(min-width: 768px)");
@@ -119,7 +124,7 @@ export const DashboardLayout = ({ children }) => {
                       <Button variant="ghost">
                         <MapPin className="w-6 h-6" />
                         <p className="whitespace-nowrap overflow-hidden text-ellipsis xl:max-w-xs max-w-32">
-                          {addresses[0]?.title ?? "Chọn địa chỉ"}
+                          {addresses[0]?.formatted ?? "Chọn địa chỉ"}
                         </p>
                       </Button>
                     </DialogTrigger>
@@ -128,7 +133,7 @@ export const DashboardLayout = ({ children }) => {
                         <DialogTitle>Chọn địa chỉ chính xác</DialogTitle>
                         <DialogDescription>Để chúng tôi cung cấp dịch vụ tốt nhất cho bạn</DialogDescription>
                       </DialogHeader>
-                      <SearchLocation value={value} setValue={setValue} />
+                      <SearchLocation value={value} onChange={handleAressChange} />
                       <DialogClose asChild>
                         <Button onClick={() => handleAdd()} disabled={value === null}>
                           Xác Nhận
@@ -187,7 +192,7 @@ export const DashboardLayout = ({ children }) => {
                     <DrawerTitle>Chọn địa chỉ chính xác</DrawerTitle>
                     <DrawerDescription>Để chúng tôi cung cấp dịch vụ tốt nhất cho bạn</DrawerDescription>
                   </DrawerHeader>
-                  <SearchLocation value={value} setValue={setValue} />
+                  <SearchLocation value={value} onChange={handleAressChange} />
                   <DrawerClose asChild>
                     <Button onClick={() => handleAdd()} disabled={value === null}>
                       Xác Nhận
@@ -219,7 +224,7 @@ export const DashboardLayout = ({ children }) => {
       </header>
       <main className="flex-1 w-full max-w-7xl m-auto px-2 my-2">
         {addresses.forEach((address) => {
-          <p>{address.title}</p>;
+          <p>{address.formatted}</p>;
         })}
         {children}
       </main>
@@ -404,7 +409,7 @@ const UserPopover = () => {
         <div className="flex gap-2 items-center">
           <Avatar className="border">
             <AvatarImage src={authUser.avatarUrl} />
-            <AvatarFallback>{authUser.name}</AvatarFallback>
+            <AvatarFallback>{generateAvatarInitial(authUser.name)}</AvatarFallback>
           </Avatar>
           <div className="flex flex-col">
             <p className="font-bold">{authUser.name}</p>
@@ -427,7 +432,7 @@ const UserPopover = () => {
           <Separator />
           <div
             onClick={handleLogout}
-            className="flex gap-2 text-sm hover:bg-accent hover:text-accent-foreground p-1.5 rounded-md"
+            className="flex gap-2 text-sm hover:bg-accent hover:text-accent-foreground p-1.5 rounded-md  cursor-pointer"
           >
             <LogOut className="w-5 h-5" />
             Đăng xuất

@@ -67,7 +67,11 @@ export const createAppRouter = (queryClient) =>
         },
         {
           path: "/d/restaurants",
-          lazy: () => import("./routes/app/dashboard-restaurants").then(convert(queryClient)),
+          lazy: () => import("./routes/app/dashboard-restaurants/dashboard-restaurants").then(convert(queryClient)),
+        },
+        {
+          path: "/d/restaurants/create",
+          lazy: () => import("./routes/app/dashboard-restaurants/create-restaurant").then(convert(queryClient)),
         },
       ],
     },
@@ -76,7 +80,6 @@ export const createAppRouter = (queryClient) =>
       element: (
         <ProtectedAdmin>
           <RestaurantProvider>
-            {" "}
             {/* Bọc Provider ở đây */}
             <HomeAdmin />
           </RestaurantProvider>
