@@ -1,66 +1,44 @@
-import logo from "../../assets/react.svg";
+// import logo from "../../assets/react.svg";
+import { useQuery } from "@tanstack/react-query";
+// import { useState } from "react";
+import { api } from "@/lib/api-client";
+import useAddressStore from "@/stores/useAddressStore";
+import { useState, useEffect } from "react";
 
 const Show = () => {
-  const food = [
-    {
-      id: 1,
-      name: "BurgerBurgerBurgerBurgerBurger",
-      note: "Nhà làm",
-      evaluate: 100,
+  const { addresses } = useAddressStore();
+  // const { f, sF } = useState();
+  const { data, isFetching } = useQuery({
+    queryKey: "get-food",
+    queryFn: async () => {
+      const f = await api.get(
+        `/v1/food?latitude=${addresses[0].latitude}&longitude=${addresses[0].longitude}&radius=${1000000}`,
+      );
+      // sF(f.data)
+      return f.data.data;
     },
-    {
-      id: 2,
-      name: "Pizza",
-      note: "Nhà làm",
-      evaluate: 100,
-    },
-    {
-      id: 3,
-      name: "Pasta",
-      note: "Nhà làm",
-      evaluate: 100,
-    },
-    {
-      id: 4,
-      name: "Ice Cream",
-      note: "Nhà làm",
-      evaluate: 100,
-    },
-    {
-      id: 5,
-      name: "Coffee",
-      note: "Nhà làm",
-      evaluate: 100,
-    },
-  ];
+    staleTime: 1000 * 60 * 1, // 5 minutes
+  });
+  // if (isFetching && !data) return <Loading />
+  // console.log("data", f && f);
 
-  const restaurant = [
-    {
-      id: 1,
-      name: "Nhà hàng đông dương",
-      evaluate: 100,
-    },
-    {
-      id: 2,
-      name: "Nhà hàng NHÀ BẾP CHỢ HÀN",
-      evaluate: 100,
-    },
-    {
-      id: 3,
-      name: "Nhà Hàng Bếp Xưa",
-      evaluate: 100,
-    },
-    {
-      id: 4,
-      name: "Thìa Gỗ Restaurant Da Nang",
-      evaluate: 100,
-    },
-    {
-      id: 5,
-      name: "Xóm Mới Garden Đà Nẵng",
-      evaluate: 100,
-    },
-  ];
+  const showIdFood = (id) => {
+    console.log("id", id);
+  };
+
+  const [visibleProducts, setVisibleProducts] = useState(6);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.innerHeight + document.documentElement.scrollTop >= document.documentElement.offsetHeight - 10) {
+        setVisibleProducts((prev) => Math.min(prev + 3, data.length));
+      }
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // if (isFetching && !data) return <Loading />
   return (
     <>
       <div>
@@ -81,31 +59,50 @@ const Show = () => {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {food.map((item) => (
-            <div className="gird bg-blue-200 p-4 rounded-[13px]" key={item.id}>
-              <div className="flex justify-center">
-                <img src={logo} className="h-[191px]" alt="logo" />
-              </div>
-              <div className="">
-                <div className="flex justify-between">
-                  <h1 className="w-[150px] truncate font-bold">{item.name}</h1>
-                  <div className="flex items-center justify-end">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                      <path
-                        d="M11.5251 2.29502C11.5689 2.20648 11.6366 2.13195 11.7205 2.07984C11.8045 2.02773 11.9013 2.00012 12.0001 2.00012C12.0989 2.00012 12.1957 2.02773 12.2796 2.07984C12.3636 2.13195 12.4313 2.20648 12.4751 2.29502L14.7851 6.97402C14.9373 7.28198 15.1619 7.54842 15.4397 7.75047C15.7175 7.95251 16.0402 8.08413 16.3801 8.13402L21.5461 8.89002C21.644 8.9042 21.7359 8.94549 21.8116 9.00921C21.8872 9.07294 21.9435 9.15656 21.9741 9.25062C22.0047 9.34468 22.0084 9.44542 21.9847 9.54145C21.961 9.63748 21.9109 9.72497 21.8401 9.79402L18.1041 13.432C17.8577 13.6721 17.6734 13.9685 17.5669 14.2956C17.4605 14.6228 17.4352 14.9709 17.4931 15.31L18.3751 20.45C18.3924 20.5479 18.3818 20.6486 18.3446 20.7407C18.3074 20.8328 18.245 20.9126 18.1646 20.971C18.0842 21.0294 17.9891 21.064 17.89 21.0709C17.7908 21.0778 17.6918 21.0567 17.6041 21.01L12.9861 18.582C12.6818 18.4222 12.3433 18.3388 11.9996 18.3388C11.6559 18.3388 11.3174 18.4222 11.0131 18.582L6.39609 21.01C6.30842 21.0564 6.20949 21.0773 6.11054 21.0703C6.0116 21.0632 5.91661 21.0286 5.83639 20.9702C5.75616 20.9119 5.69392 20.8322 5.65675 20.7402C5.61957 20.6483 5.60895 20.5477 5.62609 20.45L6.50709 15.311C6.56529 14.9717 6.54007 14.6234 6.43363 14.2961C6.32718 13.9687 6.1427 13.6722 5.89609 13.432L2.16009 9.79502C2.08868 9.72605 2.03808 9.63841 2.01405 9.54209C1.99002 9.44577 1.99353 9.34463 2.02417 9.25021C2.05481 9.15578 2.11136 9.07186 2.18737 9.008C2.26338 8.94414 2.35579 8.90291 2.45409 8.88902L7.61909 8.13402C7.95935 8.08451 8.28248 7.95307 8.56067 7.751C8.83887 7.54893 9.06379 7.28229 9.21609 6.97402L11.5251 2.29502Z"
-                        stroke="#FC0C10"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                    <p>5 {item.evaluate}+</p>
+          {data &&
+            (() => {
+              // Chọn ngẫu nhiên 4 nhà hàng từ data[]
+              const randomRestaurants = [...data].sort(() => 0.5 - Math.random()).slice(0, 4);
+
+              // Lấy danh sách top 2 món ăn từ mỗi nhà hàng
+              const topFoods = randomRestaurants.flatMap((restaurant) =>
+                [...restaurant.foods].sort((a, b) => b.rating - a.rating).slice(0, 2),
+              );
+
+              return topFoods.map((item) => (
+                <div className="bg-blue-200 p-4 rounded-[13px] flex flex-col justify-between h-full" key={item.foodId}>
+                  <div className="flex justify-center">
+                    <img src={item.imageUrl} className="h-[191px]" alt="img" />
                   </div>
+                  <div>
+                    <div className="flex justify-between">
+                      <h1 className="w-[150px] truncate font-bold">{item.name}</h1>
+                      <div className="flex items-center justify-end">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                          <path
+                            d="M11.5251 2.29502C11.5689 2.20648 11.6366 2.13195 11.7205 2.07984C11.8045 2.02773 11.9013 2.00012 12.0001 2.00012C12.0989 2.00012 12.1957 2.02773 12.2796 2.07984C12.3636 2.13195 12.4313 2.20648 12.4751 2.29502L14.7851 6.97402C14.9373 7.28198 15.1619 7.54842 15.4397 7.75047C15.7175 7.95251 16.0402 8.08413 16.3801 8.13402L21.5461 8.89002C21.644 8.9042 21.7359 8.94549 21.8116 9.00921C21.8872 9.07294 21.9435 9.15656 21.9741 9.25062C22.0047 9.34468 22.0084 9.44542 21.9847 9.54145C21.961 9.63748 21.9109 9.72497 21.8401 9.79402L18.1041 13.432C17.8577 13.6721 17.6734 13.9685 17.5669 14.2956C17.4605 14.6228 17.4352 14.9709 17.4931 15.31L18.3751 20.45C18.3924 20.5479 18.3818 20.6486 18.3446 20.7407C18.3074 20.8328 18.245 20.9126 18.1646 20.971C18.0842 21.0294 17.9891 21.064 17.89 21.0709C17.7908 21.0778 17.6918 21.0567 17.6041 21.01L12.9861 18.582C12.6818 18.4222 12.3433 18.3388 11.9996 18.3388C11.6559 18.3388 11.3174 18.4222 11.0131 18.582L6.39609 21.01C6.30842 21.0564 6.20949 21.0773 6.11054 21.0703C6.0116 21.0632 5.91661 21.0286 5.83639 20.9702C5.75616 20.9119 5.69392 20.8322 5.65675 20.7402C5.61957 20.6483 5.60895 20.5477 5.62609 20.45L6.50709 15.311C6.56529 14.9717 6.54007 14.6234 6.43363 14.2961C6.32718 13.9687 6.1427 13.6722 5.89609 13.432L2.16009 9.79502C2.08868 9.72605 2.03808 9.63841 2.01405 9.54209C1.99002 9.44577 1.99353 9.34463 2.02417 9.25021C2.05481 9.15578 2.11136 9.07186 2.18737 9.008C2.26338 8.94414 2.35579 8.90291 2.45409 8.88902L7.61909 8.13402C7.95935 8.08451 8.28248 7.95307 8.56067 7.751C8.83887 7.54893 9.06379 7.28229 9.21609 6.97402L11.5251 2.29502Z"
+                            stroke="#FC0C10"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                        <p>{item.totalReviews}+</p>
+                      </div>
+                    </div>
+                    <p>{item.description}</p>
+                  </div>
+                  {/* <div className=" bottom-4 right-4"> */}
+                  <button
+                    className="bg-red-500 text-white px-4 py-2 rounded-md mt-2"
+                    onClick={() => showIdFood(item.foodId)}
+                  >
+                    Thêm vào giỏ hàng
+                  </button>
+                  {/* </div> */}
                 </div>
-                <p>{item.note}</p>
-              </div>
-            </div>
-          ))}
+              ));
+            })()}
         </div>
       </div>
 
@@ -127,63 +124,110 @@ const Show = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-          {restaurant.map((item) => (
-            <div className="gird bg-blue-200 p-4 rounded-[13px]" key={item.id}>
-              <div className="flex justify-center">
-                <img src={logo} className="h-[191px]" alt="logo" />
-              </div>
-              <div className="">
-                <div className="flex justify-between">
-                  <h1 className="w-[220px] truncate font-bold">{item.name}</h1>
-                  <div className="flex items-center justify-end">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                      <path
-                        d="M11.5251 2.29502C11.5689 2.20648 11.6366 2.13195 11.7205 2.07984C11.8045 2.02773 11.9013 2.00012 12.0001 2.00012C12.0989 2.00012 12.1957 2.02773 12.2796 2.07984C12.3636 2.13195 12.4313 2.20648 12.4751 2.29502L14.7851 6.97402C14.9373 7.28198 15.1619 7.54842 15.4397 7.75047C15.7175 7.95251 16.0402 8.08413 16.3801 8.13402L21.5461 8.89002C21.644 8.9042 21.7359 8.94549 21.8116 9.00921C21.8872 9.07294 21.9435 9.15656 21.9741 9.25062C22.0047 9.34468 22.0084 9.44542 21.9847 9.54145C21.961 9.63748 21.9109 9.72497 21.8401 9.79402L18.1041 13.432C17.8577 13.6721 17.6734 13.9685 17.5669 14.2956C17.4605 14.6228 17.4352 14.9709 17.4931 15.31L18.3751 20.45C18.3924 20.5479 18.3818 20.6486 18.3446 20.7407C18.3074 20.8328 18.245 20.9126 18.1646 20.971C18.0842 21.0294 17.9891 21.064 17.89 21.0709C17.7908 21.0778 17.6918 21.0567 17.6041 21.01L12.9861 18.582C12.6818 18.4222 12.3433 18.3388 11.9996 18.3388C11.6559 18.3388 11.3174 18.4222 11.0131 18.582L6.39609 21.01C6.30842 21.0564 6.20949 21.0773 6.11054 21.0703C6.0116 21.0632 5.91661 21.0286 5.83639 20.9702C5.75616 20.9119 5.69392 20.8322 5.65675 20.7402C5.61957 20.6483 5.60895 20.5477 5.62609 20.45L6.50709 15.311C6.56529 14.9717 6.54007 14.6234 6.43363 14.2961C6.32718 13.9687 6.1427 13.6722 5.89609 13.432L2.16009 9.79502C2.08868 9.72605 2.03808 9.63841 2.01405 9.54209C1.99002 9.44577 1.99353 9.34463 2.02417 9.25021C2.05481 9.15578 2.11136 9.07186 2.18737 9.008C2.26338 8.94414 2.35579 8.90291 2.45409 8.88902L7.61909 8.13402C7.95935 8.08451 8.28248 7.95307 8.56067 7.751C8.83887 7.54893 9.06379 7.28229 9.21609 6.97402L11.5251 2.29502Z"
-                        stroke="#FC0C10"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                    <p>5 {item.evaluate}+</p>
+          {data &&
+            (() => {
+              const randomRestaurants = [...data].sort(() => 0.5 - Math.random()).slice(0, 6);
+
+              return randomRestaurants.map((item) => (
+                <div className="gird bg-blue-200 p-4 rounded-[13px]" key={item.restaurantId}>
+                  <div className="flex justify-center">
+                    <img src={item.restaurantLogo} className="h-[191px]" alt="logo" />
+                  </div>
+                  <div className="">
+                    <div className="flex justify-between">
+                      <h1 className="w-[220px] truncate font-bold">{item.restaurantName}</h1>
+                      <div className="flex items-center justify-end">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                          <path
+                            d="M11.5251 2.29502C11.5689 2.20648 11.6366 2.13195 11.7205 2.07984C11.8045 2.02773 11.9013 2.00012 12.0001 2.00012C12.0989 2.00012 12.1957 2.02773 12.2796 2.07984C12.3636 2.13195 12.4313 2.20648 12.4751 2.29502L14.7851 6.97402C14.9373 7.28198 15.1619 7.54842 15.4397 7.75047C15.7175 7.95251 16.0402 8.08413 16.3801 8.13402L21.5461 8.89002C21.644 8.9042 21.7359 8.94549 21.8116 9.00921C21.8872 9.07294 21.9435 9.15656 21.9741 9.25062C22.0047 9.34468 22.0084 9.44542 21.9847 9.54145C21.961 9.63748 21.9109 9.72497 21.8401 9.79402L18.1041 13.432C17.8577 13.6721 17.6734 13.9685 17.5669 14.2956C17.4605 14.6228 17.4352 14.9709 17.4931 15.31L18.3751 20.45C18.3924 20.5479 18.3818 20.6486 18.3446 20.7407C18.3074 20.8328 18.245 20.9126 18.1646 20.971C18.0842 21.0294 17.9891 21.064 17.89 21.0709C17.7908 21.0778 17.6918 21.0567 17.6041 21.01L12.9861 18.582C12.6818 18.4222 12.3433 18.3388 11.9996 18.3388C11.6559 18.3388 11.3174 18.4222 11.0131 18.582L6.39609 21.01C6.30842 21.0564 6.20949 21.0773 6.11054 21.0703C6.0116 21.0632 5.91661 21.0286 5.83639 20.9702C5.75616 20.9119 5.69392 20.8322 5.65675 20.7402C5.61957 20.6483 5.60895 20.5477 5.62609 20.45L6.50709 15.311C6.56529 14.9717 6.54007 14.6234 6.43363 14.2961C6.32718 13.9687 6.1427 13.6722 5.89609 13.432L2.16009 9.79502C2.08868 9.72605 2.03808 9.63841 2.01405 9.54209C1.99002 9.44577 1.99353 9.34463 2.02417 9.25021C2.05481 9.15578 2.11136 9.07186 2.18737 9.008C2.26338 8.94414 2.35579 8.90291 2.45409 8.88902L7.61909 8.13402C7.95935 8.08451 8.28248 7.95307 8.56067 7.751C8.83887 7.54893 9.06379 7.28229 9.21609 6.97402L11.5251 2.29502Z"
+                            stroke="#FC0C10"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                        <p>5 {item.addressLine1}+</p>
+                      </div>
+                    </div>
                   </div>
                 </div>
+              ));
+            })()}
+        </div>
+      </div>
+      {/* <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"> */}
+
+      {data &&
+        (() => {
+          const allFoods = data.flatMap((restaurant) => restaurant.foods);
+
+          // slice(0, visibleProducts).
+          return allFoods.map((item) => (
+            <div className="bg-blue-200 p-4 mt-4" key={item.foodId}>
+              <div className="flex ">
+                <div className="flex justify-center w-[266px] h-[191px]">
+                  <img src={item.imageUrl} className="h-[191px]" alt="logo" />
+                </div>
+                <div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-2">
+                    <div>
+                      <h1 className="w-[300px] truncate font-bold">{item.name}</h1>
+                    </div>
+
+                    <div className="flex items-center ">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path
+                          d="M11.5251 2.29502C11.5689 2.20648 11.6366 2.13195 11.7205 2.07984C11.8045 2.02773 11.9013 2.00012 12.0001 2.00012C12.0989 2.00012 12.1957 2.02773 12.2796 2.07984C12.3636 2.13195 12.4313 2.20648 12.4751 2.29502L14.7851 6.97402C14.9373 7.28198 15.1619 7.54842 15.4397 7.75047C15.7175 7.95251 16.0402 8.08413 16.3801 8.13402L21.5461 8.89002C21.644 8.9042 21.7359 8.94549 21.8116 9.00921C21.8872 9.07294 21.9435 9.15656 21.9741 9.25062C22.0047 9.34468 22.0084 9.44542 21.9847 9.54145C21.961 9.63748 21.9109 9.72497 21.8401 9.79402L18.1041 13.432C17.8577 13.6721 17.6734 13.9685 17.5669 14.2956C17.4605 14.6228 17.4352 14.9709 17.4931 15.31L18.3751 20.45C18.3924 20.5479 18.3818 20.6486 18.3446 20.7407C18.3074 20.8328 18.245 20.9126 18.1646 20.971C18.0842 21.0294 17.9891 21.064 17.89 21.0709C17.7908 21.0778 17.6918 21.0567 17.6041 21.01L12.9861 18.582C12.6818 18.4222 12.3433 18.3388 11.9996 18.3388C11.6559 18.3388 11.3174 18.4222 11.0131 18.582L6.39609 21.01C6.30842 21.0564 6.20949 21.0773 6.11054 21.0703C6.0116 21.0632 5.91661 21.0286 5.83639 20.9702C5.75616 20.9119 5.69392 20.8322 5.65675 20.7402C5.61957 20.6483 5.60895 20.5477 5.62609 20.45L6.50709 15.311C6.56529 14.9717 6.54007 14.6234 6.43363 14.2961C6.32718 13.9687 6.1427 13.6722 5.89609 13.432L2.16009 9.79502C2.08868 9.72605 2.03808 9.63841 2.01405 9.54209C1.99002 9.44577 1.99353 9.34463 2.02417 9.25021C2.05481 9.15578 2.11136 9.07186 2.18737 9.008C2.26338 8.94414 2.35579 8.90291 2.45409 8.88902L7.61909 8.13402C7.95935 8.08451 8.28248 7.95307 8.56067 7.751C8.83887 7.54893 9.06379 7.28229 9.21609 6.97402L11.5251 2.29502Z"
+                          stroke="#FC0C10"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                      <p>5 {item.price}+</p>
+                    </div>
+                  </div>
+                  <h1 className="mt-[120px]">{item.description}</h1>
+                </div>
               </div>
+            </div>
+          ));
+        })()}
+      {/* </div> */}
+      {/* {data[1]?.foods?.slice(0, visibleProducts).map((item) => (
+        <div key={item.foodId} className="p-4 border rounded-lg shadow-md">
+          {item.name}
+        </div>
+      ))} */}
+
+      {/* <div className="p-4">
+        <h2 className="text-xl font-bold mb-4">Danh sách sản phẩm</h2>
+        <div className="grid grid-cols-3 gap-4">
+          {data &&
+            (() => {
+              const allFoods = data.flatMap((restaurant) => restaurant.foods);
+
+              return allFoods.slice(0, visibleProducts).map((item) => (
+                <div key={item.foodId} className="p-4 border rounded-lg shadow-md">
+                  {item.name}
+                </div>
+              ))
+            }
+            )()
+          }
+        </div>
+      </div> */}
+
+      {/* <div className="p-4">
+        <h2 className="text-xl font-bold mb-4">Danh sách sản phẩm</h2>
+        <div className="grid grid-cols-3 gap-4">
+          {products.slice(0, visibleProducts).map((product) => (
+            <div key={product.id} className="p-4 border rounded-lg shadow-md">
+              {product.name}
             </div>
           ))}
         </div>
-      </div>
-
-      {food.map((item) => (
-        <div className="bg-blue-200 p-4 mt-4" key={item.id}>
-          <div className="flex ">
-            <div className="flex justify-center w-[266px] h-[191px]">
-              <img src={logo} className="h-[191px]" alt="logo" />
-            </div>
-            <div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-2">
-                <div>
-                  <h1 className="w-[300px] truncate font-bold">{item.name}</h1>
-                </div>
-
-                <div className="flex items-center ">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                    <path
-                      d="M11.5251 2.29502C11.5689 2.20648 11.6366 2.13195 11.7205 2.07984C11.8045 2.02773 11.9013 2.00012 12.0001 2.00012C12.0989 2.00012 12.1957 2.02773 12.2796 2.07984C12.3636 2.13195 12.4313 2.20648 12.4751 2.29502L14.7851 6.97402C14.9373 7.28198 15.1619 7.54842 15.4397 7.75047C15.7175 7.95251 16.0402 8.08413 16.3801 8.13402L21.5461 8.89002C21.644 8.9042 21.7359 8.94549 21.8116 9.00921C21.8872 9.07294 21.9435 9.15656 21.9741 9.25062C22.0047 9.34468 22.0084 9.44542 21.9847 9.54145C21.961 9.63748 21.9109 9.72497 21.8401 9.79402L18.1041 13.432C17.8577 13.6721 17.6734 13.9685 17.5669 14.2956C17.4605 14.6228 17.4352 14.9709 17.4931 15.31L18.3751 20.45C18.3924 20.5479 18.3818 20.6486 18.3446 20.7407C18.3074 20.8328 18.245 20.9126 18.1646 20.971C18.0842 21.0294 17.9891 21.064 17.89 21.0709C17.7908 21.0778 17.6918 21.0567 17.6041 21.01L12.9861 18.582C12.6818 18.4222 12.3433 18.3388 11.9996 18.3388C11.6559 18.3388 11.3174 18.4222 11.0131 18.582L6.39609 21.01C6.30842 21.0564 6.20949 21.0773 6.11054 21.0703C6.0116 21.0632 5.91661 21.0286 5.83639 20.9702C5.75616 20.9119 5.69392 20.8322 5.65675 20.7402C5.61957 20.6483 5.60895 20.5477 5.62609 20.45L6.50709 15.311C6.56529 14.9717 6.54007 14.6234 6.43363 14.2961C6.32718 13.9687 6.1427 13.6722 5.89609 13.432L2.16009 9.79502C2.08868 9.72605 2.03808 9.63841 2.01405 9.54209C1.99002 9.44577 1.99353 9.34463 2.02417 9.25021C2.05481 9.15578 2.11136 9.07186 2.18737 9.008C2.26338 8.94414 2.35579 8.90291 2.45409 8.88902L7.61909 8.13402C7.95935 8.08451 8.28248 7.95307 8.56067 7.751C8.83887 7.54893 9.06379 7.28229 9.21609 6.97402L11.5251 2.29502Z"
-                      stroke="#FC0C10"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                  <p>5 {item.evaluate}+</p>
-                </div>
-              </div>
-              <h1 className="mt-[120px]">{item.note}</h1>
-            </div>
-          </div>
-        </div>
-      ))}
+      </div> */}
     </>
   );
 };
