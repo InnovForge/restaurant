@@ -141,7 +141,7 @@ const createFoods = async () => {
         precision: 1000,
       });
       const price_type = "VND";
-      const image_url = faker.image.urlLoremFlickr({ width: 400, height: 300, category: "dishes" });
+      const image_url = faker.image.urlLoremFlickr({ width: 400, height: 300 });
 
       const available = faker.datatype.boolean();
 
