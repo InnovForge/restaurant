@@ -11,7 +11,7 @@ const DashboardRestaurants = () => {
   return isLoading ? (
     <Loading />
   ) : (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-5 min-h-screen">
       <div className="flex flex-row justify-between items-center gap-10 w-full">
         <SearchRestaurants />
         <Link to="create">

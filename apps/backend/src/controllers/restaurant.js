@@ -30,6 +30,7 @@ export const updateRestaurant = async (req, res) => {
 
 export const createRestaurant = async (req, res) => {
   const { name, address, phoneNumber, email } = req.body;
+  const userId = req.userId;
 
   const errors = validateFields(req.body, ["name", "address", "phoneNumber", "email"], true);
 
@@ -37,7 +38,13 @@ export const createRestaurant = async (req, res) => {
     return responseHandler.badRequest(res, undefined, errors);
   }
 
-  const userId = req.userId;
+  const emailExist = await restaurantModel.checkEmailExist(email);
+
+  if (emailExist) {
+    const errors = [];
+    errors.push({ field: "email", message: "Email already exists" });
+    return responseHandler.badRequest(res, undefined, errors);
+  }
 
   try {
     const restaurantId = await restaurantModel.createRestaurant(userId, {
@@ -60,7 +67,7 @@ export const uploadRestaurantImage = async (req, res) => {
     const { cover: coverFiles = [], logo: logoFiles = [] } = req.files || {};
 
     if (coverFiles.length === 0 && logoFiles.length === 0) {
-      return responseHandler.badRequest(res, "Không có ảnh nào được tải lên.");
+      return responseHandler.badRequest(res, "no image uploaded");
     }
 
     const [coverUrl, logoUrl] = await Promise.all([
@@ -77,10 +84,10 @@ export const uploadRestaurantImage = async (req, res) => {
       await restaurantModel.updateRestaurant(restaurantId, updateData);
     }
 
-    return responseHandler.success(res, "Cập nhật ảnh thành công.");
+    return responseHandler.success(res, "upload image success");
   } catch (error) {
-    console.error("Lỗi upload ảnh nhà hàng: ", error);
-    return responseHandler.internalServerError(res, "Có lỗi xảy ra khi tải ảnh lên.");
+    console.error("Error ", error);
+    return responseHandler.internalServerError(res);
   }
 };
 

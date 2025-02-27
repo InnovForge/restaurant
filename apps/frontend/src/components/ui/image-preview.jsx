@@ -13,6 +13,7 @@ const ImagePreview = React.forwardRef(({ value, onChange, name, aspectRatio = "a
     const file = event.target.files[0];
     if (file) {
       handleImageChange(file);
+      event.target.value = null;
     }
   };
 

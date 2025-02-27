@@ -2,6 +2,15 @@ import { pool } from "../configs/mysql.js";
 import { nanoidNumbersOnly } from "../utils/nanoid.js";
 
 const restaurantModel = {
+  /**
+   * Update a restaurant
+   * @param {string} restaurantId - ID of the restaurant
+   * @param {Object} restaurantData - Data of the restaurant
+   * @param {string} restaurantData.name - Name of the restaurant
+   * @param {Object} restaurantData.address - Address of the restaurant
+   * @param {string} restaurantData.phoneNumber - Phone number of the restaurant
+   * @param {string} restaurantData.coverUrl - Cover URL of the restaurant
+   */
   async updateRestaurant(restaurantId, restaurantData) {
     console.log("is data:", restaurantData);
     const address = restaurantData?.address;
@@ -144,6 +153,16 @@ WHERE
       [userId],
     );
     return rows;
+  },
+
+  /**
+   * Check if the email is already used by another restaurant
+   * @param {string} email - Email to check
+   * @returns Promise<boolean> - True if the email is already used, false otherwise
+   */
+  async checkEmailExist(email) {
+    const [rows] = await pool.query(`SELECT email FROM restaurants WHERE email = ?`, [email]);
+    return rows.length > 0;
   },
 
   async GetAllFoodByResId(restaurantId) {

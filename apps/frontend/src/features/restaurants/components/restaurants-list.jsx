@@ -22,10 +22,10 @@ const RestaurantList = () => {
   }
 
   return (
-    <div className="grid grid-cols-1 gap-4 max-w-md">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {restaurants.map((restaurant) => (
         <Link to={`${restaurant.restaurantId}`} key={restaurant.restaurantId}>
-          <Card>
+          <Card className="h-full flex flex-col">
             <CardHeader>
               <div className="flex gap-2">
                 <Avatar>
@@ -38,7 +38,7 @@ const RestaurantList = () => {
                 </div>
               </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="mt-auto">
               <div className="flex gap-2 items-center">
                 <UserRoundCog />
                 <p>{restaurant.role}</p>

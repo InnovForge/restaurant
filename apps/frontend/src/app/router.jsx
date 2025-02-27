@@ -47,7 +47,7 @@ export const createAppRouter = (queryClient) =>
           <AppRoot />
         </ProtectedApp>
       ),
-      ErrorBoundary: AppRootErrorBoundary,
+      // ErrorBoundary: AppRootErrorBoundary,
       children: [
         {
           path: "home",
