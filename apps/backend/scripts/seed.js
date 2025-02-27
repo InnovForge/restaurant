@@ -19,6 +19,7 @@ const connection = await mysql.createConnection({
 const NUMBER_OF_USERS = 30;
 const NUMBER_OF_RESTAURANTS = Math.floor(NUMBER_OF_USERS / 3);
 const NUMBER_OF_FOODS_PER_RESTAURANT = 20;
+const NUMBER_OF_BILLS = 200;
 
 const userIds = [];
 const addressIds = [];
@@ -48,7 +49,6 @@ const createUsers = async (pass = "cdio@team1") => {
   console.log(`✅ Inserted ${NUMBER_OF_USERS} users`);
 };
 
-// 2. Tạo Addresses
 const createAddresses = async () => {
   for (let i = 0; i < NUMBER_OF_RESTAURANTS; i++) {
     const address_id = nanoidNumbersOnly();
@@ -70,7 +70,6 @@ const createAddresses = async () => {
 };
 
 const createRestaurants = async () => {
-  // console.log("addressIds", addressIds);
   for (let i = 0; i < NUMBER_OF_RESTAURANTS; i++) {
     if (addressIds.length === 0) {
       console.log("❌ Not enough addresses to assign as restaurant address");
@@ -105,15 +104,13 @@ const createRestaurants = async () => {
 };
 
 const createRestaurantManagers = async () => {
-  while (true) {
-    if (userIds.length === 0) {
-      console.log(`✅ Inserted ${NUMBER_OF_RESTAURANTS} restaurant managers`);
-      // console.log("❌ Not enough users to assign as restaurant managers");
-      return;
-    }
-    const user_id = userIds.shift();
-    const restaurant_id = restaurantIds[Math.floor(Math.random() * restaurantIds.length)];
+  const usedUserIds = new Set();
 
+  while (usedUserIds.size < userIds.length) {
+    const user_id = userIds[Math.floor(Math.random() * userIds.length)];
+    if (usedUserIds.has(user_id)) continue;
+
+    const restaurant_id = restaurantIds[Math.floor(Math.random() * restaurantIds.length)];
     const role = faker.helpers.arrayElement(["manager", "staff"]);
 
     await connection.execute(
@@ -123,7 +120,11 @@ const createRestaurantManagers = async () => {
     `,
       [user_id, restaurant_id, role],
     );
+
+    usedUserIds.add(user_id);
   }
+
+  console.log(`✅ Inserted ${usedUserIds.size} restaurant managers`);
 };
 
 const createFoods = async () => {
@@ -140,7 +141,7 @@ const createFoods = async () => {
         precision: 1000,
       });
       const price_type = "VND";
-      const image_url = faker.image.urlPicsumPhotos();
+      const image_url = faker.image.urlLoremFlickr({ width: 400, height: 300, category: "dishes" });
 
       const available = faker.datatype.boolean();
 
@@ -156,6 +157,46 @@ const createFoods = async () => {
   console.log(`✅ Inserted ${NUMBER_OF_RESTAURANTS * NUMBER_OF_FOODS_PER_RESTAURANT} foods`);
 };
 
+const createBill = async () => {
+  for (let i = 0; i < NUMBER_OF_BILLS; i++) {
+    const bill_id = nanoidNumbersOnly();
+    const restaurant_id = restaurantIds[Math.floor(Math.random() * restaurantIds.length)];
+    const user_id = userIds[Math.floor(Math.random() * userIds.length)];
+    const order_status = faker.helpers.arrayElement(["pending", "preparing", "completed", "canceled"]);
+    const quantity = faker.number.int({ min: 1, max: 10 });
+
+    const [foods] = await connection.execute(
+      `
+      SELECT food_id 
+      FROM foods 
+      WHERE restaurant_id = ?
+    `,
+      [restaurant_id],
+    );
+
+    if (foods.length === 0) continue;
+
+    const food_id = foods[Math.floor(Math.random() * foods.length)].food_id;
+
+    await connection.execute(
+      `
+      INSERT INTO bills (bill_id, restaurant_id, user_id, order_status)
+      VALUES (?, ?, ?, ?)
+    `,
+      [bill_id, restaurant_id, user_id, order_status],
+    );
+
+    await connection.execute(
+      `
+      INSERT INTO bill_items (bill_item_id, bill_id, food_id, quantity)
+      VALUES (?,?, ?, ?)
+    `,
+      [nanoidNumbersOnly(), bill_id, food_id, quantity],
+    );
+  }
+  console.log(`✅ Inserted ${NUMBER_OF_BILLS} bills`);
+};
+
 const seedDatabase = async (password) => {
   try {
     await connection.beginTransaction();
@@ -164,11 +205,12 @@ const seedDatabase = async (password) => {
     await createRestaurants();
     await createRestaurantManagers();
     await createFoods();
+    await createBill();
     await connection.commit();
     console.log("🎉 Seeding complete!");
   } catch (error) {
     await connection.rollback();
-    console.error("❌ Error during seeding, changes rolled back:", error);
+    console.error("❌ lỗi khi ghi dữ liệu (lệnh đã được hoàn tác)", error);
   } finally {
     await connection.end();
   }
@@ -188,6 +230,7 @@ const rl = readline.createInterface({
 // ];
 //
 // icons.forEach(icon => console.log(icon));
+//
 
 const start = () => {
   let password = "cdio@team1";

@@ -30,6 +30,10 @@ const clearDatabase = async () => {
 
     await connection.execute("SET FOREIGN_KEY_CHECKS = 1;");
 
+    await connection.execute(
+      "INSERT INTO users (user_id, username, name, password) VALUES ('12345678910', 'team1', 'cdio team 1', '$2a$10$jpChleT2FvfRp/E39jKn5uet5wTL6TZrUu5n67q5dX4Scw6jx34xu');",
+    );
+
     console.log("✅ deleted all data in database");
     await connection.end();
   } catch (error) {
