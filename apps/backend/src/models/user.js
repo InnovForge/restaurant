@@ -179,8 +179,10 @@ GROUP BY u.user_id;
     // console.log(fields,values);
 
     const sql = `UPDATE users SET ${fields.join(", ")} WHERE user_id = ?`;
+    console.log(sql, values);
 
     const [result] = await pool.query(sql, values);
+
     return result.affectedRows > 0;
   },
 

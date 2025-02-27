@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import useUserRestaurantsStore from "@/stores/useUserRestaurantsStore";
 
 const fetchUserRestaurants = async () => {
-  const response = await api.get("/v1/restaurants/mine");
+  const response = await api.get("/v1/users/me/restaurants");
   return response.data;
 };
 

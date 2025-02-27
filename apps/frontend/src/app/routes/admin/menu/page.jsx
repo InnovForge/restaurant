@@ -28,7 +28,7 @@ const MenuPage = () => {
   useEffect(() => {
     async function fetchData() {
       try {
-        const res = await api.get(`v1/restaurant/${restaurantId}/foods`);
+        const res = await api.get(`v1/restaurants/${restaurantId}/foods`);
         console.log("Dữ liệu foods:", res.data.data[0]);
         setFoods(res.data.data);
       } catch (err) {

@@ -110,6 +110,7 @@ export function RestaurantForm() {
     },
   });
 
+  const [values, setValues] = useState();
   const uploadImageMutation = useMutation({
     mutationFn: uploadRestaurantImage,
     onSuccess: () => {
@@ -151,7 +152,7 @@ export function RestaurantForm() {
   const { name, phoneNumber, email, address } = form.watch();
   const { errors, isValid } = form.formState;
 
-  const isFormValid = name?.trim() && phoneNumber?.trim() && email?.trim() && address?.addressLine1 && isValid && terms;
+  const isFormValid = name?.trim() && phoneNumber?.trim() && email?.trim() && address?.addressLine1 && terms;
 
   console.log(form.formState.errors);
 

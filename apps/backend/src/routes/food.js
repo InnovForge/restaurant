@@ -8,11 +8,11 @@ import { apiCache } from "../middlewares/apiCache.js";
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 const router = Router();
-router.use("/restaurant", authenticateJWT);
+router.use("/restaurants", authenticateJWT);
 
 /**
  * @openapi
- * /api/v1/restaurant/{restaurantId}/food:
+ * /api/v1/restaurants/{restaurantId}/foods:
  *   post:
  *     summary: Tạo một món ăn mới
  *     tags:
@@ -56,11 +56,11 @@ router.use("/restaurant", authenticateJWT);
  *         500:
  *          $ref: '#/components/responses/500'
  */
-router.post("/restaurant/:restaurantId/food", authRestaurant([ROLE.owner, ROLE.manager]), foodController.createFood);
+router.post("/restaurants/:restaurantId/foods", authRestaurant([ROLE.owner, ROLE.manager]), foodController.createFood);
 
 /**
  * @openapi
- * /api/v1/restaurant/{restaurantId}/food/{foodId}:
+ * /api/v1/restaurants/{restaurantId}/foods/{foodId}:
  *   patch:
  *     summary: Cập nhật thông tin món ăn
  *     tags:
@@ -114,14 +114,14 @@ router.post("/restaurant/:restaurantId/food", authRestaurant([ROLE.owner, ROLE.m
  *         $ref: '#/components/responses/500'
  */
 router.patch(
-  "/restaurant/:restaurantId/food/:foodId",
+  "/restaurants/:restaurantId/foods/:foodId",
   authRestaurant([ROLE.owner, ROLE.manager]),
   foodController.updateFood,
 );
 
 /**
  * @openapi
- * /api/v1/restaurant/{restaurantId}/food/{foodId}/image:
+ * /api/v1/restaurants/{restaurantId}/foods/{foodId}/image:
  *   patch:
  *     summary: Upload ảnh cho món ăn của nhà hàng
  *     tags:
@@ -167,7 +167,7 @@ router.patch(
  *         $ref: '#/components/responses/500'
  */
 router.patch(
-  "/restaurant/:restaurantId/food/:foodId/image",
+  "/restaurants/:restaurantId/foods/:foodId/image",
   authRestaurant([ROLE.owner, ROLE.manager]),
   upload.single("image"),
   foodController.uploadFoodImage,
@@ -175,7 +175,7 @@ router.patch(
 
 /**
  * @openapi
- * /api/v1/food:
+ * /api/v1/foods:
  *   get:
  *     summary: Lấy danh sách món ăn của nhà hàng
  *     tags:
@@ -292,6 +292,6 @@ router.patch(
  *       500:
  *         $ref: '#/components/responses/500'
  */
-router.get("/food", apiCache, foodController.getAllFood);
+router.get("/foods", apiCache, foodController.getAllFood);
 
 export default router;

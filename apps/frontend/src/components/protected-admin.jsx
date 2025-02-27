@@ -9,7 +9,7 @@ import { useUserRestaurants } from "@/hooks/use-user-restaurants";
 
 const checkUser = async () => {
   try {
-    const response = await api.get("/v1/user");
+    const response = await api.get("/v1/users/me");
     return response.data;
   } catch (error) {
     return null;
