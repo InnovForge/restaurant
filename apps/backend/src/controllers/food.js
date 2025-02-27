@@ -105,10 +105,10 @@ export const getAllFood = async (req, res) => {
             ...distanceData,
           },
         };
-        cacheResponse(req.originalUrl, data, 60 * 2); // 7 days
         return data;
       }),
     );
+    cacheResponse(req.originalUrl, await updatedFoods, 60 * 2);
     return responseHandler.success(res, undefined, updatedFoods);
   } catch (error) {
     console.log("error :>> ", error);
