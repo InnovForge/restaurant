@@ -62,18 +62,19 @@ const foodModel = {
 FROM foods f 
 JOIN restaurants r ON f.restaurant_id = r.restaurant_id 
 JOIN addresses a ON a.address_id = r.address_id
+LEFT JOIN bills b ON b.restaurant_id = r.restaurant_id
 LEFT JOIN (
     SELECT 
-        food_id,
+        bill_id,
         COUNT(review_id) AS total_reviews,
         ROUND(AVG(rating), 1) AS average_rating
     FROM reviews
-    GROUP BY food_id
-) fr ON fr.food_id = f.food_id
+    GROUP BY bill_id
+) fr ON fr.bill_id = b.bill_id
 GROUP BY r.restaurant_id, a.address_id
 HAVING estimated_distance <= ?
 ORDER BY estimated_distance ASC
-LIMIT 20;
+LIMIT 10;
 `;
 
     const [foods] = await pool.query(query, [latitude, longitude, latitude, radius]);

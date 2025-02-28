@@ -12,7 +12,7 @@ const Show = () => {
     queryKey: "get-food",
     queryFn: async () => {
       const f = await api.get(
-        `/v1/foods?latitude=${addresses[0].latitude}&longitude=${addresses[0].longitude}&radius=${1000000}`,
+        `/v1/foods?latitude=${addresses[0].latitude}&longitude=${addresses[0].longitude}&radius=${20000}`,
       );
       // sF(f.data)
       return f.data.data;
