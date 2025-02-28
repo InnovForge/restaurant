@@ -6,7 +6,6 @@ import Show from "../../../features/showFood/showfood";
 const Home = () => {
   return (
     <>
-      <div className="text-3xl font-bold underline"> this is page food</div>
       <Show />
     </>
   );

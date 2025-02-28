@@ -202,6 +202,13 @@ router.patch(
  *           type: integer
  *           default: 10000
  *         description: Bán kính tìm kiếm (mét)
+ *       - in: query
+ *         name: page
+ *         required: false
+ *         schema:
+ *         type: integer
+ *         default: 1
+ *         description: Số trang hiện tại
  *     responses:
  *       200:
  *         description: OK
@@ -292,6 +299,6 @@ router.patch(
  *       500:
  *         $ref: '#/components/responses/500'
  */
-router.get("/foods", apiCache, foodController.getAllFood);
+router.get("/foods", apiCache, foodController.getFoods);
 
 export default router;

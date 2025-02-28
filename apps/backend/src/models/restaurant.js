@@ -175,6 +175,37 @@ WHERE f.restaurant_id = ?;
     );
     return rows;
   },
+
+  async getPopularRestaurants(latitude, longitude, radius = 10000, limit = 10, offset = 0) {
+    const query = `SELECT 
+    r.restaurant_id,
+    r.name AS restaurant_name,
+    r.logo_url AS restaurant_logo,
+    r.cover_url AS restaurant_cover,
+    r.description AS restaurant_description,
+    a.address_line1, 
+    a.address_line2, 
+    a.latitude,
+    a.longitude,
+    COALESCE(COUNT(b.bill_id), 0) AS total_orders,
+    (
+        6371000 * ACOS(
+            COS(RADIANS(?)) * COS(RADIANS(a.latitude)) * 
+            COS(RADIANS(a.longitude) - RADIANS(?)) + 
+            SIN(RADIANS(?)) * SIN(RADIANS(a.latitude))
+        )
+    ) AS estimated_distance
+FROM restaurants r 
+JOIN addresses a ON a.address_id = r.address_id
+LEFT JOIN bills b ON b.restaurant_id = r.restaurant_id
+GROUP BY r.restaurant_id, a.address_id
+HAVING estimated_distance <= ?
+ORDER BY COUNT(b.bill_id) DESC, estimated_distance ASC
+LIMIT ? OFFSET ?;
+`;
+    const [foods] = await pool.query(query, [latitude, longitude, latitude, radius, limit, offset]);
+    return foods;
+  },
 };
 
 export default restaurantModel;

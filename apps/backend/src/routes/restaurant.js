@@ -3,11 +3,12 @@ import * as restaurantController from "../controllers/restaurant.js";
 import { authenticateJWT } from "../middlewares/authenticate.js";
 import multer from "multer";
 import { authRestaurant, ROLE } from "../middlewares/roleRestaurant.js";
+import { apiCache } from "../middlewares/apiCache.js";
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 const router = Router();
-router.use("/restaurants", authenticateJWT);
-
+// router.use("/restaurants", authenticateJWT);
+//
 /**
  * @openapi
  * /api/v1/restaurants:
@@ -85,7 +86,9 @@ router.use("/restaurants", authenticateJWT);
  *       500:
  *         $ref: '#/components/responses/500'
  */
-router.post("/restaurants", restaurantController.createRestaurant);
+router.post("/restaurants", authenticateJWT, restaurantController.createRestaurant);
+
+router.get("/restaurants", apiCache, restaurantController.getPopularRestaurants);
 
 /**
  * @openapi
@@ -156,6 +159,7 @@ router.post("/restaurants", restaurantController.createRestaurant);
  */
 router.patch(
   "/restaurants/:restaurantId",
+  authenticateJWT,
   authRestaurant([ROLE.owner, ROLE.manager]),
   restaurantController.updateRestaurant,
 );
@@ -205,6 +209,7 @@ router.patch(
  */
 router.patch(
   "/restaurants/:restaurantId/images",
+  authenticateJWT,
   authRestaurant([ROLE.owner, ROLE.manager]),
   upload.fields([
     { name: "cover", maxCount: 1 },
@@ -280,7 +285,7 @@ router.patch(
  *       500:
  *         $ref: '#/components/responses/500'
  */
-router.get("/restaurants/:restaurantId", restaurantController.getRestaurant);
+router.get("/restaurants/:restaurantId", authenticateJWT, restaurantController.getRestaurant);
 
 /**
  * @openapi
@@ -350,6 +355,6 @@ router.get("/restaurants/:restaurantId", restaurantController.getRestaurant);
  *       500:
  *         $ref: '#/components/responses/500'
  */
-router.get("/restaurants/:restaurantId/foods", restaurantController.getAllFoodByResId);
+router.get("/restaurants/:restaurantId/foods", authenticateJWT, restaurantController.getAllFoodByResId);
 
 export default router;

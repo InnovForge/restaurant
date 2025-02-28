@@ -1,7 +1,9 @@
+import { cacheResponse } from "../middlewares/apiCache.js";
 import restaurantModel from "../models/restaurant.js";
-import responseHandler from "../utils/response.js";
+import responseHandler, { ERROR_TYPE } from "../utils/response.js";
 import { uploadFileRestaurant } from "../utils/s3.js";
 import { validateFields } from "../utils/validate-fields.js";
+import * as restaurantService from "../services/restaurant.js";
 
 export const updateRestaurant = async (req, res) => {
   const { restaurantId } = req.params;
@@ -119,6 +121,30 @@ export const getAllFoodByResId = async (req, res) => {
   try {
     const foods = await restaurantModel.GetAllFoodByResId(restaurantId);
     return responseHandler.success(res, undefined, foods);
+  } catch (error) {
+    console.log("error :>> ", error);
+    return responseHandler.internalServerError(res);
+  }
+};
+
+export const getPopularRestaurants = async (req, res) => {
+  const { latitude, longitude, radius, page = 1, pageSize = 10, filter = "popular" } = req.query;
+  try {
+    if (!latitude || !longitude) {
+      return responseHandler.badRequest(res, ERROR_TYPE.INVALID_QUERY_PARAMS);
+    }
+    let restaurants;
+    const limit = parseInt(pageSize, 10);
+    const offset = (parseInt(page, 10) - 1) * limit;
+    switch (filter) {
+      case "popular":
+        restaurants = await restaurantService.getPopularFood(latitude, longitude, radius, limit, offset);
+        break;
+      default:
+        return responseHandler.badRequest(res, ERROR_TYPE.INVALID_QUERY_PARAMS);
+    }
+    cacheResponse(req.originalUrl, restaurants, 60 * 2);
+    return responseHandler.success(res, undefined, restaurants);
   } catch (error) {
     console.log("error :>> ", error);
     return responseHandler.internalServerError(res);

@@ -1,9 +1,9 @@
 import { cacheResponse } from "../middlewares/apiCache.js";
 import foodModel from "../models/food.js";
-import { distance } from "../services/geocode.js";
 import responseHandler, { ERROR_TYPE } from "../utils/response.js";
 import { uploadFileFood } from "../utils/s3.js";
 import { validateFields } from "../utils/validate-fields.js";
+import * as foodService from "../services/food.js";
 
 export const createFood = async (req, res) => {
   const { name, price, description } = req.body;
@@ -85,31 +85,27 @@ export const uploadFoodImage = async (req, res) => {
   }
 };
 
-export const getAllFood = async (req, res) => {
-  const { latitude, longitude, radius } = req.query;
-  if (!latitude || !longitude) {
-    return responseHandler.badRequest(res, ERROR_TYPE.INVALID_QUERY_PARAMS);
-  }
+export const getFoods = async (req, res) => {
+  const { latitude, longitude, radius, page = 1, pageSize = 15, filter = "popular" } = req.query;
   try {
-    const foods = await foodModel.getAllFood(latitude, longitude, radius);
-    const updatedFoods = await Promise.all(
-      foods.map(async (food) => {
-        const waypoints = `${latitude},${longitude}|${food.latitude},${food.longitude}`;
-        const distanceData = await distance(waypoints);
-
-        const { estimated_distance, ...foodWithoutEstimate } = food;
-        const data = {
-          ...foodWithoutEstimate,
-          distanceInfo: {
-            straightLineDistance: estimated_distance,
-            ...distanceData,
-          },
-        };
-        return data;
-      }),
-    );
-    cacheResponse(req.originalUrl, await updatedFoods, 60 * 2);
-    return responseHandler.success(res, undefined, updatedFoods);
+    if (!latitude || !longitude) {
+      return responseHandler.badRequest(res, ERROR_TYPE.INVALID_QUERY_PARAMS);
+    }
+    let foods;
+    const limit = parseInt(pageSize, 10);
+    const offset = (parseInt(page, 10) - 1) * limit;
+    switch (filter) {
+      case "popular":
+        foods = await foodService.getPopularFood(latitude, longitude, radius, limit, offset);
+        break;
+      case "nearby":
+        foods = await foodService.getFoodNearby(latitude, longitude, radius, limit, offset);
+        break;
+      default:
+        return responseHandler.badRequest(res, ERROR_TYPE.INVALID_QUERY_PARAMS);
+    }
+    cacheResponse(req.originalUrl, foods, 60 * 2);
+    return responseHandler.success(res, undefined, foods);
   } catch (error) {
     console.log("error :>> ", error);
     return responseHandler.internalServerError(res);

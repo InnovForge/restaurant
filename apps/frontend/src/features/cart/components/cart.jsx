@@ -6,6 +6,7 @@ import { PopoverClose } from "@radix-ui/react-popover";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Plus, Minus, ShoppingCart } from "lucide-react";
 import useCartStore from "@/stores/useCartStore";
+import { Frown } from "lucide-react";
 
 const tags = Array.from({ length: 50 }).map((_, i, a) => `v1.2.0-beta.${a.length - i}`);
 
@@ -34,14 +35,14 @@ const Cart = () => {
           <span>{Cart.length || 0}</span>
         </div>
       </PopoverTrigger>
-      <PopoverContent align="end" className="w-[440px] h-fit flex flex-col">
+      <PopoverContent align="end" className="w-[400px] h-fit flex flex-col">
         <header className="pb-4 border-b">
           <h3 className="text-lg font-medium leading-none">Giỏ đồ ăn</h3>
         </header>
 
-        <ScrollArea className="h-[450px] w-full py-2">
+        <ScrollArea className="h-[450px] w-full py-2 relative">
           {/* NOTE: Replace this with your cart items*/}
-          {Cart.length > 0 &&
+          {Cart.length > 0 ? (
             Cart.map((item, i) => (
               <div key={i}>
                 <PopoverClose asChild>
@@ -77,21 +78,32 @@ const Cart = () => {
                   </div>
                 </div>
               </div>
-            ))}
+            ))
+          ) : (
+            <div className="flex flex-col items-center justify-center h-full absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full">
+              <div className="flex flex-col items-center gap-2">
+                <Frown className="w-20 h-20" />
+                <h3 className="text-lg font-medium ">Không có món nào trong giỏ hàng</h3>
+              </div>
+            </div>
+          )}
+
           {/* NOTE:  end!*/}
         </ScrollArea>
 
-        <footer className="flex-col flex gap-1">
-          <div className="flex justify-between py-3">
-            <span className="font-semibold">Tổng cộng</span>
-            <span className="font-semibold">1000 ₫</span>
-          </div>
-          <PopoverClose asChild>
-            <Link to="/checkout">
-              <Button className="w-full">Xem lại đơn hàng</Button>
-            </Link>
-          </PopoverClose>
-        </footer>
+        {Cart.length > 0 && (
+          <footer className="flex-col flex gap-1">
+            <div className="flex justify-between py-3">
+              <span className="font-semibold">Tổng cộng</span>
+              <span className="font-semibold">1000 ₫</span>
+            </div>
+            <PopoverClose asChild>
+              <Link to="/checkout">
+                <Button className="w-full">Xem lại đơn hàng</Button>
+              </Link>
+            </PopoverClose>
+          </footer>
+        )}
       </PopoverContent>
     </Popover>
   );
