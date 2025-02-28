@@ -4,8 +4,12 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api-client";
 import useAddressStore from "@/stores/useAddressStore";
 import { useState, useEffect } from "react";
+import useCartStore from "@/stores/useCartStore";
+// import { useCart } from '@/features/cart/components/cart.jsx';
 
 const Show = () => {
+  const { Cart, addCart } = useCartStore();
+
   const { addresses } = useAddressStore();
   // const { f, sF } = useState();
   const { data, isFetching } = useQuery({
@@ -22,9 +26,12 @@ const Show = () => {
   // if (isFetching && !data) return <Loading />
   // console.log("data", f && f);
 
-  const showIdFood = (id) => {
-    console.log("id", id);
+  const add = (item) => {
+    addCart(item);
+    console.log(Cart);
   };
+
+  // const { addToCart } = useCart();
 
   const [visibleProducts, setVisibleProducts] = useState(6);
 
@@ -70,7 +77,10 @@ const Show = () => {
               );
 
               return topFoods.map((item) => (
-                <div className="bg-blue-200 p-4 rounded-[13px] flex flex-col justify-between h-full" key={item.foodId}>
+                <div
+                  className="bg-blue-200 p-4 rounded-[13px] flex flex-col justify-between h-full"
+                  key={item.foodId + Math.random()}
+                >
                   <div className="flex justify-center">
                     <img src={item.imageUrl} className="h-[191px]" alt="img" />
                   </div>
@@ -93,10 +103,7 @@ const Show = () => {
                     <p>{item.description}</p>
                   </div>
                   {/* <div className=" bottom-4 right-4"> */}
-                  <button
-                    className="bg-red-500 text-white px-4 py-2 rounded-md mt-2"
-                    onClick={() => showIdFood(item.foodId)}
-                  >
+                  <button className="bg-red-500 text-white px-4 py-2 rounded-md mt-2" onClick={() => add(item)}>
                     Thêm vào giỏ hàng
                   </button>
                   {/* </div> */}
@@ -129,7 +136,7 @@ const Show = () => {
               const randomRestaurants = [...data].sort(() => 0.5 - Math.random()).slice(0, 6);
 
               return randomRestaurants.map((item) => (
-                <div className="gird bg-blue-200 p-4 rounded-[13px]" key={item.restaurantId}>
+                <div className="gird bg-blue-200 p-4 rounded-[13px]" key={item.restaurantId + Math.random()}>
                   <div className="flex justify-center">
                     <img src={item.restaurantLogo} className="h-[191px]" alt="logo" />
                   </div>
@@ -163,7 +170,7 @@ const Show = () => {
 
           // slice(0, visibleProducts).
           return allFoods.map((item) => (
-            <div className="bg-blue-200 p-4 mt-4" key={item.foodId}>
+            <div className="bg-blue-200 p-4 mt-4" key={item.foodId + Math.random()}>
               <div className="flex ">
                 <div className="flex justify-center w-[266px] h-[191px]">
                   <img src={item.imageUrl} className="h-[191px]" alt="logo" />
