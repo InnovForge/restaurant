@@ -138,15 +138,13 @@ CREATE TABLE IF NOT EXISTS reviews (
     review_id VARCHAR(16) NOT NULL PRIMARY KEY,
     bill_id VARCHAR(16) NOT NULL,
     user_id VARCHAR(16) NOT NULL,
-    food_id VARCHAR(16) NOT NULL,
     rating TINYINT CHECK (rating BETWEEN 1 AND 5),
     comment TEXT,
     image_url VARCHAR(255), 
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW() ON UPDATE NOW(),
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
-    FOREIGN KEY (bill_id) REFERENCES bills(bill_id) ON DELETE CASCADE,
-    FOREIGN KEY (food_id) REFERENCES foods(food_id) ON DELETE CASCADE
+    FOREIGN KEY (bill_id) REFERENCES bills(bill_id) ON DELETE CASCADE
 );
 
 INSERT INTO users (user_id, username, name, password) VALUES ('12345678910', 'team1', 'cdio team 1', '$2a$10$jpChleT2FvfRp/E39jKn5uet5wTL6TZrUu5n67q5dX4Scw6jx34xu')
