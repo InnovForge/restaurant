@@ -1,9 +1,24 @@
 import { useState } from "react";
 import logo from "../../../assets/react.svg";
 import useAuthUserStore from "@/stores/useAuthUserStore";
+import { api } from "@/lib/api-client";
+import { useQuery } from "@tanstack/react-query";
 
 const Me = () => {
   const { authUser } = useAuthUserStore();
+
+  const { data, isFetching } = useQuery({
+    queryKey: "get-bill",
+    queryFn: async () => {
+      const f = await api.get(`/v1/user/${authUser.userId}/bill`);
+      // sF(f.data)
+      return f.data.data;
+    },
+    // staleTime: 1000 * 60 * 1, // 5 minutes
+  });
+
+  console.log(data);
+
   console.log(authUser.name);
 
   const [isEditing, setIsEditing] = useState(false);

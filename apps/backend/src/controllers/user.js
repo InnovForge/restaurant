@@ -85,7 +85,7 @@ export const getUserName = async (req, res) => {
 };
 
 export const getBillsByUserId = async (req, res) => {
-  const { userId } = req.params;
+  const userId = req.userId;
 
   try {
     const bills = await userModel.getBillsByUserId(userId);

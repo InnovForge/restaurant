@@ -58,7 +58,23 @@ GROUP BY u.user_id;
     return rows[0] || null;
   },
 
+  async getUser(userId) {
+    const [rows] = await pool.query("SELECT * FROM users WHERE userid = ?", [userId]);
+    return rows[0] || null;
+  },
+
   async getBillsByUserId(userId) {
+    // try {
+    //   const query = "SELECT * FROM users WHERE user_id = ?";
+    //   console.log(query, userId);
+    //   const [rows] = await pool.query(query, [userId]);
+    //   console.log(rows);
+    //   return rows || null;
+    // } catch (error) {
+    //   console.error("Database error:", error);
+    //   throw error;
+    // }
+
     try {
       const query = `
         SELECT 
@@ -70,15 +86,16 @@ GROUP BY u.user_id;
             bi.bill_item_id,
             bi.food_id,
             f.name AS food_name,
+            f.image_url AS food_image_url,
             bi.quantity,
             f.price,
-            r.rating,
-            r.comment
+            rev.rating,
+            rev.comment
         FROM bills b
         JOIN restaurants r ON b.restaurant_id = r.restaurant_id
         JOIN bill_items bi ON b.bill_id = bi.bill_id
         JOIN foods f ON bi.food_id = f.food_id
-        LEFT JOIN reviews r ON r.bill_id = b.bill_id AND r.food_id = bi.food_id
+        LEFT JOIN reviews rev ON rev.bill_id = b.bill_id AND rev.food_id = bi.food_id
         WHERE b.user_id = ?;
       `;
 

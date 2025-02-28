@@ -86,6 +86,6 @@ router.get("/users/:id", userController.getUser);
 
 router.get("/users/name/:name", userController.getUserName);
 
-router.get("/users/:id/bill", userController.getBillsByUserId);
+router.get("/users/me/bills", userController.getBillsByUserId);
 
 export default router;
