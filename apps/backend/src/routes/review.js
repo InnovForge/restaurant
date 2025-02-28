@@ -4,6 +4,6 @@ import { authenticateJWT } from "../middlewares/authenticate.js";
 
 const router = Router();
 router.use("/review", authenticateJWT);
-router.post("/", reviewController.addReview);
+router.post("/review", reviewController.addReview);
 
 export default router;

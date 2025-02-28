@@ -4,17 +4,17 @@ import responseHandler, { ERROR_TYPE } from "../utils/response.js";
 import { validateFields } from "../utils/validate-fields.js";
 
 export const addReview = async (req, res) => {
-  const { bill_id, user_id, food_id, rating, comment } = req.body;
-  if (!bill_id || !user_id || !food_id || !rating || !comment) {
+  const { billId, foodId, rating, comment } = req.body;
+  const userId = req.userId;
+  if (!billId || !rating || !comment) {
     return responseHandler.badRequest(res, "Please fill all fields");
   }
   try {
     const review_id = nanoidNumbersOnly();
     await reviewModel.addReview({
-      review_id,
-      bill_id,
-      user_id,
-      food_id,
+      review_id: review_id,
+      bill_id: billId,
+      user_id: userId,
       rating,
       comment,
     });
