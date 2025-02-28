@@ -8,6 +8,7 @@ import useCartStore from "@/stores/useCartStore";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Star, Plus, Clock2, Flame } from "lucide-react";
+import LazyImage from "@/components/ui/lazy-image";
 
 // import { useCart } from '@/features/cart/components/cart.jsx';
 
@@ -73,7 +74,13 @@ const Show = () => {
               <Card key={item.foodId} className="overflow-hidden">
                 <CardHeader className="p-0">
                   <AspectRatio ratio={4 / 3}>
-                    <img width="100%" height="100%" src={item.foodImage} alt={item.foodName} className="object-cover" />
+                    <LazyImage
+                      width="100%"
+                      height="100%"
+                      src={item.foodImage}
+                      alt={item.foodName}
+                      className="object-cover"
+                    />
                   </AspectRatio>
                 </CardHeader>
                 <CardContent className="p-2">
