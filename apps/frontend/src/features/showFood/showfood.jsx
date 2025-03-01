@@ -3,11 +3,12 @@ import { api } from "@/lib/api-client";
 import useAddressStore from "@/stores/useAddressStore";
 import { useState } from "react";
 import useCartStore from "@/stores/useCartStore";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Star, Plus, Clock2, Flame } from "lucide-react";
 import LazyImage from "@/components/ui/lazy-image";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router";
 
 const Show = () => {
   const { Cart, addCart } = useCartStore();
@@ -68,22 +69,22 @@ const Show = () => {
           </div>
           <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4">
             {data.map((item) => (
-              <Card key={item.foodId} className="overflow-hidden">
-                <CardHeader className="p-0">
-                  <AspectRatio ratio={4 / 3}>
-                    <LazyImage
-                      width="100%"
-                      height="100%"
-                      src={item.foodImage}
-                      alt={item.foodName}
-                      className="object-cover"
-                    />
-                  </AspectRatio>
-                </CardHeader>
-                <CardContent className="p-2">
-                  <div className="flex flex-col justify-between items-start gap-1">
+              <Card className="overflow-hidden" key={item.foodId}>
+                <Link to={`/restaurants/${item.restaurantId}`} key={item.foodId}>
+                  <CardHeader className="p-0">
+                    <AspectRatio ratio={4 / 3}>
+                      <LazyImage
+                        width="100%"
+                        height="100%"
+                        src={item.foodImage}
+                        alt={item.foodName}
+                        className="object-cover"
+                      />
+                    </AspectRatio>
+                  </CardHeader>
+                  <CardContent className="p-2 pb-0">
                     <div>
-                      <p className="text-sm leading-none">{item.foodName}</p>
+                      <p className="text-sm">{item.foodName}</p>
                     </div>
                     <div className="w-full relative">
                       <div className="flex items-center justify-between gap-1">
@@ -94,6 +95,10 @@ const Show = () => {
                         </div>
                       </div>
                     </div>
+                  </CardContent>
+                </Link>
+                <CardFooter className="p-2 pt-0">
+                  <div className="flex flex-col justify-between items-start gap-1">
                     <div className="flex items-center w-full gap-2 text-muted-foreground">
                       <p className="text-xs">{item.distanceInfo.distance.toFixed()} km</p>
                       <div className="flex items-center gap-1">
@@ -106,16 +111,16 @@ const Show = () => {
                       {/* 		currency: "VND", */}
                       {/* 	}).format(item.price)} */}
                       {/* </p> */}
-                      <Button
-                        onClick={() => addCart(item)}
-                        size="icon"
-                        className="mt-auto ml-auto bg-primary rounded-full text-white"
-                      >
-                        <Plus className="h-5 w-5" />
-                      </Button>
                     </div>
                   </div>
-                </CardContent>
+                  <Button
+                    onClick={() => addCart(item)}
+                    size="icon"
+                    className="mt-auto ml-auto bg-primary rounded-full text-white"
+                  >
+                    <Plus className="h-5 w-5" />
+                  </Button>
+                </CardFooter>
               </Card>
             ))}
           </div>
