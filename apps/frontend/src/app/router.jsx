@@ -9,12 +9,12 @@ import AddFood from "./routes/admin/menu/addfood";
 import OrdersPage from "./routes/admin/orders/page";
 import OrderDetail from "./routes/admin/orders/detail";
 import TableManagement from "./routes/admin/table/page";
-import AddTable from "./routes/admin/table/addtable";
 import RestaurantInfoForm from "./routes/admin/infor/res/infor";
 import RestaurantUpdateInfoForm from "./routes/admin/infor/res/infor_update";
 import HomeAdmin from "./routes/admin/dashboard-restaurants";
-import { ProtectedRoute } from "@/components/protected-route";
+import { ProtectedApp } from "@/components/protected-app";
 import { RestaurantProvider } from "@/context/restaurant";
+import { ProtectedAdmin } from "@/components/protected-admin";
 
 const convert = (queryClient) => (m) => {
   const { clientLoader, clientAction, default: Component, ...rest } = m;
@@ -29,6 +29,10 @@ const convert = (queryClient) => (m) => {
 export const createAppRouter = (queryClient) =>
   createBrowserRouter([
     {
+      path: "/",
+      lazy: () => import("./routes/landing").then(convert(queryClient)),
+    },
+    {
       path: "/login",
       lazy: () => import("./routes/auth/login").then(convert(queryClient)),
     },
@@ -38,12 +42,12 @@ export const createAppRouter = (queryClient) =>
     },
     {
       path: "/",
-      lazy: () => import("./routes/landing").then(convert(queryClient)),
-    },
-    {
-      path: "/",
-      element: <AppRoot />,
-      ErrorBoundary: AppRootErrorBoundary,
+      element: (
+        <ProtectedApp>
+          <AppRoot />
+        </ProtectedApp>
+      ),
+      // ErrorBoundary: AppRootErrorBoundary,
       children: [
         {
           path: "home",
@@ -63,22 +67,24 @@ export const createAppRouter = (queryClient) =>
         },
         {
           path: "/d/restaurants",
-          lazy: () => import("./routes/app/dashboard-restaurants").then(convert(queryClient)),
+          lazy: () => import("./routes/app/dashboard-restaurants/dashboard-restaurants").then(convert(queryClient)),
+        },
+        {
+          path: "/d/restaurants/create",
+          lazy: () => import("./routes/app/dashboard-restaurants/create-restaurant").then(convert(queryClient)),
         },
       ],
     },
     {
       path: "/d/restaurants/:restaurantId",
       element: (
-        <ProtectedRoute>
+        <ProtectedAdmin>
           <RestaurantProvider>
-            {" "}
             {/* Bọc Provider ở đây */}
             <HomeAdmin />
           </RestaurantProvider>
-        </ProtectedRoute>
+        </ProtectedAdmin>
       ),
-
       ErrorBoundary: AppRootErrorBoundary,
       children: [
         {
@@ -112,10 +118,6 @@ export const createAppRouter = (queryClient) =>
         {
           path: "ban",
           element: <TableManagement />,
-        },
-        {
-          path: "ban/themban",
-          element: <AddTable />,
         },
       ],
     },

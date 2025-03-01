@@ -3,18 +3,23 @@ import useAuthUserStore from "@/stores/useAuthUserStore";
 import { api } from "@/lib/api-client";
 import { useQuery } from "@tanstack/react-query";
 import Loading from "./ui/loading";
+import { socket } from "@/lib/socket";
+import { useParams } from "react-router";
+import { useUserRestaurants } from "@/hooks/use-user-restaurants";
 
 const checkUser = async () => {
   try {
-    const response = await api.get("/v1/user");
+    const response = await api.get("/v1/users/me");
     return response.data;
   } catch (error) {
     return null;
   }
 };
 
-export const ProtectedRoute = ({ children }) => {
+export const ProtectedAdmin = ({ children }) => {
   const { authUser, setAuthUser } = useAuthUserStore();
+  const { restaurantId } = useParams();
+  const { restaurants, isLoading, error } = useUserRestaurants();
   const { isFetching, isPending } = useQuery({
     queryKey: ["authUser"],
     queryFn: async () => {
@@ -32,6 +37,17 @@ export const ProtectedRoute = ({ children }) => {
   if (isPending || isFetching) {
     return <Loading />;
   }
+
+  // console.log(restaurants);
+
+  const res = restaurants.find((r) => r.restaurantId === restaurantId);
+  // console.log(role);
+  if (res)
+    socket.emit("joinRestaurantOrderRoom", {
+      userId: authUser.userId,
+      role: res.role,
+      restaurantId: res.restaurantId,
+    });
 
   if (!authUser) {
     return <Navigate to={"/login"} replace />;

@@ -32,41 +32,81 @@ const foodModel = {
     return result.affectedRows > 0;
   },
 
-  async getAllFood(latitude, longitude, radius = 10000) {
+  async getPopularFoods(latitude, longitude, radius = 10000, limit = 20, offset = 0) {
     const query = `
-        SELECT 
-            r.name AS restaurant_name,
-            r.restaurant_id,
-            a.address_line1, 
-            a.address_line2, 
-            a.longitude, 
-            a.latitude,
-            (
-                6371000 * ACOS(
-                    COS(RADIANS(?)) * COS(RADIANS(a.latitude)) * 
-                    COS(RADIANS(a.longitude) - RADIANS(?)) + 
-                    SIN(RADIANS(?)) * SIN(RADIANS(a.latitude))
-                )
-            ) AS estimated_distance,
-            JSON_ARRAYAGG(
-                JSON_OBJECT(
-                    'food_id', f.food_id,
-                    'name', f.name,
-                    'price', f.price,
-                    'description', f.description,
-                    'image_url', f.image_url
-                )
-            ) AS foods
-        FROM foods f 
-        JOIN restaurants r ON f.restaurant_id = r.restaurant_id 
-        JOIN addresses a ON a.address_id = r.address_id
-        GROUP BY a.address_id
-        HAVING estimated_distance <= ?
-        ORDER BY estimated_distance ASC
-        LIMIT 20;
-    `;
+ SELECT 
+    r.restaurant_id,
+    r.name AS restaurant_name,
+    r.logo_url AS restaurant_logo,
+    a.address_line1,
+    a.address_line2,
+    a.latitude,
+    a.longitude,
+    f.food_id, 
+    f.image_url as food_image,
+    f.name as food_name,
+    f.description as food_description,
+    f.price,
+    COALESCE(COUNT(b.bill_id), 0) AS total_orders,
+    (
+        6371000 * ACOS(
+            COS(RADIANS(?)) * COS(RADIANS(a.latitude)) * 
+            COS(RADIANS(a.longitude) - RADIANS(?)) + 
+            SIN(RADIANS(?)) * SIN(RADIANS(a.latitude))
+        )
+    ) AS estimated_distance,
+    COALESCE(SUM(bi.quantity), 0) AS total_orders,
+    COALESCE(COUNT(br.review_id), 0) AS total_reviews,
+    COALESCE(ROUND(AVG(br.rating), 1), 0) AS average_rating
+FROM foods f
+LEFT JOIN bill_items bi ON bi.food_id = f.food_id
+LEFT JOIN bills b ON b.bill_id = bi.bill_id AND b.order_status = 'completed'
+LEFT JOIN reviews br ON br.bill_id = b.bill_id
+JOIN restaurants r ON r.restaurant_id = f.restaurant_id
+JOIN addresses a ON a.address_id = r.address_id
+GROUP BY f.food_id
+HAVING estimated_distance <= ?
+ORDER BY total_orders DESC, total_reviews DESC, average_rating DESC, estimated_distance ASC
+LIMIT ? OFFSET ?;
+`;
+    // console.log("latitude", latitude, "longitude", longitude, "radius", radius, "limit", limit, "offset", offset);
+    const [foods] = await pool.query(query, [latitude, longitude, latitude, radius, limit, offset]);
 
-    const [foods] = await pool.query(query, [latitude, longitude, latitude, radius]);
+    return foods;
+  },
+
+  async getFoodNearby(latitude, longitude, radius = 10000, limit = 20, offset = 0) {
+    const query = `SELECT 
+    r.restaurant_id,
+    r.name AS restaurant_name,
+    r.logo_url AS restaurant_logo,
+    r.cover_url AS restaurant_cover,
+    r.description AS restaurant_description,
+    a.address_line1, 
+    a.address_line2, 
+    a.latitude,
+    a.longitude,
+    f.food_id, 
+    f.image_url as food_image,
+    f.name as food_name,
+    f.description as food_description,
+    f.price,
+    (
+        6371000 * ACOS(
+            COS(RADIANS(?)) * COS(RADIANS(a.latitude)) * 
+            COS(RADIANS(a.longitude) - RADIANS(?)) + 
+            SIN(RADIANS(?)) * SIN(RADIANS(a.latitude))
+        )
+    ) AS estimated_distance
+FROM foods f 
+JOIN restaurants r ON r.restaurant_id = f.restaurant_id
+JOIN addresses a ON a.address_id = r.address_id
+GROUP BY f.food_id
+HAVING estimated_distance <= ?
+ORDER BY estimated_distance ASC
+LIMIT ? OFFSET ?;
+`;
+    const [foods] = await pool.query(query, [latitude, longitude, latitude, radius, limit, offset]);
     return foods;
   },
 };

@@ -1,102 +1,93 @@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
 import { Link } from "react-router";
 import { PopoverClose } from "@radix-ui/react-popover";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Plus, Minus, ShoppingCart } from "lucide-react";
-
-const tags = Array.from({ length: 50 }).map((_, i, a) => `v1.2.0-beta.${a.length - i}`);
+import useCartStore from "@/stores/useCartStore";
+import { Frown } from "lucide-react";
 
 const Cart = () => {
-  const cart = [
-    {
-      id: "product-1",
-      name: "Áo thun",
-      price: 200000,
-      quantity: 2,
-    },
-    {
-      id: "product-2",
-      name: "Quần jeans",
-      price: 500000,
-      quantity: 1,
-    },
-  ];
-
+  const { Cart, addCart } = useCartStore();
+  console.log(Cart);
   return (
     <Popover>
       <PopoverTrigger asChild>
         <div className="flex items-center justify-center gap-1 p-1 mr-3 rounded-md hover:bg-accent hover:text-accent-foregroundrounded-md cursor-pointer">
           <ShoppingCart className="w-6 h-6" />
-          <span>1</span>
+          <span>{Cart.length || 0}</span>
         </div>
       </PopoverTrigger>
-      <PopoverContent align="end" className="w-[440px] h-fit flex flex-col">
+      <PopoverContent align="end" className="w-[400px] h-fit flex flex-col">
         <header className="pb-4 border-b">
           <h3 className="text-lg font-medium leading-none">Giỏ đồ ăn</h3>
         </header>
-        <ScrollArea className="h-[450px] w-full py-2">
-          <PopoverClose asChild>
-            <Link to="/restaurant/McDonald">
-              <h4 className="mb-4 font-semibold leading-none">McDonald’s - 2 Tháng 9</h4>
-            </Link>
-          </PopoverClose>
-          <div className="flex w-full items-center">
-            <div className="pr-2 flex-col">
-              <Button variant="ghost" size="icon" className="w-6 h-6 text-foreground">
-                <Plus />
-              </Button>
-              <p className="text-center">5</p>
-              <Button variant="ghost" size="icon" className="w-6 h-6 text-foreground">
-                <Minus />
-              </Button>
-            </div>
-            <div className="flex items-start">
-              <div className="w-[90px] pr-2 flex-shrink-0">
-                <AspectRatio ratio={5 / 4}>
-                  <img
-                    src="https://th.bing.com/th/id/R.0f6e3e1a3be694277bb55f97413184cb?rik=FWiarVBsSUPCsw&pid=ImgRaw&r=0"
-                    className="object-cover w-full h-full rounded-sm"
-                  />
-                </AspectRatio>
-              </div>
-              <div className="flex items-start">
-                <div className="flex flex-col w-full">
-                  <p className="pr-7 font-semibold text-xs break-all line-clamp-3">
-                    Combo Thịnh Vượng - Burger Gà Teriyaki
-                  </p>
-                  <p className="text-xs">ga</p>
-                </div>
-                <div className="font-semibold text-sm text-nowrap text-center pr-3">1000 ₫</div>
-              </div>
-            </div>
-          </div>
 
-          <div className="p-4">
-            <h4 className="mb-4 text-sm font-medium leading-none">Tags</h4>
-            {tags.map((tag) => (
-              <>
-                <div key={tag} className="text-sm">
-                  {tag}
+        <ScrollArea className="h-[450px] w-full py-2 relative">
+          {/* NOTE: Replace this with your cart items*/}
+          {Cart.length > 0 ? (
+            Cart.map((item, i) => (
+              <div key={i}>
+                <PopoverClose asChild>
+                  <Link to="/restaurant/McDonald">
+                    <h4 className="mb-4 font-semibold leading-none">{item.restaurantName}</h4>
+                  </Link>
+                </PopoverClose>
+                <div className="flex w-full items-center">
+                  <div className="pr-2 flex-col">
+                    <Button variant="ghost" size="icon" className="w-6 h-6 text-foreground">
+                      <Plus />
+                    </Button>
+                    <p className="text-center">1</p>
+                    <Button variant="ghost" size="icon" className="w-6 h-6 text-foreground">
+                      <Minus />
+                    </Button>
+                  </div>
+                  <div className="flex items-start">
+                    <div className="w-[90px] pr-2 flex-shrink-0">
+                      <AspectRatio ratio={5 / 4}>
+                        <img src={item.foodImage} className="object-cover w-full h-full rounded-sm" />
+                      </AspectRatio>
+                    </div>
+                    <div className="flex items-start">
+                      <div className="flex flex-col w-full">
+                        {/* <p className="pr-7 font-semibold text-xs break-all line-clamp-3">
+                    Combo Thịnh Vượng - Burger Gà Teriyaki
+                  </p> */}
+                        <p className="text-xs">{item.foodName}</p>
+                      </div>
+                      <div className="font-semibold text-sm text-nowrap text-center pr-3">{item.price}</div>
+                    </div>
+                  </div>
                 </div>
-                <Separator className="my-2" />
-              </>
-            ))}
-          </div>
+              </div>
+            ))
+          ) : (
+            <div className="flex flex-col items-center justify-center h-full absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full">
+              <div className="flex flex-col items-center gap-2">
+                <Frown className="w-20 h-20" />
+                <h3 className="text-lg font-medium ">Không có món nào trong giỏ hàng</h3>
+              </div>
+            </div>
+          )}
+
+          {/* NOTE:  end! */}
         </ScrollArea>
-        <footer className="flex-col flex gap-1">
-          <div className="flex justify-between py-3">
-            <span className="font-semibold">Tổng cộng</span>
-            <span className="font-semibold">1000 ₫</span>
-          </div>
-          <PopoverClose asChild>
-            <Link to="/checkout">
-              <Button className="w-full">Xem lại đơn hàng</Button>
-            </Link>
-          </PopoverClose>
-        </footer>
+
+        {Cart.length > 0 && (
+          <footer className="flex-col flex gap-1">
+            <div className="flex justify-between py-3">
+              <span className="font-semibold">Tổng cộng</span>
+              <span className="font-semibold">1000 ₫</span>
+            </div>
+            <PopoverClose asChild>
+              <Link to="/checkout">
+                <Button className="w-full">Xem lại đơn hàng</Button>
+              </Link>
+            </PopoverClose>
+          </footer>
+        )}
       </PopoverContent>
     </Popover>
   );

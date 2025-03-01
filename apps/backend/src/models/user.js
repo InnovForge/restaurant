@@ -3,6 +3,7 @@ import { nanoidNumbersOnly } from "../utils/nanoid.js";
 import { pool } from "../configs/mysql.js";
 import { uploadFileUser } from "../utils/s3.js";
 import { toPng } from "jdenticon";
+// import { getBillsByUserId } from "../controllers/user.js";
 
 const userModel = {
   /**
@@ -55,6 +56,82 @@ GROUP BY u.user_id;
   async getUserByUsername(username) {
     const [rows] = await pool.query("SELECT * FROM users WHERE username = ?", [username]);
     return rows[0] || null;
+  },
+
+  async getUser(userId) {
+    const [rows] = await pool.query("SELECT * FROM users WHERE userid = ?", [userId]);
+    return rows[0] || null;
+  },
+
+  async getBillsByUserId(userId) {
+    // try {
+    //   const query = "SELECT * FROM users WHERE user_id = ?";
+    //   console.log(query, userId);
+    //   const [rows] = await pool.query(query, [userId]);
+    //   console.log(rows);
+    //   return rows || null;
+    // } catch (error) {
+    //   console.error("Database error:", error);
+    //   throw error;
+    // }
+
+    try {
+      const query = `
+        SELECT 
+            b.bill_id, 
+            b.order_status,
+            b.created_at,
+            r.name AS restaurant_name,
+            r.phone_number AS restaurant_phone,
+            bi.bill_item_id,
+            bi.food_id,
+            f.name AS food_name,
+            f.image_url AS food_image_url,
+            bi.quantity,
+            f.price,
+            rev.rating,
+            rev.comment
+        FROM bills b
+        JOIN restaurants r ON b.restaurant_id = r.restaurant_id
+        JOIN bill_items bi ON b.bill_id = bi.bill_id
+        JOIN foods f ON bi.food_id = f.food_id
+        LEFT JOIN reviews rev ON rev.bill_id = b.bill_id AND rev.food_id = bi.food_id
+        WHERE b.user_id = ?;
+      `;
+
+      const [rows] = await pool.query(query, [userId]);
+
+      // Gom nhóm dữ liệu theo bill_id
+      const bills = {};
+      rows.forEach((row) => {
+        if (!bills[row.bill_id]) {
+          bills[row.bill_id] = {
+            bill_id: row.bill_id,
+            order_status: row.order_status,
+            created_at: row.created_at,
+            restaurant: {
+              name: row.restaurant_name,
+              phone: row.restaurant_phone,
+            },
+            items: [],
+          };
+        }
+        bills[row.bill_id].items.push({
+          bill_item_id: row.bill_item_id,
+          food_id: row.food_id,
+          food_name: row.food_name,
+          quantity: row.quantity,
+          price: row.price,
+          rating: row.rating || null,
+          comment: row.comment || null,
+        });
+      });
+
+      return Object.values(bills);
+    } catch (error) {
+      console.error("Database error:", error);
+      throw error;
+    }
   },
 
   /**
@@ -119,8 +196,10 @@ GROUP BY u.user_id;
     // console.log(fields,values);
 
     const sql = `UPDATE users SET ${fields.join(", ")} WHERE user_id = ?`;
+    console.log(sql, values);
 
     const [result] = await pool.query(sql, values);
+
     return result.affectedRows > 0;
   },
 

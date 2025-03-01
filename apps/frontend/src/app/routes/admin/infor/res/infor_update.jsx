@@ -15,7 +15,7 @@ export default function RestaurantUpdateInfoForm() {
   useEffect(() => {
     async function fetchRestaurantData() {
       try {
-        const res = await api.get(`/v1/restaurant/${restaurantId}`);
+        const res = await api.get(`/v1/restaurants/${restaurantId}`);
         setRestaurantInfor(res.data.data);
       } catch (err) {
         console.error("Lỗi lấy dữ liệu:", err);
@@ -43,6 +43,7 @@ export default function RestaurantUpdateInfoForm() {
       const updatedData = {
         name: document.getElementById("name").value,
         phoneNumber: document.getElementById("phone").value,
+        email: document.getElementById("email").value,
         address: {
           addressLine1: document.getElementById("addressLine1").value,
           addressLine2: document.getElementById("addressLine2").value,
