@@ -19,8 +19,8 @@ const checkUser = async () => {
 export const ProtectedAdmin = ({ children }) => {
   const { authUser, setAuthUser } = useAuthUserStore();
   const { restaurantId } = useParams();
-  const { restaurants, isLoading, error } = useUserRestaurants();
-  const { isFetching, isPending } = useQuery({
+  const { restaurants, isLoading: isLoadingRestaurant, error } = useUserRestaurants();
+  const { isFetching, isPending, isLoading } = useQuery({
     queryKey: ["authUser"],
     queryFn: async () => {
       const user = await checkUser();
@@ -34,7 +34,7 @@ export const ProtectedAdmin = ({ children }) => {
     enabled: !authUser,
   });
 
-  if (isPending || isFetching) {
+  if (isPending || isFetching || isLoading || isLoadingRestaurant) {
     return <Loading />;
   }
 
@@ -49,7 +49,7 @@ export const ProtectedAdmin = ({ children }) => {
       restaurantId: res.restaurantId,
     });
 
-  if (!authUser) {
+  if (!authUser & !isFetching) {
     return <Navigate to={"/login"} replace />;
   }
 
