@@ -69,7 +69,7 @@ export const ipGeocode = async (req, res) => {
 
     // Destructure and prepare the response data
     const locationData = {
-      title: data.state.name,
+      formatted: data.state.name,
       state: data.state.name,
       latitude: data.location.latitude,
       longitude: data.location.longitude,
