@@ -45,8 +45,39 @@ const createUsers = async (pass = "cdio@team1") => {
     `,
       [user_id, name, gender, username, password, email, avatar_url, phone_number],
     );
+
+    const numAddresses = faker.number.int({ min: 1, max: 5 });
+
+    let addresses = [];
+    for (let j = 0; j < numAddresses; j++) {
+      const address_id = nanoidNumbersOnly();
+      const address_line1 = faker.location.streetAddress();
+      const address_line2 = faker.datatype.boolean() ? faker.location.secondaryAddress() : null;
+      const longitude = parseFloat(faker.location.longitude({ min: 108.1, max: 108.3 }));
+      const latitude = parseFloat(faker.location.latitude({ min: 15.95, max: 16.15 }));
+
+      await connection.execute(
+        `
+        INSERT INTO addresses (address_id, address_line1, address_line2, longitude, latitude)
+        VALUES (?, ?, ?, ?, ?)
+      `,
+        [address_id, address_line1, address_line2, longitude, latitude],
+      );
+
+      addresses.push(address_id);
+    }
+
+    for (let j = 0; j < addresses.length; j++) {
+      await connection.execute(
+        `
+        INSERT INTO user_addresses (user_address_id, address_id, user_id, phone_number, is_default)
+        VALUES (?, ?, ?, ?, ?)
+      `,
+        [nanoidNumbersOnly(), addresses[j], user_id, phone_number, j === 0],
+      );
+    }
   }
-  console.log(`✅ Inserted ${NUMBER_OF_USERS} users`);
+  console.log(`✅ Inserted ${NUMBER_OF_USERS} users with multiple addresses`);
 };
 
 const createAddresses = async () => {
@@ -75,6 +106,7 @@ const createRestaurants = async () => {
       console.log("❌ Not enough addresses to assign as restaurant address");
       return;
     }
+
     const restaurant_id = nanoidNumbersOnly();
     restaurantIds.push(restaurant_id);
     const name = faker.company.name();
@@ -99,8 +131,32 @@ const createRestaurants = async () => {
     `,
       [userIds.shift(), restaurant_id, "owner"],
     );
+
+    const schedules = [];
+    for (let day = 0; day <= 6; day++) {
+      const openingHour = faker.number.int({ min: 6, max: 10 }).toString().padStart(2, "0");
+      const openingMinute = faker.number.int({ min: 0, max: 59 }).toString().padStart(2, "0");
+      const openingTime = `${openingHour}:${openingMinute}:00`;
+
+      const closingHour = faker.number.int({ min: 20, max: 23 }).toString().padStart(2, "0");
+      const closingMinute = faker.number.int({ min: 0, max: 59 }).toString().padStart(2, "0");
+      const closingTime = `${closingHour}:${closingMinute}:00`;
+
+      const isClosed = faker.datatype.boolean({ probability: 0.1 }); // 10%  đóng cửa cả ngày
+
+      schedules.push([restaurant_id, day.toString(), openingTime, closingTime, isClosed]);
+    }
+
+    await connection.query(
+      `
+      INSERT INTO restaurant_schedules (restaurant_id, day_of_week, opening_time, closing_time, is_closed)
+      VALUES ?
+    `,
+      [schedules],
+    );
+
+    console.log(`✅ Inserted restaurant: ${NUMBER_OF_RESTAURANTS} with random schedules`);
   }
-  console.log(`✅ Inserted ${NUMBER_OF_RESTAURANTS} restaurants`);
 };
 
 const createRestaurantManagers = async () => {
@@ -141,7 +197,11 @@ const createFoods = async () => {
         precision: 1000,
       });
       const price_type = "VND";
-      const image_url = faker.image.urlLoremFlickr({ width: 400, height: 300, category: "rice" });
+      const image_url = faker.image.urlLoremFlickr({
+        width: 400,
+        height: 300,
+        category: "rice",
+      });
 
       const available = faker.datatype.boolean();
 

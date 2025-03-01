@@ -35,11 +35,9 @@ CREATE TABLE IF NOT EXISTS user_addresses (
     user_id VARCHAR(16) NOT NULL,
     phone_number VARCHAR(15),
     is_default BOOLEAN DEFAULT false,
-    CONSTRAINT unique_default_address UNIQUE (user_id, is_default),  -- Đảm bảo chỉ có 1 địa chỉ mặc định cho mỗi người dùng
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
     FOREIGN KEY (address_id) REFERENCES addresses(address_id) ON DELETE CASCADE
 );
-
 
 CREATE TABLE IF NOT EXISTS restaurants (
 	restaurant_id VARCHAR(16) PRIMARY KEY,
@@ -47,12 +45,25 @@ CREATE TABLE IF NOT EXISTS restaurants (
   description varchar(255),
   email VARCHAR(255),
 	address_id VARCHAR(16) UNIQUE NOT NULL,
+  is_closed BOOLEAN NOT NULL DEFAULT FALSE, -- TRUE sẽ không hiển thị trên ứng dụng
 	phone_number VARCHAR(15),
 	logo_url VARCHAR(255),
 	cover_url VARCHAR(255),
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMP NOT NULL DEFAULT NOW() ON UPDATE NOW(),
 	FOREIGN KEY (address_id) REFERENCES addresses(address_id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS restaurant_schedules (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    restaurant_id VARCHAR(16) NOT NULL,
+    day_of_week ENUM('0', '1', '2', '3', '4', '5', '6') NOT NULL, -- 0: Chủ Nhật, 1: Thứ Hai, ..., 6: Thứ Bảy
+    opening_time TIME NOT NULL,
+    closing_time TIME NOT NULL,
+    is_closed BOOLEAN NOT NULL DEFAULT FALSE, -- TRUE nếu đóng cửa cả ngày
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW() ON UPDATE NOW(),
+    FOREIGN KEY (restaurant_id) REFERENCES restaurants(restaurant_id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS restaurant_managers (
@@ -148,3 +159,24 @@ CREATE TABLE IF NOT EXISTS reviews (
 );
 
 INSERT INTO users (user_id, username, name, password) VALUES ('12345678910', 'team1', 'cdio team 1', '$2a$10$jpChleT2FvfRp/E39jKn5uet5wTL6TZrUu5n67q5dX4Scw6jx34xu')
+
+
+DELIMITER //
+
+CREATE TRIGGER before_update_user_address
+BEFORE UPDATE ON user_addresses
+FOR EACH ROW
+BEGIN
+    -- Nếu is_default cập nhật thành TRUE, kiểm tra xem user đã có địa chỉ mặc định chưa
+    IF NEW.is_default = TRUE AND OLD.is_default = FALSE THEN
+        IF (SELECT COUNT(*) FROM user_addresses WHERE user_id = NEW.user_id AND is_default = TRUE) > 0 THEN
+            SIGNAL SQLSTATE '45000'
+            SET MESSAGE_TEXT = 'User already has a default address!';
+        END IF;
+    END IF;
+END;
+//
+
+DELIMITER ;
+
+
