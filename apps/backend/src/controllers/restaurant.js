@@ -41,6 +41,12 @@ export const createRestaurant = async (req, res) => {
   }
 
   const emailExist = await restaurantModel.checkEmailExist(email);
+  const phoneExist = await restaurantModel.checkPhoneExist(phoneNumber);
+  if (phoneExist) {
+    const errors = [];
+    errors.push({ field: "phoneNumber", message: "Phone number already exists" });
+    return responseHandler.badRequest(res, undefined, errors);
+  }
 
   if (emailExist) {
     const errors = [];

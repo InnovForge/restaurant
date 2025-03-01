@@ -1,6 +1,4 @@
-// import logo from "../../assets/react.svg";
 import { useQuery } from "@tanstack/react-query";
-// import { useState } from "react";
 import { api } from "@/lib/api-client";
 import useAddressStore from "@/stores/useAddressStore";
 import { useState } from "react";
@@ -9,8 +7,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Star, Plus, Clock2, Flame } from "lucide-react";
 import LazyImage from "@/components/ui/lazy-image";
-
-// import { useCart } from '@/features/cart/components/cart.jsx';
+import { Button } from "@/components/ui/button";
 
 const Show = () => {
   const { Cart, addCart } = useCartStore();
@@ -18,7 +15,7 @@ const Show = () => {
   const { addresses } = useAddressStore();
   // const { f, sF } = useState();
   const { data, isFetching } = useQuery({
-    queryKey: "get-food",
+    queryKey: ["get-food"],
     queryFn: async () => {
       const f = await api.get("/v1/foods", {
         params: {
@@ -109,9 +106,13 @@ const Show = () => {
                       {/* 		currency: "VND", */}
                       {/* 	}).format(item.price)} */}
                       {/* </p> */}
-                      <div className="mt-auto ml-auto bg-primary rounded-full text-white cursor-pointer p-1">
+                      <Button
+                        onClick={() => addCart(item)}
+                        size="icon"
+                        className="mt-auto ml-auto bg-primary rounded-full text-white"
+                      >
                         <Plus className="h-5 w-5" />
-                      </div>
+                      </Button>
                     </div>
                   </div>
                 </CardContent>

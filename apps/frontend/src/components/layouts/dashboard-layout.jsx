@@ -47,7 +47,7 @@ export const DashboardLayout = ({ children }) => {
   const handleAressChange = (address) => {
     setValue(address);
   };
-  console.log(value);
+  // console.log(value);
   const [isOpenDialog, setIsOpenDialog] = useState(false);
   const [isOpenSheet, setIsOpenSheet] = useState(false);
   const isDesktop = useMediaQuery("(min-width: 768px)");

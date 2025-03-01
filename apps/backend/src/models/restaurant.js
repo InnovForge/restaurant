@@ -165,6 +165,11 @@ WHERE
     return rows.length > 0;
   },
 
+  async checkPhoneExist(phoneNumber) {
+    const [rows] = await pool.query(`SELECT phone_number FROM restaurants WHERE phone_number = ?`, [phoneNumber]);
+    return rows.length > 0;
+  },
+
   async GetAllFoodByResId(restaurantId) {
     const [rows] = await pool.query(
       `
