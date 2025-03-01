@@ -26,7 +26,7 @@ const AddFood = () => {
         description: document.getElementById("description").value,
       };
 
-      const res = await api.post(`/v1/restaurants/${restaurantId}/food`, addFood);
+      const res = await api.post(`/v1/restaurants/${restaurantId}/foods`, addFood);
       alert("Thêm món thành công!");
     } catch (err) {
       console.error("Lỗi thêm:", err);
