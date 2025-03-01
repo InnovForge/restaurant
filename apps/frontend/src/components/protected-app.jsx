@@ -51,7 +51,7 @@ export const ProtectedApp = ({ children }) => {
   const { setAuthUser, authUser } = useAuthUserStore();
   const location = useLocation();
 
-  const { isFetching, isPending } = useQuery({
+  const { isFetching, isPending, isLoading } = useQuery({
     queryKey: ["authUser"],
     queryFn: async () => {
       const user = await checkUser();
@@ -59,7 +59,12 @@ export const ProtectedApp = ({ children }) => {
         const geocode = await getReverseGeocode();
         setAddress(geocode.data);
       } else if (user?.data?.addresses.length > 0) {
-        setAddress(user.data.addresses[0]);
+        const { addressLine1, addressLine2 } = user.data.addresses.find((address) => address.isDefault);
+        const address = {
+          formatted: `${addressLine1} ${addressLine2 ? addressLine2 : ""}`,
+          ...user.data.addresses[0],
+        };
+        setAddress(address);
       }
 
       if (user?.data) {
@@ -76,7 +81,7 @@ export const ProtectedApp = ({ children }) => {
   const currentPath = location.pathname.split("/")[1];
   // console.log(location,currentPath)
 
-  if (isPending || isFetching) {
+  if (isPending || isFetching || isLoading) {
     return <Loading />;
   }
   if (!authUser && protectedRoutes.includes(currentPath)) {
