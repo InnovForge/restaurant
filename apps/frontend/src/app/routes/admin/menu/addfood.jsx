@@ -1,85 +1,198 @@
+"use client";
+
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Link } from "react-router";
+import { ArrowLeft, Upload, X, ImagePlus } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import { useRestaurant } from "@/context/restaurant";
 import { api } from "@/lib/api-client";
+import { toast } from "sonner";
 
 const AddFood = () => {
   const [image, setImage] = useState(null);
+  const [loading, setLoading] = useState(false);
   const { restaurantId } = useRestaurant();
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
-    if (file) {
-      const imageUrl = URL.createObjectURL(file);
-      setImage(imageUrl);
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Kích thước ảnh không được vượt quá 5MB");
+      return;
     }
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Vui lòng chọn file ảnh hợp lệ");
+      return;
+    }
+
+    const imageUrl = URL.createObjectURL(file);
+    setImage({
+      file,
+      preview: imageUrl,
+    });
   };
 
-  const handleAdd = async () => {
+  const removeImage = () => {
+    if (image?.preview) {
+      URL.revokeObjectURL(image.preview);
+    }
+    setImage(null);
+  };
+
+  const handleAdd = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
     try {
+      const formData = new FormData(e.target);
       const addFood = {
-        name: document.getElementById("name").value,
-        price: document.getElementById("price").value,
-        description: document.getElementById("description").value,
+        name: formData.get("name"),
+        price: Number(formData.get("price")),
+        description: formData.get("description"),
+        status: "Còn",
       };
 
+      if (!addFood.name || !addFood.price || !addFood.description) {
+        toast.error("Vui lòng điền đầy đủ thông tin");
+        return;
+      }
+
       const res = await api.post(`/v1/restaurants/${restaurantId}/foods`, addFood);
-      alert("Thêm món thành công!");
+      toast.success("Thêm món ăn thành công!");
+
+      // Reset form
+      e.target.reset();
+      removeImage();
     } catch (err) {
-      console.error("Lỗi thêm:", err);
-      alert("Cập nhật thất bại!");
+      console.error("Lỗi thêm món:", err);
+      toast.error(err.response?.data?.message || "Thêm món ăn thất bại");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="container mx-auto p-4">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg font-semibold mb-4">Thêm món ăn</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid md:grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Tên món ăn:</Label>
-                <Input id="name" placeholder="Nhập tên món ăn" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="price">Giá:</Label>
-                <Input id="price" placeholder="Nhập giá món ăn" type="number" />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="description">Mô tả:</Label>
-                <Input id="description" placeholder="Nhập mô tả" />
-              </div>
-            </div>
-
-            <div className="flex flex-col items-center space-y-2">
-              <div className="w-48 h-48 bg-gray-200 relative">
-                {image ? (
-                  <img src={image} alt="anhmon" className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full bg-gray-400">Chưa có ảnh</div>
-                )}
-              </div>
-              <Button className="w-32" onClick={() => document.getElementById("picture").click()}>
-                Chọn ảnh món ăn
-              </Button>
-              <Input id="picture" type="file" style={{ display: "none" }} onChange={handleFileChange} />
-            </div>
-          </div>
-
-          <div className="mt-6">
-            <Button className="w-full" onClick={handleAdd}>
-              Thêm món ăn
+    <div className="container mx-auto px-4 lg:pl-8 lg:pr-20 min-h-[calc(100vh-4rem)] py-8">
+      <div className="max-w-3xl mx-auto">
+        {/* Header */}
+        <div className="flex items-center gap-4 mb-6">
+          <Link to={`/d/restaurants/${restaurantId}/menu`}>
+            <Button variant="ghost" size="sm" className="gap-1">
+              <ArrowLeft className="h-4 w-4" />
+              Quay lại
             </Button>
+          </Link>
+          <div>
+            <h1 className="text-2xl font-bold">Thêm Món Ăn Mới</h1>
+            <p className="text-muted-foreground">Thêm món ăn mới vào thực đơn nhà hàng</p>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+
+        <Card className="border-none shadow-lg">
+          <CardHeader className="space-y-1 pb-4">
+            <CardTitle className="text-xl">Thông tin món ăn</CardTitle>
+            <CardDescription>Điền thông tin chi tiết về món ăn mới</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleAdd} className="space-y-6">
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Tên món ăn</Label>
+                    <Input id="name" name="name" placeholder="VD: Phở bò tái" className="h-11" />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="price">Giá bán</Label>
+                    <div className="relative">
+                      <Input
+                        id="price"
+                        name="price"
+                        type="number"
+                        min="0"
+                        step="1000"
+                        placeholder="VD: 50000"
+                        className="h-11 pl-8"
+                      />
+                      <span className="absolute left-3 top-3 text-muted-foreground">₫</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="description">Mô tả món ăn</Label>
+                    <Textarea
+                      id="description"
+                      name="description"
+                      placeholder="Mô tả chi tiết về món ăn..."
+                      className="min-h-[120px] resize-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <Label>Hình ảnh món ăn</Label>
+                  <div className="border-2 border-dashed rounded-lg p-4 hover:bg-gray-50/50 transition-colors">
+                    {image ? (
+                      <div className="relative aspect-square rounded-lg overflow-hidden bg-gray-100">
+                        <img
+                          src={image.preview || "/placeholder.svg"}
+                          alt="Preview"
+                          className="w-full h-full object-cover"
+                        />
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="icon"
+                          className="absolute top-2 right-2 h-8 w-8"
+                          onClick={removeImage}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <div
+                        className="aspect-square rounded-lg border-2 border-dashed border-gray-200 flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-gray-300 transition-colors"
+                        onClick={() => document.getElementById("picture").click()}
+                      >
+                        <div className="p-4 rounded-full bg-gray-50">
+                          <ImagePlus className="h-8 w-8 text-gray-400" />
+                        </div>
+                        <div className="text-center">
+                          <p className="text-sm font-medium">Tải lên hình ảnh</p>
+                          <p className="text-xs text-muted-foreground mt-1">PNG, JPG hoặc GIF (tối đa 5MB)</p>
+                        </div>
+                      </div>
+                    )}
+                    <input id="picture" type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-4 pt-4">
+                <Button type="button" variant="outline" asChild>
+                  <Link to={`/d/restaurants/${restaurantId}/menu`}>Hủy</Link>
+                </Button>
+                <Button type="submit" disabled={loading} className="min-w-[120px]">
+                  {loading ? (
+                    <>
+                      <Upload className="mr-2 h-4 w-4 animate-spin" />
+                      Đang thêm...
+                    </>
+                  ) : (
+                    "Thêm món ăn"
+                  )}
+                </Button>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };

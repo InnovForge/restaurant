@@ -41,7 +41,7 @@ export default function RestaurantInfoForm() {
     );
 
   return (
-    <div className="container mx-auto p-4 max-w-4xl">
+    <div className="container mx-auto p-4 max-w">
       <div className="relative w-full h-80 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl overflow-hidden mb-8 shadow-md">
         {restaurantInfo?.coverUrl ? (
           <img

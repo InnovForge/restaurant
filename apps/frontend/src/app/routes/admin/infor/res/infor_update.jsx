@@ -178,7 +178,8 @@ export default function RestaurantUpdateInfoForm() {
       // await new Promise((resolve) => setTimeout(resolve, 1000))
 
       const res = await api.patch(`/v1/restaurants/${restaurantInfo?.restaurantId}`, updatedData);
-      //  const resImages = await uploadRestaurantImage({ restaurantId, images: updatedImages })
+      const resID = restaurantInfo?.restaurantId;
+      //   const resImages = await uploadRestaurantImage({resID, images: updatedImages })
       // toast ({
       //   title: "Thành công",
       //   description: "Cập nhật thông tin nhà hàng thành công",

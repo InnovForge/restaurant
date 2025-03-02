@@ -80,7 +80,6 @@ export const createAppRouter = (queryClient) =>
       element: (
         <ProtectedAdmin>
           <RestaurantProvider>
-            {/* Bọc Provider ở đây */}
             <HomeAdmin />
           </RestaurantProvider>
         </ProtectedAdmin>

@@ -1,57 +1,129 @@
 import { Link } from "react-router";
-import { Home, Utensils, ShoppingBag, User, Table } from "lucide-react";
+import { Home, Utensils, ShoppingBag, User, Table, BarChart3, LogOut } from "lucide-react";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarFooter,
+  SidebarProvider,
+  SidebarTrigger,
+  SidebarInset,
+} from "@/components/ui/sidebar";
+import { Separator } from "@/components/ui/separator";
+
 import { useParams } from "react-router";
 import useAuthUserStore from "@/stores/useAuthUserStore";
+import { generateAvatarInitial } from "@/utils/generateAvatarInitial";
 
 export default function DashboardLayout({ children }) {
-  let { restaurantId } = useParams();
+  const { restaurantId } = useParams();
   const { authUser } = useAuthUserStore();
 
-  console.log(restaurantId, authUser);
+  console.log("DashboardLayout", authUser);
 
   const menuItems = [
     { path: "", icon: User, label: "Thông tin" },
-    { path: "thongke", icon: Home, label: "Thống kê" },
+    { path: "thongke", icon: BarChart3, label: "Thống kê" },
     { path: "menu", icon: Utensils, label: "Menu" },
     { path: "hoadon", icon: ShoppingBag, label: "Hóa đơn" },
     { path: "ban", icon: Table, label: "Bàn ăn" },
   ];
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      <aside className="w-64 bg-white shadow-md">
-        <div className="p-4">
-          <h1 className="text-2xl font-bold text-gray-800">Quản Lý Nhà Hàng Admin</h1>
-        </div>
-        <div className="mb-8 flex flex-col items-center space-y-2">
-          <Avatar className="h-16 w-16">
-            <AvatarImage src="/placeholder.svg" />
-            <AvatarFallback>NB</AvatarFallback>
-          </Avatar>
-          <div className="text-center">
-            <h2 className="text-lg font-semibold text-black">Nhat blue</h2>
-          </div>
-        </div>
-        <nav className="mt-6">
-          {menuItems.map(({ path, icon: Icon, label }, index) => (
-            <Link
-              key={index + label}
-              to={path}
-              className="block px-4 py-2 hover:bg-accent hover:text-accent-foreground"
-            >
-              <Icon className="inline-block mr-2" size={18} />
-              {label}
-            </Link>
-          ))}
-          <Link to={"/home"} className="block px-4 py-2 text-gray-600 hover:bg-gray-100 hover:text-gray-800">
-            <Home className="inline-block mr-2" size={18} />
-            Home
-          </Link>
-        </nav>
-      </aside>
+    <SidebarProvider defaultOpen>
+      <div className="flex min-h-screen bg-background">
+        <Sidebar>
+          <SidebarHeader>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton size="lg" asChild>
+                  <Link to="/d">
+                    <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                      <Utensils className="size-4" />
+                    </div>
+                    <div className="flex flex-col gap-0.5 leading-none">
+                      <span className="font-semibold">Quản Lý Nhà Hàng</span>
+                      <span className="text-xs text-muted-foreground">Admin Dashboard</span>
+                    </div>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarHeader>
 
-      <main className="flex-1 p-8 overflow-y-auto">{children}</main>
-    </div>
+          <SidebarContent>
+            <SidebarGroup>
+              <div className="flex flex-col items-center py-4 space-y-2">
+                <Avatar className="h-16 w-16 border-2 border-muted">
+                  <AvatarImage src={authUser?.avatarUrl || "/placeholder.svg"} />
+                  <AvatarFallback className="bg-primary/10 text-primary">
+                    {generateAvatarInitial(authUser?.name || "NB")}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="text-center">
+                  <h2 className="text-lg font-semibold">{authUser?.name || "Nhat blue"}</h2>
+                  <p className="text-sm text-muted-foreground">{authUser?.email || "Chưa có email"}</p>
+                </div>
+              </div>
+
+              <Separator className="my-2" />
+
+              <SidebarGroupLabel>Quản lý</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {menuItems.map(({ path, icon: Icon, label }) => (
+                    <SidebarMenuItem key={path + label}>
+                      <SidebarMenuButton asChild>
+                        <Link to={path}>
+                          <Icon className="size-4" />
+                          <span>{label}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          </SidebarContent>
+
+          <SidebarFooter>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild variant="ghost">
+                  <Link to="/home" className="text-muted-foreground hover:text-foreground">
+                    <Home className="size-4" />
+                    <span>Trang chủ</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild variant="ghost" className="text-destructive hover:text-destructive">
+                  <button onClick={() => console.log("Logout clicked")}>
+                    <LogOut className="size-4" />
+                    <span>Đăng xuất</span>
+                  </button>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarFooter>
+        </Sidebar>
+
+        <SidebarInset>
+          <header className="flex h-14 items-center gap-4 border-b bg-background px-6">
+            <SidebarTrigger />
+            <div className="flex-1" />
+          </header>
+          <main className="flex-1 overflow-y-auto p-5">{children}</main>
+        </SidebarInset>
+      </div>
+    </SidebarProvider>
   );
 }
