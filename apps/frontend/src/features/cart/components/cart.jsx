@@ -79,8 +79,16 @@ const Cart = () => {
           <footer className="flex-col flex gap-1">
             <div className="flex justify-between py-3">
               <span className="font-semibold">Tổng cộng</span>
-              <span className="font-semibold">1000 ₫</span>
+              <span className="font-semibold">
+                {Cart.reduce((total, item) => {
+                  const price = parseFloat(item.price) || 0; // Chuyển price thành số, nếu lỗi thì mặc định là 0
+                  const quantity = item.quantity || 1; // Nếu quantity bị undefined, mặc định là 1
+                  return total + price * quantity;
+                }, 0).toLocaleString()}{" "}
+                ₫
+              </span>
             </div>
+
             <PopoverClose asChild>
               <Link to="/checkout">
                 <Button className="w-full">Xem lại đơn hàng</Button>
