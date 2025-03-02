@@ -171,24 +171,3 @@ CREATE TABLE IF NOT EXISTS reviews (
 );
 
 INSERT INTO users (user_id, username, name, password) VALUES ('12345678910', 'team1', 'cdio team 1', '$2a$10$jpChleT2FvfRp/E39jKn5uet5wTL6TZrUu5n67q5dX4Scw6jx34xu')
-
-
-DELIMITER //
-
-CREATE TRIGGER before_update_user_address
-BEFORE UPDATE ON user_addresses
-FOR EACH ROW
-BEGIN
-    -- Nếu is_default cập nhật thành TRUE, kiểm tra xem user đã có địa chỉ mặc định chưa
-    IF NEW.is_default = TRUE AND OLD.is_default = FALSE THEN
-        IF (SELECT COUNT(*) FROM user_addresses WHERE user_id = NEW.user_id AND is_default = TRUE) > 0 THEN
-            SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = 'User already has a default address!';
-        END IF;
-    END IF;
-END;
-//
-
-DELIMITER ;
-
-
