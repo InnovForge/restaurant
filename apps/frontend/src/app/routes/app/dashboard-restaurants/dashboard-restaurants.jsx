@@ -1,7 +1,7 @@
 import Loading from "@/components/ui/loading";
 import { useUserRestaurants } from "@/hooks/use-user-restaurants";
-import RestaurantList from "@/features/restaurants/components/restaurants-list";
-import SearchRestaurants from "@/features/restaurants/components/search-restaurants";
+import RestaurantList from "@/features/management-restaurants/components/restaurants-list";
+import SearchRestaurants from "@/features/management-restaurants/components/search-restaurants";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router";
 import { useState } from "react";

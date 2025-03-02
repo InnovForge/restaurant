@@ -68,6 +68,10 @@ export const createAppRouter = (queryClient) =>
           lazy: () => import("./routes/app/me").then(convert(queryClient)),
         },
         {
+          path: "/restaurants/:restaurantId",
+          lazy: () => import("./routes/app/restaurant").then(convert(queryClient)),
+        },
+        {
           path: "/d/restaurants",
           lazy: () => import("./routes/app/dashboard-restaurants/dashboard-restaurants").then(convert(queryClient)),
         },
