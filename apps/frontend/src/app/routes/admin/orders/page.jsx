@@ -147,7 +147,7 @@ const OrdersPage = () => {
                     </TableCell>
                     <TableCell>
                       <div className="flex justify-end gap-2">
-                        <Link to={`/d/restaurants/${restaurantId}/hoadon/chitiet/${item.id}`}>
+                        <Link to={`/d/restaurants/${restaurantId}/hoadon/chitiet/`}>
                           <Button variant="outline" size="sm" className="h-8">
                             <Eye className="h-4 w-4 mr-2" />
                             Chi tiết

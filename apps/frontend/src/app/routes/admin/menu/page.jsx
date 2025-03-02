@@ -93,7 +93,6 @@ const MenuPage = () => {
             <Table>
               <TableHeader>
                 <TableRow className="bg-gray-50/50">
-                  <TableHead className="w-[100px]">ID</TableHead>
                   <TableHead className="w-[120px]">Hình ảnh</TableHead>
                   <TableHead>Tên Món Ăn</TableHead>
                   <TableHead className="w-[120px]">Tình trạng</TableHead>
@@ -105,7 +104,6 @@ const MenuPage = () => {
               <TableBody>
                 {paginatedData.map((item) => (
                   <TableRow key={item.id} className="hover:bg-gray-50/50">
-                    <TableCell className="font-medium">{item.id}</TableCell>
                     <TableCell>
                       <div className="relative h-16 w-16 rounded-lg border overflow-hidden shadow-sm">
                         <img

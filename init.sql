@@ -110,17 +110,29 @@ CREATE TABLE IF NOT EXISTS food_category_mapping (
     FOREIGN KEY (food_category_id) REFERENCES food_categories(food_category_id) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS tables (
+    table_id VARCHAR(16) PRIMARY KEY,
+    restaurant_id VARCHAR(16) NOT NULL,
+    table_number INT NOT NULL,
+    seat_count INT NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW() ON UPDATE NOW(),
+    FOREIGN KEY (restaurant_id) REFERENCES restaurants(restaurant_id) ON DELETE CASCADE
+);
+
 CREATE TABLE IF NOT EXISTS reservations (
     reservation_id VARCHAR(16) PRIMARY KEY, 
     restaurant_id VARCHAR(16) NOT NULL,
     user_id VARCHAR(16) NOT NULL,
-    table_number INT NOT NULL,
+    table_id VARCHAR(16) NOT NULL,
     reservation_datetime TIMESTAMP DEFAULT NOW() NOT NULL,
     reservation_status ENUM('pending', 'confirmed', 'completed', 'cancelled') NOT NULL DEFAULT 'pending',
   	created_at TIMESTAMP NOT NULL DEFAULT NOW(),
 	  updated_at TIMESTAMP NOT NULL DEFAULT NOW() ON UPDATE NOW(),
     FOREIGN KEY (restaurant_id) REFERENCES restaurants(restaurant_id) ON DELETE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (table_id) REFERENCES tables(table_id) ON DELETE CASCADE
+
 );
 
 CREATE TABLE IF NOT EXISTS bills (
