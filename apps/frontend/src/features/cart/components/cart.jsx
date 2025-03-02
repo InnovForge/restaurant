@@ -7,9 +7,8 @@ import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Plus, Minus, ShoppingCart } from "lucide-react";
 import useCartStore from "@/stores/useCartStore";
 import { Frown } from "lucide-react";
-
 const Cart = () => {
-  const { Cart, addCart } = useCartStore();
+  const { Cart, addCart, removeCart } = useCartStore();
   console.log(Cart);
   return (
     <Popover>
@@ -36,11 +35,21 @@ const Cart = () => {
                 </PopoverClose>
                 <div className="flex w-full items-center">
                   <div className="pr-2 flex-col">
-                    <Button variant="ghost" size="icon" className="w-6 h-6 text-foreground">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="w-6 h-6 text-foreground"
+                      onClick={() => addCart(item)}
+                    >
                       <Plus />
                     </Button>
                     <p className="text-center">{item.quantity}</p>
-                    <Button variant="ghost" size="icon" className="w-6 h-6 text-foreground">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="w-6 h-6 text-foreground"
+                      onClick={() => removeCart(item.foodId)}
+                    >
                       <Minus />
                     </Button>
                   </div>

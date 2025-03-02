@@ -1,50 +1,37 @@
-import { useState } from "react";
+import { api } from "@/lib/api-client";
+import { useQuery } from "@tanstack/react-query";
+// import { useAddressStore } from "@/stores/useAddressStore";
+import useAuthUserStore from "@/stores/useAuthUserStore";
 
 const History = () => {
-  const [orders] = useState([
-    {
-      id: 1,
-      food: "Pizza Pepperoni",
+  // const {addresses} = useAddressStore();
+  const { authUser } = useAuthUserStore();
 
-      price: 150000,
-      date: "2025-02-15",
-      status: "Đã dùng tại nhà hàng",
-      restaurant: "Pizza Hut",
+  const { data, isFetching } = useQuery({
+    queryKey: ["get-bills"],
+    queryFn: async () => {
+      const f = await api.get("/v1/users/me/bills");
+      // sF(f.data)
+      return f.data.data;
     },
-    {
-      id: 2,
-      food: "Bún Bò Huế",
+    staleTime: 1000 * 60 * 1, // 5 minutes
+  });
 
-      price: 60000,
-      date: "2025-02-14",
-      status: "Đã dùng tại nhà hàng",
-      restaurant: "Bún Bò 3A",
-    },
-    {
-      id: 3,
-      food: "Gà Rán",
-
-      price: 45000,
-      date: "2025-02-13",
-      status: "Đã hủy",
-      restaurant: "Chicken Big",
-    },
-  ]);
-
+  console.log(data);
   return (
     <div className="p-6 max-w-5xl mx-auto bg-white rounded-lg shadow-md">
       <h2 className="text-2xl font-bold mb-6 text-center">Lịch sử đặt đồ ăn</h2>
       <ul className="space-y-6">
-        {orders.map((order) => (
-          <li key={order.id} className="p-6 border rounded-lg flex items-center gap-6 shadow-md">
-            <img src={order.image} alt={order.food} className="w-24 h-24 rounded-md object-cover" />
+        {data?.map((order) => (
+          <li key={order.billId} className="p-6 border rounded-lg flex items-center gap-6 shadow-md">
+            <img src={order.restaurant.logoUrl} alt="" className="w-24 h-24 rounded-md object-cover" />
             <div className="flex-1">
-              <div className="font-semibold text-xl">{order.food}</div>
-              <div className="text-md text-gray-500">{order.restaurant}</div>
-              <div className="text-md text-gray-500">Ngày đặt: {order.date}</div>
-              <div className="text-md text-gray-500">Tổng: {order.price.toLocaleString()}đ</div>
+              <div className="font-semibold text-xl">{order.items.foodName}</div>
+              <div className="text-md text-gray-500">{order.restaurant.name}</div>
+              <div className="text-md text-gray-500">Ngày đặt: {order.createdAt}</div>
+              <div className="text-md text-gray-500">Tổng: {order.items.price}đ</div>
               <div className={`text-lg font-bold ${order.status === "Đã hủy" ? "text-red-600" : "text-green-600"}`}>
-                {order.status}
+                {/* {order.status} */}
               </div>
               {order.status === "Đã dùng tại nhà hàng" && (
                 <div className="mt-3 flex items-center gap-2">
