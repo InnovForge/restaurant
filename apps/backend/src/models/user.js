@@ -3,6 +3,7 @@ import { nanoidNumbersOnly } from "../utils/nanoid.js";
 import { pool } from "../configs/mysql.js";
 import { uploadFileUser } from "../utils/s3.js";
 import { toPng } from "jdenticon";
+import { user } from "../sockets/user-manager.js";
 // import { getBillsByUserId } from "../controllers/user.js";
 
 const userModel = {
@@ -159,16 +160,84 @@ GROUP BY u.user_id;
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const result = await pool.query(
-      "INSERT INTO users (user_id, username, avatar_url, name, password,gender,email,phoneNumber) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-      [nanoid, username, avatar_url, name, hashedPassword],
+      "INSERT INTO users (user_id, username, avatar_url, name, password, gender) VALUES (?, ?, ?, ?, ?, ?)",
+      [nanoid, username, avatar_url, name, hashedPassword, gender],
     );
 
     return result.afterInsertId > 0;
   },
 
+  async updateUserAddresss(userId, addressId, addressData) {
+    if (!userId || !addressId) return false;
+
+    const userAddressKeys = new Set(["is_default", "phone_number"]);
+
+    const checkQuery = `
+        SELECT 1 FROM user_addresses ua 
+        JOIN addresses a ON ua.address_id = a.address_id
+        WHERE ua.user_id = ? AND a.address_id = ?;
+    `;
+    const [existingRecords] = await pool.query(checkQuery, [userId, addressId]);
+
+    if (existingRecords.length === 0) return false;
+
+    const addressUpdates = [];
+    const addressValues = [];
+    const userAddressUpdates = [];
+    const userAddressValues = [];
+    let shouldUnsetDefault = false;
+
+    for (const [field, value] of Object.entries(addressData)) {
+      if (value === undefined || value === null) continue;
+
+      if (userAddressKeys.has(field)) {
+        userAddressUpdates.push(`${field} = ?`);
+        userAddressValues.push(value);
+
+        if (field === "is_default" && value === true) {
+          shouldUnsetDefault = true;
+        }
+      } else {
+        addressUpdates.push(`${field} = ?`);
+        addressValues.push(value);
+      }
+    }
+
+    const updateQueries = [];
+
+    if (shouldUnsetDefault) {
+      updateQueries.push(
+        pool.query(`UPDATE user_addresses SET is_default = false WHERE user_id = ? AND address_id != ?`, [
+          userId,
+          addressId,
+        ]),
+      );
+    }
+
+    if (addressUpdates.length) {
+      addressValues.push(addressId);
+      updateQueries.push(
+        pool.query(`UPDATE addresses SET ${addressUpdates.join(", ")} WHERE address_id = ?`, addressValues),
+      );
+    }
+
+    if (userAddressUpdates.length) {
+      userAddressValues.push(addressId);
+      updateQueries.push(
+        pool.query(
+          `UPDATE user_addresses SET ${userAddressUpdates.join(", ")} WHERE address_id = ?`,
+          userAddressValues,
+        ),
+      );
+    }
+
+    if (updateQueries.length) await Promise.all(updateQueries);
+
+    return true;
+  },
+
   /**
    * Cập nhật thông tin người dùng.
-   *
    * @param {string} userId - ID của người dùng.
    * @param {Object} userData - Dữ liệu cần cập nhật.
    * @param {string} [userData.name] - Tên mới của người dùng (tùy chọn).
@@ -194,15 +263,11 @@ GROUP BY u.user_id;
     }
 
     if (fields.length === 0) return false;
-
     values.push(userId);
     // console.log(fields,values);
-
     const sql = `UPDATE users SET ${fields.join(", ")} WHERE user_id = ?`;
-    console.log(sql, values);
-
+    // console.log(sql, values);
     const [result] = await pool.query(sql, values);
-
     return result.affectedRows > 0;
   },
 

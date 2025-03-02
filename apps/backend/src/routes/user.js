@@ -233,6 +233,8 @@ router.get("/users/me", userController.getUserFromToken);
  */
 router.patch("/users/me/avatar", upload.single("avatar"), userController.updateUserAvatar);
 
+router.patch("/users/me/addresses/:addressId", userController.updateUserAddress);
+
 /**
  * @openapi
  * /api/v1/users/me/restaurants:

@@ -4,7 +4,7 @@ import { uploadFileUser } from "../utils/s3.js";
 
 export const updateUser = async (req, res) => {
   const id = req.userId;
-  const { name, gender, email, username, password, phoneNumber, role } = req.body;
+  const { name, gender, email, username, password, phoneNumber, role, address } = req.body;
   try {
     const updatedStatus = await userModel.updateUser(id, {
       name,
@@ -14,6 +14,7 @@ export const updateUser = async (req, res) => {
       password,
       role,
       phone_number: phoneNumber,
+      address,
     });
     if (!updatedStatus) {
       return responseHandler.badRequest(res);
@@ -95,6 +96,24 @@ export const getBillsByUserId = async (req, res) => {
     return responseHandler.success(res, "Bills retrieved successfully", bills);
   } catch (error) {
     console.error("Error:", error);
+    return responseHandler.internalServerError(res);
+  }
+};
+
+export const updateUserAddress = async (req, res) => {
+  try {
+    const updatedStatus = await userModel.updateUserAddresss(req.userId, req.params.addressId, {
+      address_line1: req.body.addressLine1,
+      address_line2: req.body.addressLine2,
+      longitude: req.body.longitude,
+      latitude: req.body.latitude,
+      phone_number: req.body.phoneNumber,
+      is_default: req.body.isDefault,
+    });
+
+    return updatedStatus ? responseHandler.success(res) : responseHandler.badRequest(res);
+  } catch (error) {
+    console.error("Error updating address:", error);
     return responseHandler.internalServerError(res);
   }
 };
