@@ -83,6 +83,7 @@ GROUP BY u.user_id;
             b.created_at,
             r.name AS restaurant_name,
             r.phone_number AS restaurant_phone,
+            r.logo_url AS restaurant_logo,
             bi.bill_item_id,
             bi.food_id,
             f.name AS food_name,
@@ -95,7 +96,7 @@ GROUP BY u.user_id;
         JOIN restaurants r ON b.restaurant_id = r.restaurant_id
         JOIN bill_items bi ON b.bill_id = bi.bill_id
         JOIN foods f ON bi.food_id = f.food_id
-        LEFT JOIN reviews rev ON rev.bill_id = b.bill_id AND rev.food_id = bi.food_id
+        LEFT JOIN reviews rev ON rev.bill_id = b.bill_id 
         WHERE b.user_id = ?;
       `;
 
@@ -111,6 +112,7 @@ GROUP BY u.user_id;
             created_at: row.created_at,
             restaurant: {
               name: row.restaurant_name,
+              logo_url: row.restaurant_logo,
               phone: row.restaurant_phone,
             },
             items: [],
@@ -120,6 +122,7 @@ GROUP BY u.user_id;
           bill_item_id: row.bill_item_id,
           food_id: row.food_id,
           food_name: row.food_name,
+          image_url: row.food_image_url,
           quantity: row.quantity,
           price: row.price,
           rating: row.rating || null,
