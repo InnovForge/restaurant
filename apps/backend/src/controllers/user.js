@@ -1,10 +1,15 @@
 import userModel from "../models/user.js";
 import responseHandler from "../utils/response.js";
 import { uploadFileUser } from "../utils/s3.js";
+import { validateFields } from "../utils/validate-fields.js";
 
 export const updateUser = async (req, res) => {
   const id = req.userId;
-  const { name, gender, email, username, password, phoneNumber, role, address } = req.body;
+  const { name, gender, email, username, password, phoneNumber } = req.body;
+  const errors = validateFields(req.body, ["name", "gender", "email", "username", "password", "phoneNumber"], false);
+  if (errors) {
+    return responseHandler.badRequest(res, undefined, errors);
+  }
   try {
     const updatedStatus = await userModel.updateUser(id, {
       name,
@@ -12,9 +17,7 @@ export const updateUser = async (req, res) => {
       email,
       username,
       password,
-      role,
       phone_number: phoneNumber,
-      address,
     });
     if (!updatedStatus) {
       return responseHandler.badRequest(res);
@@ -114,6 +117,52 @@ export const updateUserAddress = async (req, res) => {
     return updatedStatus ? responseHandler.success(res) : responseHandler.badRequest(res);
   } catch (error) {
     console.error("Error updating address:", error);
+    return responseHandler.internalServerError(res);
+  }
+};
+
+export const createUserAddress = async (req, res) => {
+  const errors = validateFields(
+    req.body,
+    ["addressLine1", "addressLine2", "longitude", "latitude", "phoneNumber", "isDefault"],
+    true,
+  );
+
+  if (errors) {
+    return responseHandler.badRequest(res, undefined, errors);
+  }
+  try {
+    const addressId = await userModel.createUserAddress(req.userId, {
+      address_line1: req.body.addressLine1,
+      address_line2: req.body.addressLine2,
+      longitude: req.body.longitude,
+      latitude: req.body.latitude,
+      phone_number: req.body.phoneNumber,
+      is_default: req.body.isDefault,
+    });
+
+    if (addressId) {
+      return responseHandler.created(res);
+    } else {
+      return responseHandler.badRequest(res);
+    }
+  } catch (error) {
+    console.error("Error creating address:", error);
+    return responseHandler.internalServerError(res);
+  }
+};
+
+export const deleteUserAddress = async (req, res) => {
+  if (!req.params.addressId) {
+    return responseHandler.badRequest(res);
+  }
+  try {
+    const deletedStatus = await userModel.deleteUserAddress(req.userId, req.params.addressId);
+    return deletedStatus
+      ? responseHandler.success(res)
+      : responseHandler.notFound(res, "Address not found or already deleted");
+  } catch (error) {
+    console.error("Error deleting address:", error);
     return responseHandler.internalServerError(res);
   }
 };

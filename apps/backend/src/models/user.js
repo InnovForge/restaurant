@@ -236,6 +236,45 @@ GROUP BY u.user_id;
     return true;
   },
 
+  async createUserAddress(userId, addressData) {
+    if (!userId) return false;
+    const { address_line1, address_line2, longitude, latitude, phone_number, is_default } = addressData;
+
+    const addressId = nanoidNumbersOnly();
+
+    const [addressResult] = await pool.query(
+      "INSERT INTO addresses (address_id, address_line1, address_line2, longitude, latitude) VALUES (?, ?, ?, ?, ?)",
+      [addressId, address_line1, address_line2, longitude, latitude],
+    );
+
+    if (addressResult.affectedRows === 0) return false;
+
+    const userAddressId = nanoidNumbersOnly();
+
+    if (is_default) {
+      await pool.query("UPDATE user_addresses SET is_default = false WHERE user_id = ?", [userId]);
+    }
+
+    const [userAddressResult] = await pool.query(
+      "INSERT INTO user_addresses (user_address_id, address_id, user_id, phone_number, is_default) VALUES (?, ?, ?, ?, ?)",
+      [userAddressId, addressId, userId, phone_number, is_default],
+    );
+    return userAddressResult.affectedRows && userAddressResult.affectedRows > 0;
+  },
+
+  async deleteUserAddress(userId, addressId) {
+    if (!userId || !addressId) return false;
+
+    const [result] = await pool.query("DELETE FROM user_addresses WHERE user_id = ? AND address_id = ?", [
+      userId,
+      addressId,
+    ]);
+
+    const [addressResult] = await pool.query("DELETE FROM addresses WHERE address_id = ?", [addressId]);
+
+    return result.affectedRows > 0 && addressResult.affectedRows > 0;
+  },
+
   /**
    * Cập nhật thông tin người dùng.
    * @param {string} userId - ID của người dùng.
@@ -244,7 +283,6 @@ GROUP BY u.user_id;
    * @param {string} [userData.email] - Email mới của người dùng (tùy chọn).
    * @param {string} [userData.password] - Mật khẩu mới (nếu có sẽ được mã hóa).
    * @param {string} [userData.phone_number] - Số điện thoại mới (tùy chọn).
-   * @param {string} [userData.avatar_url] - URL ảnh đại diện mới (tùy chọn).
    * @returns {Promise<boolean>} `true` nếu cập nhật thành công, `false` nếu không có thay đổi.
    */
   async updateUser(userId, userData) {
@@ -264,9 +302,7 @@ GROUP BY u.user_id;
 
     if (fields.length === 0) return false;
     values.push(userId);
-    // console.log(fields,values);
     const sql = `UPDATE users SET ${fields.join(", ")} WHERE user_id = ?`;
-    // console.log(sql, values);
     const [result] = await pool.query(sql, values);
     return result.affectedRows > 0;
   },
