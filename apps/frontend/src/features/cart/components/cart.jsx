@@ -39,7 +39,7 @@ const Cart = () => {
                     <Button variant="ghost" size="icon" className="w-6 h-6 text-foreground">
                       <Plus />
                     </Button>
-                    <p className="text-center">1</p>
+                    <p className="text-center">{item.quantity}</p>
                     <Button variant="ghost" size="icon" className="w-6 h-6 text-foreground">
                       <Minus />
                     </Button>
