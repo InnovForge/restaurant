@@ -112,6 +112,7 @@ CREATE TABLE IF NOT EXISTS food_category_mapping (
 
 CREATE TABLE IF NOT EXISTS tables (
     table_id VARCHAR(16) PRIMARY KEY,
+    table_name VARCHAR(100) NOT NULL,
     restaurant_id VARCHAR(16) NOT NULL,
     table_number INT NOT NULL,
     seat_count INT NOT NULL,
