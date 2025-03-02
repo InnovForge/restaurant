@@ -4,16 +4,17 @@ import { nanoidNumbersOnly } from "../utils/nanoid.js";
 const tableModel = {
   async createTable(restaurantId, tableData) {
     const tableId = nanoidNumbersOnly(16);
-    const { tableName, tableNumber, seatCount } = tableData;
-
+    const { tableName, seatCount } = tableData;
     const connection = await pool.getConnection();
     try {
       await connection.beginTransaction();
 
-      await connection.query(
-        "INSERT INTO tables (table_id, restaurant_id, tableName, tableNumber,seatCount) VALUES (?, ?, ?, ?,?)",
-        [tableId, restaurantId, tableName, tableNumber, seatCount],
-      );
+      await connection.query("INSERT INTO tables (table_id, restaurant_id, tableName,seatCount) VALUES (?, ?, ?,?)", [
+        tableId,
+        restaurantId,
+        tableName,
+        seatCount,
+      ]);
 
       await connection.commit();
       return { success: true, tableId };

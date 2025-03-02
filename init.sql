@@ -114,7 +114,6 @@ CREATE TABLE IF NOT EXISTS tables (
     table_id VARCHAR(16) PRIMARY KEY,
     table_name VARCHAR(100) NOT NULL,
     restaurant_id VARCHAR(16) NOT NULL,
-    table_number INT NOT NULL,
     seat_count INT NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW() ON UPDATE NOW(),

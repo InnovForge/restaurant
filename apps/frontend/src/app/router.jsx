@@ -8,13 +8,15 @@ import MenuPage from "./routes/admin/menu/page";
 import AddFood from "./routes/admin/menu/addfood";
 import OrdersPage from "./routes/admin/orders/page";
 import OrderDetail from "./routes/admin/orders/detail";
-import TableManagement from "./routes/admin/table/page";
+import TableManagement from "./routes/admin/table/table";
 import RestaurantInfoForm from "./routes/admin/infor/res/infor";
 import RestaurantUpdateInfoForm from "./routes/admin/infor/res/infor_update";
 import HomeAdmin from "./routes/admin/dashboard-restaurants";
 import { ProtectedApp } from "@/components/protected-app";
 import { RestaurantProvider } from "@/context/restaurant";
 import { ProtectedAdmin } from "@/components/protected-admin";
+import ReservationManagement from "./routes/admin/table/page";
+import AddTable from "./routes/admin/table/add_table";
 
 const convert = (queryClient) => (m) => {
   const { clientLoader, clientAction, default: Component, ...rest } = m;
@@ -115,8 +117,16 @@ export const createAppRouter = (queryClient) =>
           element: <OrderDetail />,
         },
         {
+          path: "datban",
+          element: <ReservationManagement />,
+        },
+        {
           path: "ban",
           element: <TableManagement />,
+        },
+        {
+          path: "ban/themban",
+          element: <AddTable />,
         },
       ],
     },

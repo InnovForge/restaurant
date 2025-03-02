@@ -49,4 +49,6 @@ router.use("/tables", authenticateJWT);
  * 500:
  * $ref: '#/components/responses/500'
  */
-router.post("/tables", tableCon.createTable);
+router.post("/restaurants/:restaurantId/tables", tableCon.createTable);
+
+export default router;

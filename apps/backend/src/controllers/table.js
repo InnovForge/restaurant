@@ -4,9 +4,9 @@ import tableModel from "../models/table.js";
 
 export const createTable = async (req, res) => {
   const { restaurantId } = req.params;
-  const { tableName, tableNumber, seatCount } = req.body;
+  const { tableName, seatCount } = req.body;
 
-  const errors = validateFields(req.body, ["tableName", "tableNumber", "seatCount"], true);
+  const errors = validateFields(req.body, ["tableName", "seatCount"], true);
   if (errors) {
     return responseHandler.badRequest(res, undefined, errors);
   }
@@ -14,7 +14,6 @@ export const createTable = async (req, res) => {
   try {
     const { success, tableId } = await tableModel.createTable(restaurantId, {
       tableName,
-      tableNumber,
       seatCount,
     });
 

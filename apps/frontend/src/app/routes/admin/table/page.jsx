@@ -55,7 +55,7 @@ const data = [
   },
 ];
 
-const TableManagement = () => {
+const ReservationManagement = () => {
   const { restaurantId } = useRestaurant();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -220,4 +220,4 @@ const TableManagement = () => {
   );
 };
 
-export default TableManagement;
+export default ReservationManagement;
