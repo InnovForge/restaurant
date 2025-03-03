@@ -86,7 +86,7 @@ export const ProtectedApp = ({ children }) => {
     enabled: !authUser,
   });
 
-  const protectedRoutes = ["history", "d", "me"];
+  const protectedRoutes = ["history", "d", "me", "checkout"];
   const currentPath = location.pathname.split("/")[1];
   // console.log(location,currentPath)
 
