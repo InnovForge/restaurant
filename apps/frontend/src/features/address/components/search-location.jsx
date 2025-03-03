@@ -7,7 +7,7 @@ import { SyncLoader } from "react-spinners";
 import { CircleX } from "lucide-react";
 
 const SearchLocation = ({ value, onChange }) => {
-  const [searchValue, setSearchValue] = useState(value?.formatted || "");
+  const [searchValue, setSearchValue] = useState(value || "");
   const [data, setData] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
   const [focusedIndex, setFocusedIndex] = useState(-1);
