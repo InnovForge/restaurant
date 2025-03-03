@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 import { Link } from "react-router";
 import { ArrowLeft, Upload, X, ImagePlus } from "lucide-react";
@@ -55,7 +53,6 @@ const AddFood = () => {
         name: formData.get("name"),
         price: Number(formData.get("price")),
         description: formData.get("description"),
-        status: "Còn",
       };
 
       if (!addFood.name || !addFood.price || !addFood.description) {

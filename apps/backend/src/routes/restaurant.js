@@ -285,7 +285,7 @@ router.patch(
  *       500:
  *         $ref: '#/components/responses/500'
  */
-router.get("/restaurants/:restaurantId", authenticateJWT, restaurantController.getRestaurant);
+router.get("/restaurants/:restaurantId", restaurantController.getRestaurant);
 
 /**
  * @openapi
@@ -356,5 +356,7 @@ router.get("/restaurants/:restaurantId", authenticateJWT, restaurantController.g
  *         $ref: '#/components/responses/500'
  */
 router.get("/restaurants/:restaurantId/foods", authenticateJWT, restaurantController.getAllFoodByResId);
+
+router.get("/restaurants/:restaurantId/foods/t", restaurantController.getFoodByRestaurantId);
 
 export default router;

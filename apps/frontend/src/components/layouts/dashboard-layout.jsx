@@ -72,7 +72,10 @@ export const DashboardLayout = ({ children }) => {
 
   return (
     <div className="flex flex-col m-auto">
-      <header className="flex flex-col sticky top-0 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background py-1 z-50">
+      <header
+        id="header-app"
+        className="flex flex-col sticky top-0 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background py-1 z-50"
+      >
         <div className="px-2 flex flex-col gap-2 max-w-7xl m-auto w-full pb-1">
           <div className="flex justify-between items-center">
             <div className="flex w-full items-center gap-4">
@@ -102,7 +105,7 @@ export const DashboardLayout = ({ children }) => {
                           className="flex items-center gap-1"
                           onClick={() => setIsOpenSheet(false)}
                         >
-                          <Button variant="ghost" className="pl-0">
+                          <Button variant="ghost" className="pl-0  select-none">
                             {item.icon && <item.icon className="w-5 h-5" />}
                             {item.name}
                           </Button>
@@ -228,7 +231,7 @@ export const DashboardLayout = ({ children }) => {
         })}
         {children}
       </main>
-      <footer className="bg-background/60 backdrop-blur supports-[backdrop-filter]:bg-background p-2 border-t">
+      <footer className="bg-background/60 backdrop-blur supports-[backdrop-filter]:bg-background p-2 border-t mt-10">
         <div className="flex justify-between items-start max-w-7xl m-auto">
           <div className="flex flex-col items-stretch h-full">
             <div className="gap-1 flex italic text-xs pb-10">

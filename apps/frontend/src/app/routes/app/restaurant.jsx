@@ -1,7 +1,9 @@
+import RestaurantOverview from "@/features/restaurants/components/restaurant-overview";
+
 const Restaurant = () => {
   return (
     <div>
-      <h1>Restaurant</h1>
+      <RestaurantOverview />
     </div>
   );
 };

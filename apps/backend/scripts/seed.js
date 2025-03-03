@@ -183,13 +183,103 @@ const createRestaurantManagers = async () => {
   console.log(`✅ Inserted ${usedUserIds.size} restaurant managers`);
 };
 
+const createFoodCategories = async () => {
+  for (const restaurant_id of restaurantIds) {
+    const numCategories = faker.number.int({ min: 15, max: 30 }); // Mỗi nhà hàng có 5-10 danh mục
+
+    const existingCategories = new Set(); // Để lưu danh mục đã tạo cho nhà hàng
+
+    for (let i = 0; i < numCategories; i++) {
+      let name;
+      do {
+        name = faker.helpers.arrayElement(FOOD_CATEGORIES);
+      } while (existingCategories.has(name)); // Chọn lại nếu trùng
+
+      existingCategories.add(name);
+      const food_category_id = nanoidNumbersOnly();
+
+      await connection.execute(`INSERT INTO food_categories (food_category_id, restaurant_id, name) VALUES (?, ?, ?)`, [
+        food_category_id,
+        restaurant_id,
+        name,
+      ]);
+    }
+  }
+  console.log(`✅ Created food categories with diverse options`);
+};
+
+const FOOD_CATEGORIES = [
+  "Cơm",
+  "Mì",
+  "Phở",
+  "Bún",
+  "Cháo",
+  "Lẩu",
+  "Đồ uống",
+  "Tráng miệng",
+  "Hải sản",
+  "Chay",
+  "Bánh mì",
+  "Gà rán",
+  "Bò bít tết",
+  "Pizza",
+  "Burger",
+  "Sushi",
+  "Dimsum",
+  "Món nướng",
+  "Món cuốn",
+  "Bánh ngọt",
+  "Sinh tố",
+  "Cà phê",
+  "Trà sữa",
+  "Kem",
+  "Đồ nhậu",
+  "Hủ tiếu",
+  "Mì Quảng",
+  "Ốc",
+  "Bánh xèo",
+  "Bánh ướt",
+  "Bánh cuốn",
+  "Bánh bèo",
+  "Gỏi",
+  "Bánh chưng",
+  "Bánh tét",
+  "Bánh bột lọc",
+  "Mì cay",
+  "Món Âu",
+  "Món Hàn",
+  "Món Nhật",
+  "Món Thái",
+  "Món Ấn",
+  "Món Mexico",
+  "Cơm tấm",
+  "Cơm niêu",
+  "Bún đậu mắm tôm",
+  "Bún bò Huế",
+  "Bún chả",
+  "Bún riêu",
+  "Bún thịt nướng",
+  "Cơm gà",
+  "Gà xối mỡ",
+  "Bánh canh",
+  "Nem nướng",
+  "Nem lụi",
+  "Bò né",
+  "Chè",
+  "Nước ép",
+  "Bánh tráng trộn",
+  "Bánh tráng nướng",
+  "Bánh tráng cuốn",
+  "Bánh tráng phơi sương",
+  "Bánh tráng chảo",
+];
+
 const createFoods = async () => {
   for (let i = 0; i < NUMBER_OF_RESTAURANTS; i++) {
     for (let j = 0; j < NUMBER_OF_FOODS_PER_RESTAURANT; j++) {
       const food_id = nanoidNumbersOnly();
       const restaurant_id = restaurantIds[Math.floor(Math.random() * restaurantIds.length)];
       const name = faker.helpers.arrayElement(generateUniqueFoods());
-
       const description = faker.lorem.sentences(2);
       const price = faker.number.float({
         min: 10000,
@@ -202,19 +292,37 @@ const createFoods = async () => {
         height: 300,
         category: "rice",
       });
-
       const available = faker.datatype.boolean();
 
+      // Thêm món ăn vào bảng foods
       await connection.execute(
         `
         INSERT INTO foods (food_id, restaurant_id, name, description, price, price_type, image_url, available)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-      `,
+        `,
         [food_id, restaurant_id, name, description, price, price_type, image_url, available],
       );
+
+      // Lấy danh sách category của nhà hàng này
+      const [categories] = await connection.execute(
+        `SELECT food_category_id FROM food_categories WHERE restaurant_id = ?`,
+        [restaurant_id],
+      );
+
+      if (categories.length > 0) {
+        // Chọn ngẫu nhiên 1-2 category
+        const selectedCategories = faker.helpers.arrayElements(categories, faker.number.int({ min: 1, max: 2 }));
+
+        for (const category of selectedCategories) {
+          await connection.execute(`INSERT INTO food_category_mapping (food_id, food_category_id) VALUES (?, ?)`, [
+            food_id,
+            category.food_category_id,
+          ]);
+        }
+      }
     }
   }
-  console.log(`✅ Inserted ${NUMBER_OF_RESTAURANTS * NUMBER_OF_FOODS_PER_RESTAURANT} foods`);
+  console.log(`✅ Inserted ${NUMBER_OF_RESTAURANTS * NUMBER_OF_FOODS_PER_RESTAURANT} foods with categories`);
 };
 
 const createBill = async () => {
@@ -264,6 +372,7 @@ const seedDatabase = async (password) => {
     await createAddresses();
     await createRestaurants();
     await createRestaurantManagers();
+    await createFoodCategories();
     await createFoods();
     await createBill();
     await connection.commit();

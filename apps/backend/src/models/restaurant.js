@@ -1,4 +1,5 @@
 import { pool } from "../configs/mysql.js";
+import { getFoods } from "../controllers/food.js";
 import { nanoidNumbersOnly } from "../utils/nanoid.js";
 
 const restaurantModel = {
@@ -115,12 +116,31 @@ const restaurantModel = {
   },
   async getRestaurant(restaurantId) {
     const [rows] = await pool.query(
-      `SELECT r.restaurant_id, r.name, r.phone_number,r.email, a.address_line1, a.address_line2, a.longitude, a.latitude
+      `SELECT r.restaurant_id, r.name, r.description, r.logo_url, r.cover_url, r.phone_number,r.email, a.address_line1, a.address_line2, a.longitude, a.latitude,  COUNT(re.review_id) AS total_reviews, COALESCE(AVG(re.rating), 0) AS average_rating, COALESCE(
+        (SELECT JSON_ARRAYAGG(
+            JSON_OBJECT(
+                'day_of_week', rs.day_of_week,
+                'opening_time', TIME_FORMAT(rs.opening_time, '%H:%i'),
+                'closing_time', TIME_FORMAT(rs.closing_time, '%H:%i')
+            )
+        ) 
+        FROM restaurant_schedules rs 
+        WHERE rs.restaurant_id = r.restaurant_id AND rs.is_closed = FALSE
+        ), 
+        '[]'
+    ) AS opening_hours 
       FROM restaurants r
       JOIN addresses a ON r.address_id = a.address_id
-      WHERE r.restaurant_id = ?`,
+      LEFT JOIN bills b ON b.restaurant_id = r.restaurant_id
+      LEFT JOIN reviews re ON re.bill_id = b.bill_id
+      WHERE r.restaurant_id = ?
+      GROUP BY r.restaurant_id, a.address_id;
+`,
       [restaurantId],
     );
+    if (rows[0]?.opening_hours.length > 0) {
+      rows[0].opening_hours = JSON.parse(rows[0].opening_hours);
+    }
     return rows[0];
   },
 
@@ -172,9 +192,7 @@ WHERE
 
   async GetAllFoodByResId(restaurantId) {
     const [rows] = await pool.query(
-      `
-    SELECT  * FROM foods f
-WHERE f.restaurant_id = ?;
+      `SELECT  * FROM foods f WHERE f.restaurant_id = ?;
 `,
       [restaurantId],
     );
@@ -209,6 +227,104 @@ ORDER BY COUNT(b.bill_id) DESC, estimated_distance ASC
 LIMIT ? OFFSET ?;
 `;
     const [foods] = await pool.query(query, [latitude, longitude, latitude, radius, limit, offset]);
+    return foods;
+  },
+
+  async getFoodsByRestaurantId(restaurantId) {
+    const query = `WITH PopularFoods AS (
+    SELECT 
+        f.food_id,
+        f.name AS food_name,
+        f.description,
+        f.price,
+        f.price_type,
+        f.image_url,
+        f.available,
+        COUNT(DISTINCT bi.bill_id) AS order_count,
+        COALESCE(ROUND(AVG(r.rating), 1), 0) AS avg_rating,
+        COALESCE(COUNT(r.review_id), 0) AS total_reviews
+    FROM foods f
+    LEFT JOIN bill_items bi ON f.food_id = bi.food_id
+    LEFT JOIN bills b ON bi.bill_id = b.bill_id AND b.order_status = 'completed'
+    LEFT JOIN reviews r ON b.bill_id = r.bill_id
+    WHERE f.restaurant_id = ?
+    GROUP BY f.food_id, f.name, f.description, f.price, f.price_type, f.image_url, f.available  
+    ORDER BY order_count DESC, avg_rating DESC
+    LIMIT 5
+)
+
+SELECT 
+    'popular' AS food_category_id,
+    'Phổ biến' AS category_name,
+    JSON_ARRAYAGG(
+        JSON_OBJECT(
+            'food_id', PopularFoods.food_id,
+            'food_name', PopularFoods.food_name,
+            'food_description', PopularFoods.description,
+            'price', PopularFoods.price,
+            'price_type', PopularFoods.price_type,
+            'food_image', PopularFoods.image_url,
+            'available', PopularFoods.available,
+            'total_reviews', PopularFoods.total_reviews,
+            'average_rating', PopularFoods.avg_rating
+        )
+    ) AS foods
+FROM PopularFoods 
+
+UNION ALL
+
+SELECT 
+    fc.food_category_id, 
+    fc.name AS category_name,
+    (
+        SELECT JSON_ARRAYAGG(
+            JSON_OBJECT(
+                'food_id', t.food_id,
+                'food_name', t.food_name,
+                'food_description', t.description,
+                'price', t.price,
+                'price_type', t.price_type,
+                'food_image', t.image_url,
+                'available', t.available,
+                'total_orders', t.total_orders,
+                'total_reviews', t.total_reviews,
+                'average_rating', t.avg_rating
+            )
+        )
+        FROM (
+            SELECT 
+                f.food_id,
+                f.name AS food_name,
+                f.description,
+                f.price,
+                f.price_type,
+                f.image_url,
+                f.available,
+                COALESCE(SUM(bi.quantity), 0) AS total_orders,
+                COALESCE(COUNT(DISTINCT br.review_id), 0) AS total_reviews,
+                COALESCE(ROUND(AVG(br.rating), 1), 0) AS avg_rating
+            FROM foods f
+            LEFT JOIN bill_items bi ON bi.food_id = f.food_id
+            LEFT JOIN bills b ON b.bill_id = bi.bill_id AND b.order_status = 'completed'
+            LEFT JOIN reviews br ON br.bill_id = b.bill_id
+            WHERE f.food_id IN (
+                SELECT fcm.food_id 
+                FROM food_category_mapping fcm 
+                WHERE fcm.food_category_id = fc.food_category_id
+            )
+            GROUP BY f.food_id, f.name, f.description, f.price, f.price_type, f.image_url, f.available
+        ) t
+    ) AS foods
+FROM food_categories fc
+WHERE fc.restaurant_id = ? 
+AND EXISTS (
+    SELECT 1 FROM food_category_mapping fcm 
+    JOIN foods f ON fcm.food_id = f.food_id
+    WHERE fcm.food_category_id = fc.food_category_id
+);
+`;
+
+    const [foods] = await pool.query(query, [restaurantId, restaurantId]);
     return foods;
   },
 };

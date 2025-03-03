@@ -34,7 +34,8 @@ export default function DashboardLayout({ children }) {
     { path: "thongke", icon: BarChart3, label: "Thống kê" },
     { path: "menu", icon: Utensils, label: "Menu" },
     { path: "hoadon", icon: ShoppingBag, label: "Hóa đơn" },
-    { path: "ban", icon: Table, label: "Bàn ăn" },
+    { path: "datban", icon: Table, label: "Đặt Bàn Ăn" },
+    { path: "ban", icon: Table, label: "Bàn Ăn" },
   ];
 
   return (

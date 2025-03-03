@@ -1,4 +1,4 @@
-import { RestaurantForm } from "@/features/restaurants/components/create-restaurant";
+import { RestaurantForm } from "@/features/management-restaurants/components/create-restaurant";
 
 const Create = () => {
   return (

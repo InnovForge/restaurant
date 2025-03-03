@@ -3,7 +3,8 @@ function validateFields(fields, validFields, requiredFields = []) {
   const validSet = new Set(validFields);
   const fieldKeys = Object.keys(fields);
 
-  const requiredSet = requiredFields === true ? validSet : new Set(requiredFields);
+  const requiredSet =
+    requiredFields === true ? validSet : requiredFields === false ? new Set() : new Set(requiredFields);
 
   for (const field of fieldKeys) {
     if (!validSet.has(field)) {

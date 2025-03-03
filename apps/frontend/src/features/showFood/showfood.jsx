@@ -118,7 +118,7 @@ const Show = () => {
         <div>
           <div className="flex items-center gap-1 p-4 pl-0">
             <Flame className="text-red-500" />
-            <h2 className="text-xl font-bold">Món ăn phổ biến gần đây</h2>
+            <h2 className="text-xl font-bold">Món ăn gần đây</h2>
           </div>
           <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4">
             {data.map((item) => (
@@ -158,12 +158,12 @@ const Show = () => {
                         <Clock2 className="w-4 h-4" />
                         <p className="text-xs">{item.distanceInfo.duration.toFixed()} phút</p>
                       </div>
-                      {/* <p className="text-sm font-semibold"> */}
-                      {/* 	{new Intl.NumberFormat("vi-VN", { */}
-                      {/* 		style: "currency", */}
-                      {/* 		currency: "VND", */}
-                      {/* 	}).format(item.price)} */}
-                      {/* </p> */}
+                      {/* <p className="text-sm font-semibold">
+                        {new Intl.NumberFormat("vi-VN", {
+                          style: "currency",
+                          currency: "VND",
+                        }).format(item.price)}
+                      </p> */}
                     </div>
                   </div>
                   <Button
@@ -179,54 +179,63 @@ const Show = () => {
           </div>
         </div>
       )}
-
-      {foods &&
-        (() => {
-          // const allFoods = data.flatMap((restaurant) => restaurant.foods);
-
-          // slice(0, visibleProducts).
-          return foods.slice(0, visibleProducts).map((item) => (
-            <div className="bg-blue-200 p-4 mt-4" key={item.restaurantId + Math.random()}>
-              <div className="flex ">
-                <div className="flex justify-center w-[266px] h-[191px]">
-                  {/* <img src={item.foodImage} className="h-[191px]" alt="logo" /> */}
-                  {/* <CardHeader className="p-0">
-                    <AspectRatio ratio={4 / 3}> */}
-                  <LazyImage
-                    width="100%"
-                    height="100%"
-                    src={item.foodImage}
-                    alt={item.foodName}
-                    className="object-cover"
-                  />
-                  {/* </AspectRatio>
-                  </CardHeader> */}
-                </div>
-                <div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-2">
-                    <div>
-                      <h1 className="w-[300px] truncate font-bold">{item.foodName}</h1>
-                    </div>
-
-                    <div className="flex items-center ">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                        <path
-                          d="M11.5251 2.29502C11.5689 2.20648 11.6366 2.13195 11.7205 2.07984C11.8045 2.02773 11.9013 2.00012 12.0001 2.00012C12.0989 2.00012 12.1957 2.02773 12.2796 2.07984C12.3636 2.13195 12.4313 2.20648 12.4751 2.29502L14.7851 6.97402C14.9373 7.28198 15.1619 7.54842 15.4397 7.75047C15.7175 7.95251 16.0402 8.08413 16.3801 8.13402L21.5461 8.89002C21.644 8.9042 21.7359 8.94549 21.8116 9.00921C21.8872 9.07294 21.9435 9.15656 21.9741 9.25062C22.0047 9.34468 22.0084 9.44542 21.9847 9.54145C21.961 9.63748 21.9109 9.72497 21.8401 9.79402L18.1041 13.432C17.8577 13.6721 17.6734 13.9685 17.5669 14.2956C17.4605 14.6228 17.4352 14.9709 17.4931 15.31L18.3751 20.45C18.3924 20.5479 18.3818 20.6486 18.3446 20.7407C18.3074 20.8328 18.245 20.9126 18.1646 20.971C18.0842 21.0294 17.9891 21.064 17.89 21.0709C17.7908 21.0778 17.6918 21.0567 17.6041 21.01L12.9861 18.582C12.6818 18.4222 12.3433 18.3388 11.9996 18.3388C11.6559 18.3388 11.3174 18.4222 11.0131 18.582L6.39609 21.01C6.30842 21.0564 6.20949 21.0773 6.11054 21.0703C6.0116 21.0632 5.91661 21.0286 5.83639 20.9702C5.75616 20.9119 5.69392 20.8322 5.65675 20.7402C5.61957 20.6483 5.60895 20.5477 5.62609 20.45L6.50709 15.311C6.56529 14.9717 6.54007 14.6234 6.43363 14.2961C6.32718 13.9687 6.1427 13.6722 5.89609 13.432L2.16009 9.79502C2.08868 9.72605 2.03808 9.63841 2.01405 9.54209C1.99002 9.44577 1.99353 9.34463 2.02417 9.25021C2.05481 9.15578 2.11136 9.07186 2.18737 9.008C2.26338 8.94414 2.35579 8.90291 2.45409 8.88902L7.61909 8.13402C7.95935 8.08451 8.28248 7.95307 8.56067 7.751C8.83887 7.54893 9.06379 7.28229 9.21609 6.97402L11.5251 2.29502Z"
-                          stroke="#FC0C10"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                      <p>5 {item.totalReviews}+</p>
+      {data && (
+        <div>
+          <div className="flex items-center gap-1 p-4 pl-0">
+            <Flame className="text-red-500" />
+            <h2 className="text-xl font-bold">Món ăn phổ biến gần đây</h2>
+          </div>
+          {/* <div className="min-h-screen bg-gray-100 flex flex-col items-center p-6">
+        <div className="w-full max-w-5xl"> */}
+          {foods.slice(0, visibleProducts).map((item) => (
+            <div
+              key={item.foodId}
+              className="bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-lg transition duration-300 w-full mb-6 flex"
+            >
+              <div className="w-1/3 h-auto">
+                <img src={item.foodImage} alt={item.foodName} className="w-full h-full object-cover" />
+              </div>
+              <div className="p-6 w-2/3">
+                <div className="flex items-center mb-4">
+                  <img src={item.restaurantLogo} alt={item.restaurantName} className="w-10 h-10 rounded-full mr-3" />
+                  <div>
+                    <h3 className="text-lg font-semibold">{item.restaurantName}</h3>
+                    <p className="text-sm text-gray-500">
+                      {item.addressLine1 && item.addressLine2
+                        ? `${item.addressLine1}, ${item.addressLine2}`
+                        : item.addressLine1 || item.addressLine2}
+                    </p>
+                    <div className="flex items-center w-full gap-2 text-muted-foreground">
+                      <p className="text-xs">{item.distanceInfo.distance.toFixed()} km</p>
+                      <div className="flex items-center gap-1">
+                        <Clock2 className="w-4 h-4" />
+                        <p className="text-xs">{item.distanceInfo.duration.toFixed()} phút</p>
+                      </div>
                     </div>
                   </div>
-                  <h1 className="mt-[120px]">{item.price}</h1>
                 </div>
+                <h2 className="text-xl font-bold truncate w-full">{item.foodName}</h2>
+                <div className="flex items-center text-sm text-gray-600 mt-2">
+                  <Star className="text-yellow-500" size={24} />
+                  <p className="ml-2 text-lg">5 ({item.totalReviews}+ reviews)</p>
+                </div>
+                {/* <p className="text-red-500 font-semibold mt-4 text-2xl">{item.price} VND</p> */}
+                <p className="text-red-500 font-semibold mt-4 text-2xl">
+                  {new Intl.NumberFormat("vi-VN", {
+                    style: "currency",
+                    currency: "VND",
+                  }).format(item.price)}
+                </p>
+                <button className="mt-4 px-6 py-2 w-full bg-green-500 text-white rounded-lg hover:bg-green-600 transition text-lg">
+                  Thêm vào giỏ hàng
+                </button>
               </div>
             </div>
-          ));
-        })()}
+          ))}
+        </div>
+      )}
+      {/* </div>
+      </div> */}
     </>
   );
 

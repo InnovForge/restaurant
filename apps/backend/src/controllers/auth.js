@@ -27,7 +27,7 @@ export const login = async (req, res) => {
 export const register = async (req, res) => {
   const { username, password, name, gender, email, phoneNumber } = req.body;
 
-  const errors = validateFields(req.body, ["username", "password", "name", "gender", "email", "phone_number"], true);
+  const errors = validateFields(req.body, ["username", "password", "name", "gender"], true);
 
   if (errors) {
     return responseHandler.badRequest(res, undefined, errors);
