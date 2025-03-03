@@ -1,20 +1,17 @@
 import { api } from "@/lib/api-client";
 import { useQuery } from "@tanstack/react-query";
-// import { useAddressStore } from "@/stores/useAddressStore";
 import useAuthUserStore from "@/stores/useAuthUserStore";
 
 const History = () => {
-  // const {addresses} = useAddressStore();
   const { authUser } = useAuthUserStore();
 
   const { data, isFetching } = useQuery({
     queryKey: ["get-bills"],
     queryFn: async () => {
       const f = await api.get("/v1/users/me/bills");
-      // sF(f.data)
       return f.data.data;
     },
-    staleTime: 1000 * 60 * 1, // 5 minutes
+    staleTime: 1000 * 60 * 1, // 1 minute
   });
 
   console.log(data);
@@ -31,22 +28,13 @@ const History = () => {
               <div className="text-md text-gray-500">Ngày đặt: {order.createdAt}</div>
               <div className="text-md text-gray-500">Tổng: {order.items.price}đ</div>
               <div className={`text-lg font-bold ${order.status === "Đã hủy" ? "text-red-600" : "text-green-600"}`}>
-                {/* {order.status} */}
+                {order.status}
               </div>
-              {order.status === "Đã dùng tại nhà hàng" && (
-                <div className="mt-3 flex items-center gap-2">
-                  <button className="px-6 py-2 bg-blue-500 text-white text-lg rounded hover:bg-blue-600">
-                    Đánh giá
-                  </button>
-                  <div className="flex gap-1 text-yellow-400">
-                    {[...Array(5)].map((_, index) => (
-                      <span key={index} className="text-2xl">
-                        ★
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
+
+              {/* Nút Đánh giá */}
+              <div className="mt-3">
+                <button className="px-6 py-2 bg-blue-500 text-white text-lg rounded hover:bg-blue-600">Đánh giá</button>
+              </div>
             </div>
           </li>
         ))}

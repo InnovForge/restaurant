@@ -27,8 +27,10 @@ const useCartStore = create((set) => ({
 
       // Kiểm tra xem có món nào trong giỏ khác nhà hàng không
       const firstItem = state.Cart[0]; // Lấy món đầu tiên trong giỏ
+
       if (firstItem.restaurantId !== newItem.restaurantId) {
-        console.log("Nhà hàng khác -> Reset giỏ hàng");
+        const confirmReset = window.confirm("Bạn có muốn đặt lại giỏ hàng khi chọn món từ nhà hàng khác?");
+        if (!confirmReset) return state; // Nếu từ chối, giữ nguyên giỏ hàng
         return { Cart: [{ ...newItem, quantity: 1 }] }; // Reset giỏ hàng
       }
 
