@@ -59,12 +59,21 @@ export const ProtectedApp = ({ children }) => {
         const geocode = await getReverseGeocode();
         setAddress(geocode.data);
       } else if (user?.data?.addresses.length > 0) {
-        const { addressLine1, addressLine2 } = user.data.addresses.find((address) => address.isDefault);
-        const address = {
-          formatted: `${addressLine1} ${addressLine2 ? addressLine2 : ""}`,
-          ...user.data.addresses[0],
-        };
-        setAddress(address);
+        const as = user.data.addresses.find((address) => address.isDefault);
+        if (as) {
+          const address = {
+            formatted: `${as.addressLine1}, ${as.addressLine2}`,
+            ...as,
+          };
+          setAddress(address);
+        } else {
+          const address = {
+            formatted: `${user.data.addresses[0].addressLine1}, ${user.data.addresses[0].addressLine2}`,
+            ...user.data.addresses[0],
+          };
+          setAddress(address);
+        }
+        // const { addressLine1, addressLine2 } = user.data.addresses.find((address) => address.isDefault);
       }
 
       if (user?.data) {
