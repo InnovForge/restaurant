@@ -171,8 +171,8 @@ export default function RestaurantUpdateInfoForm() {
         email: formData.email,
       };
       // const updatedImages = {
-      //   logoUrl: images.avatar.file,
-      //   coverUrl: images.cover.file,
+      //   avatar: images.avatar.file,
+      //   cover: images.cover.file,
       // }
       // // Giả lập API call
       // await new Promise((resolve) => setTimeout(resolve, 1000))
