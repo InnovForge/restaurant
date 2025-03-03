@@ -125,16 +125,11 @@ const Show = () => {
               <Card className="overflow-hidden" key={item.foodId}>
                 <Link to={`/restaurants/${item.restaurantId}`} key={item.foodId}>
                   <CardHeader className="p-0">
-                    <AspectRatio ratio={4 / 3}>
-                      <LazyImage
-                        width="100%"
-                        height="100%"
-                        src={item.foodImage}
-                        alt={item.foodName}
-                        className="object-cover"
-                      />
+                    <AspectRatio ratio={4 / 3} className="w-full">
+                      <LazyImage src={item.foodImage} alt={item.foodName} className="object-cover w-full h-full" />
                     </AspectRatio>
                   </CardHeader>
+
                   <CardContent className="p-2 pb-0">
                     <div>
                       <p className="text-sm">{item.foodName}</p>
