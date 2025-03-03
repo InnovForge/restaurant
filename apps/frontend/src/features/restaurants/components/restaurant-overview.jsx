@@ -26,8 +26,6 @@ const getCurrentOpeningHours = (openingHours) => {
 const RestaurantOverview = () => {
   const { addCart } = useCartStore();
   let params = useParams();
-  console.log("restaurantId", params.restaurantId);
-
   const { data, isFetching } = useQuery({
     queryKey: ["get-restaurant", params.restaurantId],
     queryFn: async () => {

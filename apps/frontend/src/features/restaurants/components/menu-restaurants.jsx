@@ -133,7 +133,7 @@ const MenuRestaurants = ({ foods, setCategory, category, scrollRef, categoryRefs
 
   return (
     <div
-      className="w-full sticky top-[87px] z-10 bg-background pt-2 pb-1 overflow-hidden flex items-center"
+      className="w-full sticky top-[87px] z-10 bg-background pt-2 pb-1 mb-8 overflow-hidden flex items-center"
       onMouseLeave={handleMouseUp}
     >
       <div
