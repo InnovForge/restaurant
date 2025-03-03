@@ -62,13 +62,13 @@ export const ProtectedApp = ({ children }) => {
         const as = user.data.addresses.find((address) => address.isDefault);
         if (as) {
           const address = {
-            formatted: `${as.addressLine1}, ${as.addressLine2}`,
+            formatted: `${as.addressLine1} ${as.addressLine2 ? ", " + as.addressLine2 : ""}`,
             ...as,
           };
           setAddress(address);
         } else {
           const address = {
-            formatted: `${user.data.addresses[0].addressLine1}, ${user.data.addresses[0].addressLine2}`,
+            formatted: `${user.data.addresses[0].addressLine1} ${user.data.addresses[0].addressLine2 ? ", " + user.data.addresses[0].addressLine2 : ""}`,
             ...user.data.addresses[0],
           };
           setAddress(address);
