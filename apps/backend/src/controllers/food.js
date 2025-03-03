@@ -31,7 +31,7 @@ export const createFood = async (req, res) => {
         [
           {
             field: "name",
-            message: "Username already exists",
+            message: "FoodsName already exists",
           },
         ],
         "ER_DUP_ENTRY",

@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { Mail, MapPin, Phone, Camera, Edit, MapPinned, Clock, Star, Utensils } from "lucide-react";
@@ -21,16 +19,14 @@ export default function RestaurantInfoForm() {
   const [error, setError] = useState(null);
   const { restaurantId } = useRestaurant();
 
-  const resT = useUserRestaurants();
+  const { restaurants } = useUserRestaurants();
 
   useEffect(() => {
-    if (resT.data && resT.data.length > 0) {
-      setRestaurantInfo(resT.data[0]);
-      // test
-      console.log(resT.data[0]);
-      setLoading(false);
-    }
-  }, [resT.data]);
+    setRestaurantInfo(restaurants.find((r) => r.restaurantId === restaurantId));
+    // test
+    // console.log(resT.data[0]);
+    setLoading(false);
+  }, [restaurantId, restaurants]);
 
   if (loading) return <RestaurantInfoSkeleton />;
   if (error)

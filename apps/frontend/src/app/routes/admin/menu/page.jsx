@@ -1,13 +1,11 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router";
-import { ChevronLeft, ChevronRight, PlusCircle, Search, Edit, Trash2, Filter } from "lucide-react";
+import { ChevronLeft, ChevronRight, PlusCircle, Search, Edit, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Table, TableCell, TableHead, TableHeader, TableRow, TableBody } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useRestaurant } from "@/context/restaurant";
 import { api } from "@/lib/api-client";
 
@@ -71,7 +69,7 @@ const MenuPage = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            <div className="flex gap-2">
+            {/* <div className="flex gap-2">
               <Select defaultValue="all">
                 <SelectTrigger className="w-[180px] h-11">
                   <Filter className="h-4 w-4 mr-2" />
@@ -79,11 +77,11 @@ const MenuPage = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Tất cả</SelectItem>
-                  <SelectItem value="available">Còn món</SelectItem>
-                  <SelectItem value="unavailable">Hết món</SelectItem>
+                  <SelectItem value={1}>Còn món</SelectItem>
+                  <SelectItem value={0}>Hết món</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
+            </div> */}
           </div>
         </div>
 
@@ -95,7 +93,7 @@ const MenuPage = () => {
                 <TableRow className="bg-gray-50/50">
                   <TableHead className="w-[120px]">Hình ảnh</TableHead>
                   <TableHead>Tên Món Ăn</TableHead>
-                  <TableHead className="w-[120px]">Tình trạng</TableHead>
+                  {/* <TableHead className="w-[120px]">Tình trạng</TableHead> */}
                   <TableHead>Mô tả</TableHead>
                   <TableHead className="w-[150px]">Giá</TableHead>
                   <TableHead className="w-[100px] text-right">Thao tác</TableHead>
@@ -114,11 +112,11 @@ const MenuPage = () => {
                       </div>
                     </TableCell>
                     <TableCell className="font-medium">{item.name}</TableCell>
-                    <TableCell>
-                      <Badge variant={item.status === "Còn" ? "default" : "destructive"} className="px-3 py-1">
+                    {/* <TableCell>
+                      <Badge variant={item.available === 1 ? "default" : "destructive"} className="px-3 py-1">
                         {item.status}
                       </Badge>
-                    </TableCell>
+                    </TableCell> */}
                     <TableCell className="max-w-[300px] truncate">{item.description}</TableCell>
                     <TableCell className="font-medium">{item.price.toLocaleString()} VNĐ</TableCell>
                     <TableCell>
@@ -148,7 +146,7 @@ const MenuPage = () => {
                                   onChange={(e) => setEditItem({ ...editItem, image: e.target.value })}
                                 />
                               </div>
-                              <div className="space-y-2">
+                              {/* <div className="space-y-2">
                                 <Label>Tình trạng</Label>
                                 <Select
                                   value={editItem.status || ""}
@@ -162,7 +160,7 @@ const MenuPage = () => {
                                     <SelectItem value="Hết">Hết</SelectItem>
                                   </SelectContent>
                                 </Select>
-                              </div>
+                              </div> */}
                               <div className="space-y-2">
                                 <Label>Giá</Label>
                                 <Input

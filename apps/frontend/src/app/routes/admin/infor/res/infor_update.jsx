@@ -15,13 +15,15 @@ import { toast } from "sonner";
 import { Link } from "react-router";
 
 import { useUserRestaurants } from "@/hooks/use-user-restaurants";
+import { uploadRestaurantImage } from "@/features/restaurants/api/create-restaurant";
+import { useRestaurant } from "@/context/restaurant";
 
 export default function RestaurantUpdateInfoForm() {
   const [restaurantInfo, setRestaurantInfo] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [saving, setSaving] = useState(false);
-  //const { restaurantId } = useRestaurant()
+  const { restaurantId } = useRestaurant();
 
   const resT = useUserRestaurants();
 
@@ -176,14 +178,21 @@ export default function RestaurantUpdateInfoForm() {
       // }
       // // Giả lập API call
       // await new Promise((resolve) => setTimeout(resolve, 1000))
+      const updatedImages = {
+        avatar: images.avatar.file,
+        cover: images.cover.file,
+      };
+      // Giả lập API call
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      const res = await api.patch(`/v1/restaurants/${restaurantInfo?.restaurantId}`, updatedData);
-      const resID = restaurantInfo?.restaurantId;
-      //   const resImages = await uploadRestaurantImage({resID, images: updatedImages })
-      // toast ({
-      //   title: "Thành công",
-      //   description: "Cập nhật thông tin nhà hàng thành công",
-      // })
+      const res = await api.patch(`/v1/restaurants/${restaurantId}`, updatedData);
+      const resImages = await uploadRestaurantImage({ restaurantId, images: updatedImages });
+      if (resImages) {
+        toast({
+          title: " Cập nhật ảnh thành công",
+          description: "Cập nhật ảnh thông tin nhà hàng thành công",
+        });
+      }
       toast("Thành công", {
         description: "Cập nhật thông tin nhà hàng thành công",
         action: {
