@@ -15,8 +15,8 @@ import { toast } from "sonner";
 import { Link } from "react-router";
 
 import { useUserRestaurants } from "@/hooks/use-user-restaurants";
-import { uploadRestaurantImage } from "@/features/restaurants/api/create-restaurant";
 import { useRestaurant } from "@/context/restaurant";
+import { uploadRestaurantImage } from "@/features/management-restaurants/api/create-restaurant";
 
 export default function RestaurantUpdateInfoForm() {
   const [restaurantInfo, setRestaurantInfo] = useState(null);
