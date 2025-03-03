@@ -25,17 +25,33 @@ import { Button } from "@/components/ui/button";
 // import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import SearchLocation from "@/features/address/components/search-location";
 import { useState } from "react";
+import { useEffect } from "react";
+import { api } from "@/lib/api-client";
 
 const Checkout = () => {
   const { Cart, addCart } = useCartStore();
   const [value, setValue] = useState("TEST");
-  console.log(value);
+  const [tables, setTables] = useState([]);
+  const restaurantId = Cart[0]?.restaurantId;
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const res = await api.get(`v1/tables/${restaurantId}/`);
+        setTables(res.data.message);
+        console.log("res.data.data :>> ", res.data.message);
+      } catch (err) {
+        console.error("Lỗi lấy dữ liệu:", err);
+      }
+    }
+    fetchData();
+  }, [restaurantId]);
+
   return (
     <div className="flex-col flex w-full max-w-3xl gap-4 min-h-screen mx-auto">
       <SearchLocation value={value} onChange={setValue} />
       <div className="w-full flex flex-col gap-1">
         {Cart.map((item, i) => (
-          <Card className="flex gap-2 overflow-hidden" key={i}>
+          <Card className="flex gap-2 overflow-hidden" key={item.foodId}>
             <div className="w-28">
               <AspectRatio ratio={4 / 3}>
                 <LazyImage
@@ -68,9 +84,11 @@ const Checkout = () => {
             <SelectContent>
               <SelectGroup>
                 <SelectLabel>Bàn</SelectLabel>
-                <SelectItem value="ban1">Bàn 1</SelectItem>
-                <SelectItem value="ban2">Bàn 2</SelectItem>
-                <SelectItem value="ban3">Bàn 3</SelectItem>
+                {tables.map((table) => (
+                  <SelectItem key={table.tableId} value={table.tableId}>
+                    {table.tableName}
+                  </SelectItem>
+                ))}
               </SelectGroup>
             </SelectContent>
           </Select>
