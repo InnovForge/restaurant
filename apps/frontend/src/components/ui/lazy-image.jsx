@@ -12,7 +12,7 @@ const LazyImage = ({ src, alt, className }) => {
       ref={ref}
       src={inView ? src : ""}
       alt={alt}
-      className={cn("transition-opacity duration-700 ease-in-out", className, {
+      className={cn("transition-opacity duration-700 ease-in-out w-full h-auto", className, {
         "opacity-100": inView,
         "opacity-0": !inView,
       })}

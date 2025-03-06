@@ -15,6 +15,7 @@ import { generateAvatarInitial } from "@/utils/generateAvatarInitial";
 import { MapPin } from "lucide-react";
 import { Clock } from "lucide-react";
 import useCartStore from "@/stores/useCartStore";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 
 const getCurrentOpeningHours = (openingHours) => {
   const today = new Date().getDay();
@@ -123,11 +124,15 @@ const RestaurantOverview = () => {
                   className={`flex flex-row gap-2 w-full ${food.available ? "" : "opacity-50 pointer-events-none"}`}
                 >
                   <CardContent className="flex flex-row gap-2 p-2">
-                    <LazyImage
-                      src={food.foodImage}
-                      alt={food.foodName}
-                      className="object-cover w-full max-w-32 rounded-md"
-                    />
+                    <div className="w-24 h-full flex-shrink-0">
+                      <AspectRatio ratio={3 / 4}>
+                        <LazyImage
+                          src={food.foodImage}
+                          alt={food.foodName}
+                          className="object-cover rounded-md w-full h-full"
+                        />
+                      </AspectRatio>
+                    </div>
 
                     <div key={food.foodId} className="flex gap-2 flex-col">
                       <h3 className="text-sm font-bold">{food.foodName}</h3>
