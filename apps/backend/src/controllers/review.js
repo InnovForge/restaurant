@@ -6,7 +6,7 @@ import { validateFields } from "../utils/validate-fields.js";
 export const addReview = async (req, res) => {
   const { billId, foodId, rating, comment } = req.body;
   const userId = req.userId;
-  if (!billId || !rating || !comment) {
+  if (!billId || !rating) {
     return responseHandler.badRequest(res, "Please fill all fields");
   }
   try {

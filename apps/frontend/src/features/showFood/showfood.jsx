@@ -226,7 +226,10 @@ const Show = () => {
                     currency: "VND",
                   }).format(item.price)}
                 </p>
-                <button className="mt-4 px-6 py-2 w-full bg-green-500 text-white rounded-lg hover:bg-green-600 transition text-lg">
+                <button
+                  onClick={() => addCart(item)}
+                  className="mt-4 px-6 py-2 w-full bg-green-500 text-white rounded-lg hover:bg-green-600 transition text-lg"
+                >
                   Thêm vào giỏ hàng
                 </button>
               </div>

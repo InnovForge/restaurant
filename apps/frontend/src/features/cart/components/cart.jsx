@@ -61,9 +61,6 @@ const Cart = () => {
                     </div>
                     <div className="flex items-start">
                       <div className="flex flex-col w-full">
-                        {/* <p className="pr-7 font-semibold text-xs break-all line-clamp-3">
-                    Combo Thịnh Vượng - Burger Gà Teriyaki
-                  </p> */}
                         <p className="text-xs">{item.foodName}</p>
                       </div>
                       <div className="font-semibold text-sm text-nowrap text-center pr-3">{item.price}</div>
