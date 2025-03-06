@@ -262,6 +262,7 @@ GROUP BY u.user_id;
     return userAddressResult.affectedRows && userAddressResult.affectedRows > 0;
   },
 
+  // TODO: cần thêm kiểm tra địa chỉ có phải là is_default để set lại tất cả
   async deleteUserAddress(userId, addressId) {
     if (!userId || !addressId) return false;
 
@@ -269,6 +270,7 @@ GROUP BY u.user_id;
       userId,
       addressId,
     ]);
+    // console.log(result)
 
     const [addressResult] = await pool.query("DELETE FROM addresses WHERE address_id = ?", [addressId]);
 

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router";
 import { ArrowLeft, Upload, X, ImagePlus } from "lucide-react";
+
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -120,7 +121,6 @@ const AddFood = () => {
                       <span className="absolute left-3 top-3 text-muted-foreground">₫</span>
                     </div>
                   </div>
-
                   <div className="space-y-2">
                     <Label htmlFor="description">Mô tả món ăn</Label>
                     <Textarea

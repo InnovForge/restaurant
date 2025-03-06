@@ -2,29 +2,22 @@ import { pool } from "../configs/mysql.js";
 import { nanoidNumbersOnly } from "../utils/nanoid.js";
 
 const tableModel = {
-  async createTable(restaurantId, tableData) {
-    const tableId = nanoidNumbersOnly(16);
-    const { tableName, seatCount } = tableData;
-    const connection = await pool.getConnection();
-    try {
-      await connection.beginTransaction();
+  async createTables(restaurantId, tableData) {
+    const table_id = nanoidNumbersOnly(16);
+    const { tableName: table_name, seatCount: seat_count } = tableData;
 
-      await connection.query("INSERT INTO tables (table_id, restaurant_id, tableName,seatCount) VALUES (?, ?, ?,?)", [
-        tableId,
-        restaurantId,
-        tableName,
-        seatCount,
-      ]);
+    await pool.query("INSERT INTO tables (table_id, restaurant_id, table_name,seat_count) VALUES (?, ?, ?,?)", [
+      table_id,
+      restaurantId,
+      table_name,
+      seat_count,
+    ]);
 
-      await connection.commit();
-      return { success: true, tableId };
-    } catch (error) {
-      await connection.rollback();
-      console.error("Error creating table:", error);
-      return { success: false, message: error.message };
-    } finally {
-      connection.release();
-    }
+    return table_id;
+  },
+  async getTables(restaurantId) {
+    const [tables] = await pool.query("SELECT * FROM tables WHERE restaurant_id = ?", [restaurantId]);
+    return tables;
   },
 };
 

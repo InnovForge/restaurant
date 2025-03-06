@@ -29,7 +29,7 @@ const AddTable = () => {
         return;
       }
 
-      const res = await api.post(`/v1/restaurants/${restaurantId}/tables`, addTable);
+      const res = await api.post(`/v1/tables/${restaurantId}/create`, addTable);
       toast.success("Thêm bàn ăn thành công!");
 
       // Reset form
@@ -74,18 +74,8 @@ const AddTable = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="price">Số lượng chỗ ngồi</Label>
-                    <div className="relative">
-                      <Input
-                        id="seatCount"
-                        name="seatCount"
-                        type="number"
-                        min="0"
-                        step="1000"
-                        placeholder="VD: 5"
-                        className="h-11 pl-8"
-                      />
-                    </div>
+                    <Label htmlFor="seatCount">Số lượng chỗ ngồi</Label>
+                    <Input id="seatCount" name="seatCount" type="number" placeholder="VD: 5" className="h-11" />
                   </div>
                 </div>
               </div>

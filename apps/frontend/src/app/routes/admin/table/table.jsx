@@ -10,12 +10,14 @@ const TableManagement = () => {
   const [tables, setTables] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const { restaurantId } = useRestaurant();
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const res = await api.get(`v1/restaurants/${restaurantId}/tables`);
-        setTables(res.data.data);
+        const res = await api.get(`v1/tables/${restaurantId}/`);
+        setTables(res.data.message);
+        console.log("res.data.data :>> ", res.data.message);
       } catch (err) {
         console.error("Lỗi lấy dữ liệu:", err);
       }
@@ -24,7 +26,12 @@ const TableManagement = () => {
   }, [restaurantId]);
 
   const itemsPerPage = 8;
-  const totalPages = Math.ceil(tables.length / itemsPerPage);
+  const filteredData = tables.filter((item) =>
+    Object.values(item).some((value) =>
+      value ? value.toString().toLowerCase().includes(searchTerm.toLowerCase()) : false,
+    ),
+  );
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
   const paginatedData = tables.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   return (
@@ -51,15 +58,15 @@ const TableManagement = () => {
               <TableHeader>
                 <TableRow className="bg-gray-50/50">
                   <TableHead>Tên Bàn</TableHead>
-                  <TableHead>Số Lượng Bàn</TableHead>
+                  <TableHead>Số chỗ ngồi</TableHead>
                   <TableHead className="text-right">Thao tác</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {paginatedData.map((item) => (
                   <TableRow key={item.id} className="hover:bg-gray-50/50">
-                    <TableCell>{item.name}</TableCell>
-                    <TableCell>{item.quantity}</TableCell>
+                    <TableCell>{item.tableName}</TableCell>
+                    <TableCell>{item.seatCount}</TableCell>
                     <TableCell className="text-right">
                       <Button variant="outline" size="icon" className="h-8 w-8">
                         <Edit className="h-4 w-4" />

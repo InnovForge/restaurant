@@ -24,6 +24,7 @@ const NUMBER_OF_BILLS = 200;
 const userIds = [];
 const addressIds = [];
 const restaurantIds = [];
+const foodIds = [];
 
 const createUsers = async (pass = "cdio@team1") => {
   for (let i = 0; i < NUMBER_OF_USERS; i++) {
@@ -155,8 +156,9 @@ const createRestaurants = async () => {
       [schedules],
     );
 
-    console.log(`✅ Inserted restaurant: ${NUMBER_OF_RESTAURANTS} with random schedules`);
+    // console.log(`✅ Inserted restaurant: ${NUMBER_OF_RESTAURANTS} with random schedules`);
   }
+  console.log(`✅ Inserted ${NUMBER_OF_RESTAURANTS} restaurants with random schedules`);
 };
 
 const createRestaurantManagers = async () => {
@@ -287,14 +289,9 @@ const createFoods = async () => {
         precision: 1000,
       });
       const price_type = "VND";
-      const image_url = faker.image.urlLoremFlickr({
-        width: 400,
-        height: 300,
-        category: "rice",
-      });
+      const image_url = faker.image.url();
       const available = faker.datatype.boolean();
 
-      // Thêm món ăn vào bảng foods
       await connection.execute(
         `
         INSERT INTO foods (food_id, restaurant_id, name, description, price, price_type, image_url, available)
@@ -302,15 +299,14 @@ const createFoods = async () => {
         `,
         [food_id, restaurant_id, name, description, price, price_type, image_url, available],
       );
+      foodIds.push(food_id);
 
-      // Lấy danh sách category của nhà hàng này
       const [categories] = await connection.execute(
         `SELECT food_category_id FROM food_categories WHERE restaurant_id = ?`,
         [restaurant_id],
       );
 
       if (categories.length > 0) {
-        // Chọn ngẫu nhiên 1-2 category
         const selectedCategories = faker.helpers.arrayElements(categories, faker.number.int({ min: 1, max: 2 }));
 
         for (const category of selectedCategories) {
@@ -325,44 +321,94 @@ const createFoods = async () => {
   console.log(`✅ Inserted ${NUMBER_OF_RESTAURANTS * NUMBER_OF_FOODS_PER_RESTAURANT} foods with categories`);
 };
 
-const createBill = async () => {
-  for (let i = 0; i < NUMBER_OF_BILLS; i++) {
-    const bill_id = nanoidNumbersOnly();
-    const restaurant_id = restaurantIds[Math.floor(Math.random() * restaurantIds.length)];
-    const user_id = userIds[Math.floor(Math.random() * userIds.length)];
-    const order_status = faker.helpers.arrayElement(["pending", "preparing", "completed", "canceled"]);
-    const quantity = faker.number.int({ min: 1, max: 10 });
+const createTablesReservationsAndBills = async ({
+  numTablesPerRestaurant = { min: 5, max: 15 },
+  numReservationsPerTable = { min: 1, max: 5 },
+  numBillItemsPerReservation = { min: 1, max: 5 },
+} = {}) => {
+  for (const restaurant_id of restaurantIds) {
+    const numTables = faker.number.int(numTablesPerRestaurant);
+    const tableIds = [];
 
-    const [foods] = await connection.execute(
-      `
-      SELECT food_id 
-      FROM foods 
-      WHERE restaurant_id = ?
-    `,
-      [restaurant_id],
-    );
+    for (let i = 0; i < numTables; i++) {
+      const table_id = nanoidNumbersOnly();
+      tableIds.push(table_id);
+      const table_name = `Bàn ${i + 1}`;
+      const seat_count = faker.number.int({ min: 2, max: 10 });
 
-    if (foods.length === 0) continue;
+      await connection.execute(
+        `
+        INSERT INTO tables (table_id, table_name, restaurant_id, seat_count)
+        VALUES (?, ?, ?, ?)
+        `,
+        [table_id, table_name, restaurant_id, seat_count],
+      );
+    }
 
-    const food_id = foods[Math.floor(Math.random() * foods.length)].food_id;
+    for (const table_id of tableIds) {
+      const numReservations = faker.number.int(numReservationsPerTable);
 
-    await connection.execute(
-      `
-      INSERT INTO bills (bill_id, restaurant_id, user_id, order_status)
-      VALUES (?, ?, ?, ?)
-    `,
-      [bill_id, restaurant_id, user_id, order_status],
-    );
+      for (let i = 0; i < numReservations; i++) {
+        if (userIds.length === 0) {
+          console.log("❌ Not enough users for reservations");
+          return;
+        }
 
-    await connection.execute(
-      `
-      INSERT INTO bill_items (bill_item_id, bill_id, food_id, quantity)
-      VALUES (?,?, ?, ?)
-    `,
-      [nanoidNumbersOnly(), bill_id, food_id, quantity],
-    );
+        const reservation_id = nanoidNumbersOnly();
+        const user_id = faker.helpers.arrayElement(userIds);
+        const reservation_datetime = faker.date.future();
+        const reservation_status = faker.helpers.arrayElement(["pending", "confirmed", "completed", "cancelled"]);
+
+        await connection.execute(
+          `
+          INSERT INTO reservations (reservation_id, restaurant_id, user_id, table_id, reservation_datetime, reservation_status)
+          VALUES (?, ?, ?, ?, ?, ?)
+          `,
+          [reservation_id, restaurant_id, user_id, table_id, reservation_datetime, reservation_status],
+        );
+
+        const [existingBill] = await connection.execute(
+          `SELECT bill_id FROM bills WHERE user_id = ? AND restaurant_id = ? AND order_status IN ('pending', 'preparing') LIMIT 1`,
+          [user_id, restaurant_id],
+        );
+
+        let bill_id = existingBill.length ? existingBill[0].bill_id : null;
+
+        if (!bill_id) {
+          bill_id = nanoidNumbersOnly();
+          await connection.execute(
+            `
+            INSERT INTO bills (bill_id, restaurant_id, user_id, order_status)
+            VALUES (?, ?, ?, ?)
+            `,
+            [bill_id, restaurant_id, user_id, "pending"],
+          );
+        }
+
+        if (reservation_status === "completed") {
+          await connection.execute(`UPDATE bills SET order_status = 'completed' WHERE bill_id = ?`, [bill_id]);
+        }
+
+        if (["confirmed", "completed"].includes(reservation_status)) {
+          const numBillItems = faker.number.int(numBillItemsPerReservation);
+          for (let j = 0; j < numBillItems; j++) {
+            const bill_item_id = nanoidNumbersOnly();
+            const food_id = faker.helpers.arrayElement(foodIds);
+            const quantity = faker.number.int({ min: 1, max: 5 });
+
+            await connection.execute(
+              `
+              INSERT INTO bill_items (bill_item_id, bill_id, food_id, reservation_id, quantity)
+              VALUES (?, ?, ?, ?, ?)
+              `,
+              [bill_item_id, bill_id, food_id, reservation_id, quantity],
+            );
+          }
+        }
+      }
+    }
   }
-  console.log(`✅ Inserted ${NUMBER_OF_BILLS} bills`);
+  console.log(`✅ Inserted tables, reservations, bills, and bill items`);
 };
 
 const seedDatabase = async (password) => {
@@ -374,7 +420,7 @@ const seedDatabase = async (password) => {
     await createRestaurantManagers();
     await createFoodCategories();
     await createFoods();
-    await createBill();
+    await createTablesReservationsAndBills();
     await connection.commit();
     console.log("🎉 Seeding complete!");
   } catch (error) {

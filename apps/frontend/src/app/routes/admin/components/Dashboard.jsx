@@ -46,7 +46,7 @@ export default function DashboardLayout({ children }) {
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton size="lg" asChild>
-                  <Link to="/d">
+                  <Link to="/d/restaurants">
                     <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                       <Utensils className="size-4" />
                     </div>
