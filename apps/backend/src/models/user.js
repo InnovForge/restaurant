@@ -103,6 +103,7 @@ GROUP BY u.user_id;
 
       const [rows] = await pool.query(query, [userId]);
 
+      console.log("rows", rows);
       // Gom nhóm dữ liệu theo bill_id
       const bills = {};
       rows.forEach((row) => {
@@ -317,6 +318,21 @@ GROUP BY u.user_id;
   async deleteUser(userId) {
     const [result] = await pool.query("DELETE FROM users WHERE id = ?", [userId]);
     return result.affectedRows > 0;
+  },
+
+  async createBill(userId, restaurantId, order_status, items) {
+    const billId = nanoidNumbersOnly();
+    const query = "INSERT INTO bills (bill_id, user_id, order_status , restaurant_id) VALUES (?, ?, ?,?)";
+    const [billResult] = await pool.query(query, [billId, userId, order_status, restaurantId]);
+    if (billResult.affectedRows === 0) return false;
+
+    const itemRecords = items.map((item) => {
+      return [nanoidNumbersOnly(), billId, item.foodId, item.quantity];
+    });
+
+    const itemQuery = "INSERT INTO bill_items (bill_item_id, bill_id, food_id, quantity) VALUES ?";
+    const [itemResult] = await pool.query(itemQuery, [itemRecords]);
+    return itemResult.affectedRows === items.length;
   },
 };
 

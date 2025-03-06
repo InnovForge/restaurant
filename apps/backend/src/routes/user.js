@@ -312,4 +312,6 @@ router.get("/users/name/:name", userController.getUserName);
 
 router.get("/users/me/bills", userController.getBillsByUserId);
 
+router.post("/users/me/bills", userController.createdBill);
+
 export default router;

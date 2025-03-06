@@ -166,3 +166,19 @@ export const deleteUserAddress = async (req, res) => {
     return responseHandler.internalServerError(res);
   }
 };
+
+export const createdBill = async (req, res) => {
+  const { orderStatus, billItem, restaurantId } = req.body;
+  console.log("req.body", req.body, "user", req.userId);
+  try {
+    const billId = await userModel.createBill(req.userId, restaurantId, orderStatus, billItem);
+    if (billId) {
+      return responseHandler.created(res);
+    } else {
+      return responseHandler.badRequest(res);
+    }
+  } catch (error) {
+    console.error("Error creating bill:", error);
+    return responseHandler.internalServerError(res);
+  }
+};

@@ -7,6 +7,7 @@ import { api } from "@/lib/api-client";
 import { useNavigate } from "react-router";
 
 // Định nghĩa schema kiểm tra đầu vào bằng Zod
+
 const formSchema = z
   .object({
     name: z.string().min(2, {
@@ -15,20 +16,18 @@ const formSchema = z
     username: z.string().min(2, {
       message: "Tên người dùng phải có ít nhất 2 ký tự.",
     }),
-    email: z.string().email({ message: "Email không hợp lệ." }),
-    phone: z
-      .string()
-      .min(10, { message: "Số điện thoại phải có ít nhất 10 chữ số." })
-      .regex(/^\d+$/, { message: "Số điện thoại chỉ được chứa chữ số." }),
+    // email: z.string().email({ message: "Email không hợp lệ." }),
+    // phone: z
+    //   .string()
+    //   .min(10, { message: "Số điện thoại phải có ít nhất 10 chữ số." })
+    //   .regex(/^\d+$/, { message: "Số điện thoại chỉ được chứa chữ số." }),
     password: z.string().min(2, {
       message: "Mật khẩu phải có ít nhất 2 ký tự.",
     }),
-    confirmPassword: z.string().min(2, {
-      message: "Xác nhận mật khẩu phải có ít nhất 2 ký tự.",
-    }),
-    gender: z.enum(["male", "female", "other"], {
-      errorMap: () => ({ message: "Vui lòng chọn giới tính." }),
-    }),
+    // confirmPassword: z.string().min(2, {
+    //   message: "Xác nhận mật khẩu phải có ít nhất 2 ký tự.",
+    // }),
+    gender: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(9)]).default(0),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Mật khẩu không khớp.",
@@ -45,11 +44,18 @@ const Register = () => {
   const onSubmit = async (value) => {
     try {
       const res = await api.post("/v1/auth/register", value);
+
       if (res.status === 200) {
-        window.location.href = "/home";
+        console.log("Đăng ký thành công!", res.data);
+
+        // Reset form sau khi đăng ký thành công
+        form.reset();
+
+        // Chuyển hướng sử dụng navigate (React Router)
+        navigate("/home");
       }
     } catch (error) {
-      console.log("Lỗi khi đăng ký:", error);
+      console.error("Lỗi khi đăng ký:", error);
     }
   };
 
@@ -93,7 +99,7 @@ const Register = () => {
               )}
             />
 
-            {/* Trường nhập Email */}
+            {/* Trường nhập Email
             <FormField
               control={form.control}
               name="email"
@@ -106,9 +112,9 @@ const Register = () => {
                   <FormMessage />
                 </FormItem>
               )}
-            />
+            /> */}
 
-            {/* Trường nhập Số điện thoại */}
+            {/* Trường nhập Số điện thoại
             <FormField
               control={form.control}
               name="phone"
@@ -121,7 +127,7 @@ const Register = () => {
                   <FormMessage />
                 </FormItem>
               )}
-            />
+            /> */}
 
             {/* Trường nhập Mật khẩu */}
             <FormField
@@ -138,7 +144,7 @@ const Register = () => {
               )}
             />
 
-            {/* Trường nhập Xác nhận mật khẩu */}
+            {/* Trường nhập Xác nhận mật khẩu
             <FormField
               control={form.control}
               name="confirmPassword"
@@ -151,7 +157,7 @@ const Register = () => {
                   <FormMessage />
                 </FormItem>
               )}
-            />
+            /> */}
 
             {/* Chọn Giới tính */}
             <FormField
@@ -163,30 +169,15 @@ const Register = () => {
                   <FormControl>
                     <div className="flex space-x-4">
                       <label className="flex items-center space-x-1">
-                        <input
-                          type="radio"
-                          value="male"
-                          checked={field.value === "male"}
-                          onChange={() => field.onChange("male")}
-                        />
+                        <input type="radio" value={1} checked={field.value === 1} onChange={() => field.onChange(1)} />
                         <span>Nam</span>
                       </label>
                       <label className="flex items-center space-x-1">
-                        <input
-                          type="radio"
-                          value="female"
-                          checked={field.value === "female"}
-                          onChange={() => field.onChange("female")}
-                        />
+                        <input type="radio" value={2} checked={field.value === 2} onChange={() => field.onChange(2)} />
                         <span>Nữ</span>
                       </label>
                       <label className="flex items-center space-x-1">
-                        <input
-                          type="radio"
-                          value="other"
-                          checked={field.value === "other"}
-                          onChange={() => field.onChange("other")}
-                        />
+                        <input type="radio" value={9} checked={field.value === 9} onChange={() => field.onChange(9)} />
                         <span>Khác</span>
                       </label>
                     </div>
@@ -205,6 +196,12 @@ const Register = () => {
                 Đăng ký
               </button>
             </div>
+            <p className="text-gray-600 text-center mt-4">
+              Tôi đã có tài khoản?{" "}
+              <span onClick={() => navigate("/login")} className="text-blue-500 hover:underline cursor-pointer">
+                Đăng nhập
+              </span>
+            </p>
           </form>
         </Form>
       </div>
