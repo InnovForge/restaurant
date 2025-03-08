@@ -2,7 +2,8 @@ import { momo } from "../services/payments/momo.js";
 import responseHandler from "../utils/response.js";
 
 export const createPaymentMomo = async (req, res) => {
-  const response = await momo("1000", "test thanh toan");
+  const { amount, description } = req.body;
+  const response = await momo(amount, description);
   return responseHandler.success(res, "Payment created", { url: response });
 };
 

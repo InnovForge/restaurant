@@ -51,6 +51,7 @@ CREATE TABLE IF NOT EXISTS restaurants (
 	cover_url VARCHAR(255),
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMP NOT NULL DEFAULT NOW() ON UPDATE NOW(),
+  FULLTEXT(name, description),
 	FOREIGN KEY (address_id) REFERENCES addresses(address_id) ON DELETE CASCADE
 );
 
@@ -90,6 +91,7 @@ CREATE TABLE IF NOT EXISTS foods (
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW() ON UPDATE NOW(),
     UNIQUE (restaurant_id, name),
+    FULLTEXT(name, description),
     FOREIGN KEY (restaurant_id) REFERENCES restaurants(restaurant_id) ON DELETE CASCADE
 );
 
@@ -99,6 +101,7 @@ CREATE TABLE IF NOT EXISTS food_categories (
     name VARCHAR(100) NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     UNIQUE (restaurant_id, name),
+    FULLTEXT(name),
     FOREIGN KEY (restaurant_id) REFERENCES restaurants(restaurant_id) ON DELETE CASCADE
 );
 
@@ -126,13 +129,13 @@ CREATE TABLE IF NOT EXISTS reservations (
     user_id VARCHAR(16) NOT NULL,
     table_id VARCHAR(16) NOT NULL,
     reservation_datetime TIMESTAMP DEFAULT NOW() NOT NULL,
+    check_in_time TIMESTAMP,
     reservation_status ENUM('pending', 'confirmed', 'completed', 'cancelled') NOT NULL DEFAULT 'pending',
   	created_at TIMESTAMP NOT NULL DEFAULT NOW(),
 	  updated_at TIMESTAMP NOT NULL DEFAULT NOW() ON UPDATE NOW(),
     FOREIGN KEY (restaurant_id) REFERENCES restaurants(restaurant_id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
     FOREIGN KEY (table_id) REFERENCES tables(table_id) ON DELETE CASCADE
-
 );
 
 CREATE TABLE IF NOT EXISTS bills (
@@ -140,8 +143,16 @@ CREATE TABLE IF NOT EXISTS bills (
 	restaurant_id VARCHAR(16) NOT NULL,
 	user_id VARCHAR(16) NOT NULL,
 	order_status ENUM('pending', 'preparing', 'completed', 'canceled') NOT NULL DEFAULT 'pending',
+-- "pending" – Đang chờ xử lý
+-- "preparing" – Đang chuẩn bị
+-- "completed" – Đã hoàn thành
+-- "canceled" – Đã hủy
+  reservation_id VARCHAR(16),
+  payment_method ENUM('cash', 'card', 'online', 'postpaid') NOT NULL,
+  payment_status ENUM('unpaid', 'paid') NOT NULL DEFAULT 'unpaid',
 	created_at TIMESTAMP NOT NULL DEFAULT NOW(),
 	updated_at TIMESTAMP NOT NULL DEFAULT NOW() ON UPDATE NOW(),
+  FOREIGN KEY (reservation_id) REFERENCES reservations(reservation_id) ON DELETE CASCADE,
 	FOREIGN KEY (restaurant_id) REFERENCES restaurants(restaurant_id) ON DELETE CASCADE,
 	FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
@@ -150,9 +161,11 @@ CREATE TABLE IF NOT EXISTS bill_items (
     bill_item_id VARCHAR(16) PRIMARY KEY,
     bill_id VARCHAR(16) NOT NULL,
     food_id VARCHAR(16),
-    reservation_id VARCHAR(16),
+    price_at_purchase DECIMAL(10, 2) NOT NULL,
+    name_at_purchase VARCHAR(100) NOT NULL,
+    -- reservation_id VARCHAR(16),
     quantity TINYINT NOT NULL,
-    FOREIGN KEY (reservation_id) REFERENCES reservations(reservation_id) ON DELETE CASCADE,
+  --   FOREIGN KEY (reservation_id) REFERENCES reservations(reservation_id) ON DELETE CASCADE,
     FOREIGN KEY (bill_id) REFERENCES bills(bill_id) ON DELETE CASCADE,
     FOREIGN KEY (food_id) REFERENCES foods(food_id) ON DELETE CASCADE
 );

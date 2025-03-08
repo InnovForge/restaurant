@@ -1,11 +1,11 @@
 import { useUserRestaurants } from "@/hooks/use-user-restaurants";
-import dayjs from "dayjs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { UserRoundCog } from "lucide-react";
 import { generateAvatarInitial } from "@/utils/generateAvatarInitial";
 import { Link } from "react-router";
+import { formatDate } from "@/utils/format-date";
 
 const roleMap = {
   owner: "Chủ nhà hàng",
@@ -86,7 +86,7 @@ const RestaurantList = ({ searchTerm, sortOption }) => {
                     </div>
                     <div className="text-muted-foreground flex gap-2 items-center">
                       <span className=" text-sm">Ngày tạo</span>
-                      <p className="text-sm">{dayjs(restaurant.createdAt).format("DD/MM/YYYY")}</p>
+                      <p className="text-sm">{formatDate(restaurant.createdAt)}</p>
                     </div>
                   </div>
                 </CardContent>

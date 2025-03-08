@@ -168,15 +168,29 @@ export const deleteUserAddress = async (req, res) => {
 };
 
 export const createdBill = async (req, res) => {
-  const { orderStatus, billItem, restaurantId } = req.body;
-  console.log("req.body", req.body, "user", req.userId);
+  const { restaurantId, paymentMethod = "cash", paymentStatus = "unpaid", billItems, tableId, checkInTime } = req.body;
+
+  if (!restaurantId || !billItems || billItems.length === 0) {
+    return responseHandler.badRequest(res, "Missing required fields");
+  }
+
   try {
-    const billId = await userModel.createBill(req.userId, restaurantId, orderStatus, billItem);
-    if (billId) {
-      return responseHandler.created(res);
-    } else {
-      return responseHandler.badRequest(res);
+    const billId = await userModel.createBill(
+      req.userId,
+      restaurantId,
+      paymentMethod,
+      paymentStatus,
+      billItems,
+      tableId,
+      null,
+      checkInTime,
+    );
+
+    if (!billId) {
+      return responseHandler.badRequest(res, "Không thể tạo hóa đơn");
     }
+
+    return responseHandler.created(res, undefined, billId);
   } catch (error) {
     console.error("Error creating bill:", error);
     return responseHandler.internalServerError(res);

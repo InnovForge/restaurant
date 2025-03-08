@@ -14,12 +14,13 @@ export const momo = async (amount, orderInfo) => {
   const requestId = partnerCode + new Date().getTime();
   const orderId = requestId;
   // var orderInfo = "pay with MoMo";
-  const redirectUrl = process.env.CLIENT_URL;
+  const redirectUrl = process.env.CLIENT_URL + "/history";
+  console.log("process.env.NODE_ENV", process.env.NODE_ENV, process.env.NGROK_URL);
   const ipnUrl =
     process.env.NODE_ENV === "development"
       ? process.env.NGROK_URL + "/api/v1/payments/momo/callback"
       : process.env.SERVER_URL + "/api/v1/payments/momo/callback";
-  console.log("ipnUrl", ipnUrl);
+  console.log("ipnUrl is call", ipnUrl);
   // var ipnUrl = "http://localhost:3001/api/v1/payment/check";
   // var ipnUrl = redirectUrl = "https://webhook.site/454e7b77-f177-4ece-8236-ddf1c26ba7f8";
   // var amount = "50000";

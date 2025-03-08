@@ -330,6 +330,7 @@ const createTablesReservationsAndBills = async ({
     const numTables = faker.number.int(numTablesPerRestaurant);
     const tableIds = [];
 
+    // ✅ Tạo danh sách bàn ăn
     for (let i = 0; i < numTables; i++) {
       const table_id = nanoidNumbersOnly();
       tableIds.push(table_id);
@@ -356,52 +357,76 @@ const createTablesReservationsAndBills = async ({
 
         const reservation_id = nanoidNumbersOnly();
         const user_id = faker.helpers.arrayElement(userIds);
+        if (!user_id) {
+          console.error("❌ Lỗi: Không có user_id");
+          continue;
+        }
+
         const reservation_datetime = faker.date.future();
+        const check_in_time = faker.date.between({
+          from: reservation_datetime,
+          to: new Date(reservation_datetime.getTime() + 3600000),
+        });
         const reservation_status = faker.helpers.arrayElement(["pending", "confirmed", "completed", "cancelled"]);
 
         await connection.execute(
           `
-          INSERT INTO reservations (reservation_id, restaurant_id, user_id, table_id, reservation_datetime, reservation_status)
-          VALUES (?, ?, ?, ?, ?, ?)
+          INSERT INTO reservations (reservation_id, restaurant_id, user_id, table_id, reservation_datetime, check_in_time, reservation_status)
+          VALUES (?, ?, ?, ?, ?, ?, ?)
           `,
-          [reservation_id, restaurant_id, user_id, table_id, reservation_datetime, reservation_status],
+          [reservation_id, restaurant_id, user_id, table_id, reservation_datetime, check_in_time, reservation_status],
         );
 
-        const [existingBill] = await connection.execute(
-          `SELECT bill_id FROM bills WHERE user_id = ? AND restaurant_id = ? AND order_status IN ('pending', 'preparing') LIMIT 1`,
-          [user_id, restaurant_id],
+        // ✅ Xác định order_status dựa trên reservation_status
+        const order_status =
+          reservation_status === "pending"
+            ? "pending"
+            : reservation_status === "confirmed"
+              ? "preparing"
+              : reservation_status === "completed"
+                ? "completed"
+                : "canceled";
+
+        const bill_id = nanoidNumbersOnly();
+        const payment_method = faker.helpers.arrayElement(["cash", "card", "online", "postpaid"]) || "cash";
+        const payment_status = reservation_status === "completed" ? "paid" : "unpaid";
+
+        await connection.execute(
+          `
+          INSERT INTO bills (bill_id, restaurant_id, user_id, reservation_id, order_status, payment_method, payment_status)
+          VALUES (?, ?, ?, ?, ?, ?, ?)
+          `,
+          [bill_id, restaurant_id, user_id, reservation_id, order_status, payment_method, payment_status],
         );
 
-        let bill_id = existingBill.length ? existingBill[0].bill_id : null;
-
-        if (!bill_id) {
-          bill_id = nanoidNumbersOnly();
-          await connection.execute(
-            `
-            INSERT INTO bills (bill_id, restaurant_id, user_id, order_status)
-            VALUES (?, ?, ?, ?)
-            `,
-            [bill_id, restaurant_id, user_id, "pending"],
-          );
-        }
-
-        if (reservation_status === "completed") {
-          await connection.execute(`UPDATE bills SET order_status = 'completed' WHERE bill_id = ?`, [bill_id]);
-        }
-
+        // ✅ Thêm các món ăn vào bill nếu reservation đã được xác nhận hoặc hoàn thành
         if (["confirmed", "completed"].includes(reservation_status)) {
           const numBillItems = faker.number.int(numBillItemsPerReservation);
+
           for (let j = 0; j < numBillItems; j++) {
             const bill_item_id = nanoidNumbersOnly();
-            const food_id = faker.helpers.arrayElement(foodIds);
+            const food_id = foodIds[Math.floor(Math.random() * foodIds.length)];
+
+            if (!food_id) {
+              console.error("❌ Lỗi: Không có food_id");
+              continue;
+            }
+
+            const [[food]] = await connection.execute(`SELECT name, price FROM foods WHERE food_id = ?`, [food_id]);
+
+            if (!food || !food.name || food.price === undefined) {
+              console.error(`❌ Food item với ID ${food_id} không tồn tại hoặc bị lỗi.`);
+              continue;
+            }
+
             const quantity = faker.number.int({ min: 1, max: 5 });
 
             await connection.execute(
               `
-              INSERT INTO bill_items (bill_item_id, bill_id, food_id, reservation_id, quantity)
-              VALUES (?, ?, ?, ?, ?)
+              INSERT INTO bill_items (bill_item_id, bill_id, food_id, price_at_purchase, name_at_purchase, quantity)
+              VALUES (?, ?, ?, ?, ?, ?)
               `,
-              [bill_item_id, bill_id, food_id, reservation_id, quantity],
+              [bill_item_id, bill_id, food_id, food.price, food.name, quantity],
             );
           }
         }

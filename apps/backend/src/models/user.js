@@ -4,6 +4,7 @@ import { pool } from "../configs/mysql.js";
 import { uploadFileUser } from "../utils/s3.js";
 import { toPng } from "jdenticon";
 import { user } from "../sockets/user-manager.js";
+import responseHandler from "../utils/response.js";
 // import { getBillsByUserId } from "../controllers/user.js";
 
 const userModel = {
@@ -103,7 +104,7 @@ GROUP BY u.user_id;
 
       const [rows] = await pool.query(query, [userId]);
 
-      console.log("rows", rows);
+      // console.log("rows", rows);
       // Gom nhóm dữ liệu theo bill_id
       const bills = {};
       rows.forEach((row) => {
@@ -320,19 +321,90 @@ GROUP BY u.user_id;
     return result.affectedRows > 0;
   },
 
-  async createBill(userId, restaurantId, order_status, items) {
-    const billId = nanoidNumbersOnly();
-    const query = "INSERT INTO bills (bill_id, user_id, order_status , restaurant_id) VALUES (?, ?, ?,?)";
-    const [billResult] = await pool.query(query, [billId, userId, order_status, restaurantId]);
-    if (billResult.affectedRows === 0) return false;
+  async createBill(
+    userId,
+    restaurantId,
+    paymentMethod,
+    paymentStatus,
+    items,
+    tableId = null,
+    reservationId = null,
+    checkInTime,
+  ) {
+    const connection = await pool.getConnection(); // Get a connection from the pool
+    await connection.beginTransaction(); // Start a transaction
 
-    const itemRecords = items.map((item) => {
-      return [nanoidNumbersOnly(), billId, item.foodId, item.quantity];
-    });
+    try {
+      const billId = nanoidNumbersOnly();
+      if (!reservationId) {
+        const [[existingReservation]] = await connection.query(
+          "SELECT reservation_id FROM reservations WHERE table_id = ? AND reservation_status IN ('pending', 'confirmed')",
+          [tableId],
+        );
 
-    const itemQuery = "INSERT INTO bill_items (bill_item_id, bill_id, food_id, quantity) VALUES ?";
-    const [itemResult] = await pool.query(itemQuery, [itemRecords]);
-    return itemResult.affectedRows === items.length;
+        if (existingReservation) {
+          reservationId = existingReservation.reservation_id;
+        } else {
+          reservationId = nanoidNumbersOnly();
+          const reservationQuery = `INSERT INTO reservations (reservation_id, restaurant_id, user_id, table_id, check_in_time) 
+                                          VALUES (?, ?, ?, ?,?)`;
+          const [reservationResult] = await connection.query(reservationQuery, [
+            reservationId,
+            restaurantId,
+            userId,
+            tableId,
+            checkInTime,
+          ]);
+
+          if (reservationResult.affectedRows === 0) {
+            throw new Error("Failed to create reservation.");
+          }
+        }
+      }
+
+      const billQuery = `INSERT INTO bills (bill_id, user_id, payment_status, payment_method, restaurant_id, reservation_id) 
+                           VALUES (?, ?, ?, ?, ?, ?)`;
+      const [billResult] = await connection.query(billQuery, [
+        billId,
+        userId,
+        paymentStatus,
+        paymentMethod,
+        restaurantId,
+        reservationId,
+      ]);
+
+      if (billResult.affectedRows === 0) {
+        throw new Error("Failed to create bill.");
+      }
+
+      // 🔹 Fetch food details (price and name) for each item
+      const itemRecords = await Promise.all(
+        items.map(async (item) => {
+          const [[food]] = await connection.query("SELECT name, price FROM foods WHERE food_id = ?", [item.foodId]);
+          if (!food) {
+            throw new Error(`Food item with ID ${item.foodId} does not exist.`);
+          }
+
+          return [nanoidNumbersOnly(), billId, item.foodId, food.price, food.name, item.quantity];
+        }),
+      );
+
+      // 🔹 Insert items into `bill_items`
+      const itemQuery = `INSERT INTO bill_items (bill_item_id, bill_id, food_id, price_at_purchase, name_at_purchase, quantity) VALUES ?`;
+      const [itemResult] = await connection.query(itemQuery, [itemRecords]);
+
+      if (itemResult.affectedRows !== items.length) {
+        throw new Error("Failed to insert bill items.");
+      }
+
+      await connection.commit(); // ✅ Commit if no errors
+      connection.release(); // Release the connection
+
+      return { billId, reservationId, checkInTime };
+    } catch (error) {
+      await connection.rollback(); // ❌ Rollback on error
+      return false;
+    }
   },
 };
 

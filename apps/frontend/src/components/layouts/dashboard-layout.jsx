@@ -3,7 +3,7 @@ import logo from "@/assets/react.svg";
 import thongbaobocongthuong from "@/assets/images/thongbaobocongthuong.png";
 import food from "@/assets/images/food.jpg";
 import { Button } from "@/components/ui/button";
-import { Link, NavLink } from "react-router";
+import { Link, NavLink, useSearchParams } from "react-router";
 import SearchLocation from "@/features/address/components/search-location";
 import { Input } from "@/components/ui/input";
 import {
@@ -41,6 +41,7 @@ import { api } from "@/lib/api-client";
 import { useNavigate } from "react-router";
 import { Separator } from "../ui/separator";
 import { generateAvatarInitial } from "@/utils/generateAvatarInitial";
+import { useEffect } from "react";
 
 export const DashboardLayout = ({ children }) => {
   const [value, setValue] = useState(null);
@@ -267,66 +268,67 @@ const MainSearchBar = ({ isMobile, setIsOpen }) => {
   const [focusedIndex, setFocusedIndex] = useState(-1);
   const [open, setOpen] = useState(false);
   const containerRef = useRef(null);
+  const navigate = useNavigate();
+  const inputRef = useRef(null);
+
   const inputChange = (e) => {
     setValue(e.target.value);
   };
+
   const handleFocus = () => {
     setOpen(true);
   };
-  const handleBlur = () => {
-    setOpen(false);
-  };
+
   const handleLocationSelect = (item) => {
-    console.log(item);
-    setValue(item.name);
+    const query = new URLSearchParams({ q: item.name }).toString();
+    navigate(`/result?${query}`);
     setOpen(false);
   };
-  const data = [
-    {
-      id: 1,
-      name: "item 1",
-    },
-    {
-      id: 2,
-      name: "item 2",
-    },
-    {
-      id: 4,
-      name: "item 3",
-    },
-    {
-      id: 5,
-      name: "item 4",
-    },
-    {
-      id: 6,
-      name: "item 5",
-    },
+
+  const [searchParams] = useSearchParams();
+  const searchQuery = searchParams.get("q");
+
+  const valueSearch = [
+    { id: 2, name: "item 2" },
+    { id: 4, name: "item 3" },
+    { id: 5, name: "item 4" },
+    { id: 6, name: "item 5" },
   ];
 
+  useEffect(() => {
+    if (searchQuery) {
+      setValue(searchQuery);
+    }
+  }, [searchQuery]);
+
+  const filteredData = value ? [{ id: "custom", name: value }, ...valueSearch] : valueSearch;
+
   useOutsideClick(containerRef, () => {
-    console.log("click outside");
     setOpen(false);
   });
 
   const handleKeyDown = (e) => {
-    console.log(e.key);
-    if (data.length === 0) return;
+    if (filteredData.length === 0) return;
 
     switch (e.key) {
       case "ArrowDown":
         e.preventDefault();
-        setFocusedIndex((prev) => (prev + 1) % data.length);
+        setFocusedIndex((prev) => (prev + 1) % filteredData.length);
         break;
       case "ArrowUp":
         e.preventDefault();
-        setFocusedIndex((prev) => (prev - 1 + data.length) % data.length);
+        setFocusedIndex((prev) => (prev - 1 + filteredData.length) % filteredData.length);
         break;
       case "Enter":
         if (focusedIndex >= 0) {
-          e.preventDefault();
-          handleLocationSelect(data[focusedIndex]);
+          handleLocationSelect(filteredData[focusedIndex]);
+        } else if (value.trim() !== "") {
+          const query = new URLSearchParams({ q: value }).toString();
+          navigate(`/result?${query}`);
         }
+        setOpen(false);
+        setFocusedIndex(-1);
+        inputRef.current?.blur();
         break;
       case "Escape":
         setIsOpen(false);
@@ -344,33 +346,29 @@ const MainSearchBar = ({ isMobile, setIsOpen }) => {
         <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
       )}
       <Input
+        ref={inputRef}
         value={value}
         onChange={inputChange}
         onFocus={handleFocus}
-        // onBlur={handleBlur}
         placeholder="Tìm kiếm món ăn, nhà hàng"
         className="px-8"
       />
       {value.length > 0 && (
-        <X
-          onClick={() => {
-            setValue("");
-            containerRef.current.focus();
-          }}
-          className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 cursor-pointer"
-        />
+        <X onClick={() => setValue("")} className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 cursor-pointer" />
       )}
       {open && (
         <ul className="absolute w-full bg-white top-[calc(100%+4px)] text-popover-foreground bg-popover border rounded-md">
-          {data.map((item, index) => (
+          {filteredData.map((item, index) => (
             <li
-              className={`px-2 py-2 cursor-pointer hover:bg-accent first:rounded-t-md last:rounded-b-md flex gap-1 items-center
-${index === focusedIndex ? "bg-accent" : ""}`}
+              className={`px-2 py-2 cursor-pointer hover:bg-accent first:rounded-t-md last:rounded-b-md flex gap-1 items-center ${
+                index === focusedIndex ? "bg-accent" : ""
+              }`}
               key={item.id}
               onMouseEnter={() => setFocusedIndex(index)}
               onBlur={() => setFocusedIndex(-1)}
               onClick={() => {
-                console.log(item);
+                const query = new URLSearchParams({ q: item.name }).toString();
+                navigate(`/result?${query}`);
                 setOpen(false);
               }}
             >
@@ -390,7 +388,7 @@ const UserPopover = () => {
     const res = api.post("/v1/auth/logout");
     navigate(0);
 
-    console.log("logout");
+    // console.log("logout");
   };
 
   const [popoverOpen, setPopoverOpen] = useState(false);

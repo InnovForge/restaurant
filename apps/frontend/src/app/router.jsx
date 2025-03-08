@@ -52,6 +52,10 @@ export const createAppRouter = (queryClient) =>
       // ErrorBoundary: AppRootErrorBoundary,
       children: [
         {
+          path: "result",
+          lazy: () => import("./routes/app/search").then(convert(queryClient)),
+        },
+        {
           path: "home",
           lazy: () => import("./routes/app/home").then(convert(queryClient)),
         },
