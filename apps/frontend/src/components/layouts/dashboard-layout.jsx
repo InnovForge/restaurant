@@ -42,6 +42,8 @@ import { useNavigate } from "react-router";
 import { Separator } from "../ui/separator";
 import { generateAvatarInitial } from "@/utils/generateAvatarInitial";
 import { useEffect } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useSearchSuggestions } from "@/hooks/use-search-suggestions";
 
 export const DashboardLayout = ({ children }) => {
   const [value, setValue] = useState(null);
@@ -270,38 +272,60 @@ const MainSearchBar = ({ isMobile, setIsOpen }) => {
   const containerRef = useRef(null);
   const navigate = useNavigate();
   const inputRef = useRef(null);
+  const { authUser } = useAuthUserStore();
+
+  const queryClient = useQueryClient();
+  const saveSearch = useMutation({
+    mutationFn: (value) => api.post("/v1/search-history", { query: value }),
+  });
+
+  const removeHistory = useMutation({
+    mutationFn: (value) => api.delete(`/v1/search-history/${value}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries("search-history");
+    },
+  });
+
+  const { data: suggestions, isFetching } = useSearchSuggestions(value);
+  const { data: valueSearch = [] } = useQuery({
+    queryKey: ["search-history", open],
+    queryFn: async () => {
+      const result = await api.get("/v1/search-history");
+      return result.data.data || [];
+    },
+    enabled: open && authUser !== null,
+  });
+
+  console.log("suggestions", suggestions);
+
+  const filteredData = value
+    ? [{ id: "custom", query: value }, ...(suggestions?.length ? suggestions : valueSearch)].slice(0, 5)
+    : valueSearch.slice(0, 5);
 
   const inputChange = (e) => {
     setValue(e.target.value);
   };
 
-  const handleFocus = () => {
+  const handleFocus = async () => {
     setOpen(true);
   };
 
   const handleLocationSelect = (item) => {
-    const query = new URLSearchParams({ q: item.name }).toString();
+    saveSearch.mutate(item.query);
+    const query = new URLSearchParams({ q: item.query }).toString();
     navigate(`/result?${query}`);
     setOpen(false);
   };
 
   const [searchParams] = useSearchParams();
-  const searchQuery = searchParams.get("q");
 
-  const valueSearch = [
-    { id: 2, name: "item 2" },
-    { id: 4, name: "item 3" },
-    { id: 5, name: "item 4" },
-    { id: 6, name: "item 5" },
-  ];
+  const searchQuery = searchParams.get("q");
 
   useEffect(() => {
     if (searchQuery) {
       setValue(searchQuery);
     }
   }, [searchQuery]);
-
-  const filteredData = value ? [{ id: "custom", name: value }, ...valueSearch] : valueSearch;
 
   useOutsideClick(containerRef, () => {
     setOpen(false);
@@ -360,19 +384,38 @@ const MainSearchBar = ({ isMobile, setIsOpen }) => {
         <ul className="absolute w-full bg-white top-[calc(100%+4px)] text-popover-foreground bg-popover border rounded-md">
           {filteredData.map((item, index) => (
             <li
-              className={`px-2 py-2 cursor-pointer hover:bg-accent first:rounded-t-md last:rounded-b-md flex gap-1 items-center ${
+              className={`px-2 py-1 cursor-pointer hover:bg-accent first:rounded-t-md last:rounded-b-md flex gap-1 items-center ${
                 index === focusedIndex ? "bg-accent" : ""
               }`}
               key={item.id}
               onMouseEnter={() => setFocusedIndex(index)}
               onBlur={() => setFocusedIndex(-1)}
               onClick={() => {
-                const query = new URLSearchParams({ q: item.name }).toString();
+                saveSearch.mutate(item.query);
+                const query = new URLSearchParams({ q: item.query }).toString();
                 navigate(`/result?${query}`);
                 setOpen(false);
               }}
             >
-              <Search className="w-4 h-4" /> {item.name}
+              <div className="flex w-full justify-between">
+                <div className="flex gap-2 items-center">
+                  {item.type === "history" ? <History className="w-4 h-4" /> : <Search className="w-4 h-4" />}
+                  {item.query}
+                </div>
+                {item.type === "history" && (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="text-muted-foreground"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removeHistory.mutate(item.id);
+                    }}
+                  >
+                    xoá
+                  </Button>
+                )}
+              </div>
             </li>
           ))}
         </ul>
