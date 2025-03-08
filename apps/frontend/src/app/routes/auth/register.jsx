@@ -8,31 +8,18 @@ import { useNavigate } from "react-router";
 
 // Định nghĩa schema kiểm tra đầu vào bằng Zod
 
-const formSchema = z
-  .object({
-    name: z.string().min(2, {
-      message: "Tên người có ít nhất 2 ký tự.",
-    }),
-    username: z.string().min(2, {
-      message: "Tên người dùng phải có ít nhất 2 ký tự.",
-    }),
-    // email: z.string().email({ message: "Email không hợp lệ." }),
-    // phone: z
-    //   .string()
-    //   .min(10, { message: "Số điện thoại phải có ít nhất 10 chữ số." })
-    //   .regex(/^\d+$/, { message: "Số điện thoại chỉ được chứa chữ số." }),
-    password: z.string().min(2, {
-      message: "Mật khẩu phải có ít nhất 2 ký tự.",
-    }),
-    // confirmPassword: z.string().min(2, {
-    //   message: "Xác nhận mật khẩu phải có ít nhất 2 ký tự.",
-    // }),
-    gender: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(9)]).default(0),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Mật khẩu không khớp.",
-    path: ["confirmPassword"],
-  });
+const formSchema = z.object({
+  name: z.string().min(2, {
+    message: "Tên người có ít nhất 2 ký tự.",
+  }),
+  username: z.string().min(2, {
+    message: "Tên người dùng phải có ít nhất 2 ký tự.",
+  }),
+  password: z.string().min(2, {
+    message: "Mật khẩu phải có ít nhất 2 ký tự.",
+  }),
+  gender: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(9)]).default(0),
+});
 
 const Register = () => {
   const navigate = useNavigate();
@@ -46,6 +33,7 @@ const Register = () => {
       const res = await api.post("/v1/auth/register", value);
 
       if (res.status === 200) {
+        window.location.href = "/login";
         console.log("Đăng ký thành công!", res.data);
 
         // Reset form sau khi đăng ký thành công
@@ -99,7 +87,6 @@ const Register = () => {
               )}
             />
 
-            {/* Trường nhập Email
             <FormField
               control={form.control}
               name="email"
@@ -112,9 +99,8 @@ const Register = () => {
                   <FormMessage />
                 </FormItem>
               )}
-            /> */}
+            />
 
-            {/* Trường nhập Số điện thoại
             <FormField
               control={form.control}
               name="phone"
@@ -127,7 +113,7 @@ const Register = () => {
                   <FormMessage />
                 </FormItem>
               )}
-            /> */}
+            />
 
             {/* Trường nhập Mật khẩu */}
             <FormField
@@ -143,21 +129,6 @@ const Register = () => {
                 </FormItem>
               )}
             />
-
-            {/* Trường nhập Xác nhận mật khẩu
-            <FormField
-              control={form.control}
-              name="confirmPassword"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Xác nhận mật khẩu</FormLabel>
-                  <FormControl>
-                    <Input type="password" placeholder="Xác nhận mật khẩu" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            /> */}
 
             {/* Chọn Giới tính */}
             <FormField
