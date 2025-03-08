@@ -71,7 +71,7 @@ const Checkout = () => {
       try {
         const res = await api.get(`v1/tables/${restaurantId}/`);
         setTables(res.data.message);
-        console.log("res.data.data :>> ", res.data.message);
+        // console.log("res.data.data :>> ", res.data.message);
       } catch (err) {
         console.error("Lỗi lấy dữ liệu:", err);
       }
@@ -84,7 +84,6 @@ const Checkout = () => {
   if (mutation.isSuccess && !mutation.data.data.data.paymentUrl) {
     const { billId, checkInTime } = mutation.data.data.data;
     // addCart([]);
-    console.log("billId, checkInTime :>> ", billId, checkInTime, mutation.data);
     return (
       <div className="flex flex-col items-center justify-center">
         <Card className="w-full max-w-2xl text-center p-6 shadow-lg">

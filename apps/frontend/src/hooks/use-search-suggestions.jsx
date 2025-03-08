@@ -5,7 +5,7 @@ import { useDebounce } from "use-debounce";
 const fetchSearchSuggestions = async (query) => {
   if (!query) return [];
   const res = await api.get("/v1/search-suggest", { params: { query } });
-  console.log("res.data :>> ", res.data);
+  // console.log("res.data :>> ", res.data);
   return res.data.data;
 };
 

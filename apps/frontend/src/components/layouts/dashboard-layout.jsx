@@ -296,7 +296,7 @@ const MainSearchBar = ({ isMobile, setIsOpen }) => {
     enabled: open && authUser !== null,
   });
 
-  console.log("suggestions", suggestions);
+  // console.log("suggestions", suggestions);
 
   const filteredData = value
     ? [{ id: "custom", query: value }, ...(suggestions?.length ? suggestions : valueSearch)].slice(0, 5)
