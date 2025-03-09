@@ -12,6 +12,9 @@ const authRestaurant =
   async (req, res, next) => {
     const userId = req.userId;
     const { restaurantId } = req.params;
+    if (!userId || !restaurantId) {
+      return responseHandler.forbidden(res);
+    }
     try {
       const role = await restaurantModel.getUserRestaurantRole(userId, restaurantId);
 

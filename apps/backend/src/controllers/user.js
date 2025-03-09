@@ -1,5 +1,7 @@
+import billModel from "../models/bill.js";
 import userModel from "../models/user.js";
 import { momo } from "../services/payments/momo.js";
+import { emitNewOrder } from "../sockets/socket.js";
 import responseHandler from "../utils/response.js";
 import { uploadFileUser } from "../utils/s3.js";
 import { validateFields } from "../utils/validate-fields.js";
@@ -213,6 +215,10 @@ export const createdBill = async (req, res) => {
           response.paymentUrl = await momo(totalAmount, "Thanh toán đơn hàng", bill.billId);
       }
     }
+
+    const b = await billModel.getBillById(bill.billId);
+
+    emitNewOrder(restaurantId, b);
 
     return responseHandler.created(res, undefined, response);
   } catch (error) {

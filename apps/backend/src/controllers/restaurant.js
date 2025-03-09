@@ -167,3 +167,14 @@ export const getFoodByRestaurantId = async (req, res) => {
     return responseHandler.internalServerError(res);
   }
 };
+
+export const getBillsByRestaurantId = async (req, res) => {
+  const { restaurantId } = req.params;
+  try {
+    const bills = await restaurantModel.getBillsByRestaurantId(restaurantId);
+    return responseHandler.success(res, undefined, bills);
+  } catch (error) {
+    console.log("error :>> ", error);
+    return responseHandler.internalServerError(res);
+  }
+};

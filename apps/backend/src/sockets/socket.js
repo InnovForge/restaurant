@@ -1,4 +1,5 @@
 import { Server } from "socket.io";
+import camelcaseKeys from "camelcase-keys";
 
 let io;
 
@@ -52,5 +53,6 @@ export const initSocket = (server) => {
 };
 
 export const emitNewOrder = (restaurantId, orderData) => {
-  io.to(`restaurant-${restaurantId}-orders`).emit("newOrder", orderData);
+  const convertedOrderData = camelcaseKeys(orderData, { deep: true });
+  io.to(`restaurant-${restaurantId}-orders`).emit("newOrder", convertedOrderData);
 };

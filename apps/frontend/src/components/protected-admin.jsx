@@ -6,6 +6,7 @@ import Loading from "./ui/loading";
 import { socket } from "@/lib/socket";
 import { useParams } from "react-router";
 import { useUserRestaurants } from "@/hooks/use-user-restaurants";
+import useAudioNotification from "@/hooks/use-audio-player";
 
 const checkUser = async () => {
   try {
@@ -17,6 +18,7 @@ const checkUser = async () => {
 };
 
 export const ProtectedAdmin = ({ children }) => {
+  useAudioNotification();
   const { authUser, setAuthUser } = useAuthUserStore();
   const { restaurantId } = useParams();
   const { restaurants, isLoading: isLoadingRestaurant, error } = useUserRestaurants();

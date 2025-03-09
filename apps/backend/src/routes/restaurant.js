@@ -356,7 +356,7 @@ router.get("/restaurants/:restaurantId", restaurantController.getRestaurant);
  *         $ref: '#/components/responses/500'
  */
 router.get("/restaurants/:restaurantId/foods", authenticateJWT, restaurantController.getAllFoodByResId);
-
+router.get("/restaurants/:restaurantId/bills", authenticateJWT, restaurantController.getBillsByRestaurantId);
 router.get("/restaurants/:restaurantId/foods/t", restaurantController.getFoodByRestaurantId);
 
 export default router;

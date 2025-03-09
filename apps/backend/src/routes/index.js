@@ -10,6 +10,7 @@ import reservation from "./reservation.js";
 import review from "./review.js";
 import table from "./table.js";
 import search from "./search.js";
+import tss from "./tts.js";
 
 const router = Router();
 
@@ -24,5 +25,6 @@ router.use("/v1", reservation);
 router.use("/v1", review);
 router.use("/v1", table);
 router.use("/v1", search);
+router.use("/v1", tss);
 
 export default router;
