@@ -446,7 +446,7 @@ const UserPopover = () => {
       <PopoverTrigger>
         <Avatar className="border">
           <AvatarImage src={authUser.avatarUrl} />
-          <AvatarFallback>{authUser.name}</AvatarFallback>
+          <AvatarFallback>{generateAvatarInitial(authUser.name)}</AvatarFallback>
         </Avatar>
       </PopoverTrigger>
       <PopoverContent align="end" className="p-2">
