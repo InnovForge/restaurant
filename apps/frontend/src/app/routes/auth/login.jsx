@@ -4,7 +4,7 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
+// import { Checkbox } from "@/components/ui/checkbox";
 import { api } from "@/lib/api-client";
 import { useNavigate } from "react-router";
 
@@ -80,13 +80,13 @@ const Login = () => {
                 )}
               />
 
-              {/* Checkbox "Ghi nhớ đăng nhập" */}
+              {/* Checkbox "Ghi nhớ đăng nhập"
               <div className="flex items-center space-x-2">
                 <Checkbox id="terms" />
                 <label htmlFor="terms" className="text-sm font-medium leading-none">
                   Ghi nhớ đăng nhập
                 </label>
-              </div>
+              </div> */}
               {/* Nút đăng nhập */}
               <Button type="submit" className="w-full">
                 Đăng nhập
@@ -97,17 +97,11 @@ const Login = () => {
                 <span className="px-3 text-gray-500">hoặc</span>
                 <div className="flex-1 border-t border-gray-300"></div>
               </div>
-              <button
-                type="button"
-                className="w-full py-2 px-4 bg-red-500 text-white rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
-              >
-                Đăng nhập bằng Google
-              </button>
               {/* Điều hướng đến trang đăng ký */}
               <p className="text-gray-600 text-center mt-4">
                 Bạn chưa có tài khoản?{" "}
                 <span onClick={() => navigate("/register")} className="text-blue-500 hover:underline cursor-pointer">
-                  Đăng ký ngay
+                  Đăng ký
                 </span>
               </p>
             </form>

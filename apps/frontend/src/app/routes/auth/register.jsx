@@ -5,66 +5,73 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { api } from "@/lib/api-client";
 import { useNavigate } from "react-router";
+import { useState } from "react";
 
-// Định nghĩa schema kiểm tra đầu vào bằng Zod
+const checkUsernameExists = async (username) => {
+  try {
+    const res = await api.get(`/v1/auth/check-username?username=${username}`);
+    return res.data.exists;
+  } catch (error) {
+    console.error("Lỗi khi kiểm tra username:", error);
+    return false;
+  }
+};
 
 const formSchema = z.object({
-  name: z.string().min(2, {
-    message: "Tên người có ít nhất 2 ký tự.",
-  }),
-  username: z.string().min(2, {
-    message: "Tên người dùng phải có ít nhất 2 ký tự.",
-  }),
-  password: z.string().min(2, {
-    message: "Mật khẩu phải có ít nhất 2 ký tự.",
-  }),
-  gender: z.union([z.literal(0), z.literal(1), z.literal(2), z.literal(9)]).default(0),
+  name: z.string().min(2, { message: "Tên người có ít nhất 2 ký tự." }),
+  username: z.string().min(3, { message: "Tên người dùng phải có ít nhất 3 ký tự." }),
+  email: z.string().email({ message: "Email không hợp lệ." }),
+  password: z
+    .string()
+    .min(6, { message: "Mật khẩu phải có ít nhất 6 ký tự." })
+    .regex(/[a-zA-Z]/, { message: "Mật khẩu phải chứa ít nhất một chữ cái." })
+    .regex(/[0-9]/, { message: "Mật khẩu phải chứa ít nhất một số." }),
+  gender: z.union([z.literal(1), z.literal(2), z.literal(9)]).default(1),
+  phone: z.string().regex(/^[0-9]{10}$/, { message: "Số điện thoại phải có đúng 10 chữ số." }),
 });
 
 const Register = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
   const form = useForm({
     resolver: zodResolver(formSchema),
+    defaultValues: { gender: 1 },
   });
 
-  // Xử lý khi gửi biểu mẫu
   const onSubmit = async (value) => {
+    setLoading(true);
     try {
+      const usernameExists = await checkUsernameExists(value.username);
+      if (usernameExists) {
+        form.setError("username", { message: "Tên người dùng đã tồn tại!" });
+        setLoading(false);
+        return;
+      }
       const res = await api.post("/v1/auth/register", value);
-
       if (res.status === 200) {
-        window.location.href = "/login";
         console.log("Đăng ký thành công!", res.data);
-
-        // Reset form sau khi đăng ký thành công
         form.reset();
-
-        // Chuyển hướng sử dụng navigate (React Router)
-        navigate("/home");
+        navigate("/login");
       }
     } catch (error) {
       console.error("Lỗi khi đăng ký:", error);
+      form.setError("root", { message: error.response?.data?.message || "Có lỗi xảy ra!" });
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div
-      className="flex justify-center items-center min-h-screen bg-cover bg-center"
-      style={{
-        backgroundImage:
-          "url('https://ezcloud.vn/wp-content/uploads/2024/06/khong-gian-ben-trong-nha-hang-anchor.webp')",
-      }}
-    >
-      <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-lg bg-opacity-90">
+    <div className="flex justify-center items-center min-h-screen bg-gray-100">
+      <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-lg">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            {/* Trường nhập Tên  */}
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Tên </FormLabel>
+                  <FormLabel>Tên</FormLabel>
                   <FormControl>
                     <Input placeholder="Nhập tên" {...field} />
                   </FormControl>
@@ -72,7 +79,7 @@ const Register = () => {
                 </FormItem>
               )}
             />
-            {/* Trường nhập Tên người dùng */}
+
             <FormField
               control={form.control}
               name="username"
@@ -94,7 +101,7 @@ const Register = () => {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input type="email" placeholder="Nhập email của bạn" {...field} />
+                    <Input type="email" placeholder="Nhập email" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -108,14 +115,13 @@ const Register = () => {
                 <FormItem>
                   <FormLabel>Số điện thoại</FormLabel>
                   <FormControl>
-                    <Input type="tel" placeholder="Nhập số điện thoại của bạn" {...field} />
+                    <Input type="tel" placeholder="Nhập số điện thoại" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
-            {/* Trường nhập Mật khẩu */}
             <FormField
               control={form.control}
               name="password"
@@ -130,7 +136,6 @@ const Register = () => {
               )}
             />
 
-            {/* Chọn Giới tính */}
             <FormField
               control={form.control}
               name="gender"
@@ -139,18 +144,21 @@ const Register = () => {
                   <FormLabel>Giới tính</FormLabel>
                   <FormControl>
                     <div className="flex space-x-4">
-                      <label className="flex items-center space-x-1">
-                        <input type="radio" value={1} checked={field.value === 1} onChange={() => field.onChange(1)} />
-                        <span>Nam</span>
-                      </label>
-                      <label className="flex items-center space-x-1">
-                        <input type="radio" value={2} checked={field.value === 2} onChange={() => field.onChange(2)} />
-                        <span>Nữ</span>
-                      </label>
-                      <label className="flex items-center space-x-1">
-                        <input type="radio" value={9} checked={field.value === 9} onChange={() => field.onChange(9)} />
-                        <span>Khác</span>
-                      </label>
+                      {[
+                        [1, "Nam"],
+                        [2, "Nữ"],
+                        [9, "Khác"],
+                      ].map(([value, label]) => (
+                        <label key={value} className="flex items-center space-x-1">
+                          <input
+                            type="radio"
+                            value={value}
+                            checked={field.value === value}
+                            onChange={() => field.onChange(value)}
+                          />
+                          <span>{label}</span>
+                        </label>
+                      ))}
                     </div>
                   </FormControl>
                   <FormMessage />
@@ -158,20 +166,16 @@ const Register = () => {
               )}
             />
 
-            {/* Nút gửi biểu mẫu */}
-            <div>
-              <button
-                type="submit"
-                className="w-full px-4 py-2 font-bold text-white bg-blue-600 rounded hover:bg-blue-700"
-              >
-                Đăng ký
-              </button>
-            </div>
-            <p className="text-gray-600 text-center mt-4">
-              Tôi đã có tài khoản?{" "}
-              <span onClick={() => navigate("/login")} className="text-blue-500 hover:underline cursor-pointer">
-                Đăng nhập
-              </span>
+            {form.formState.errors.root && <p className="text-red-500">{form.formState.errors.root.message}</p>}
+            <button
+              type="submit"
+              className="w-full px-4 py-2 font-bold text-white bg-blue-600 rounded hover:bg-blue-700"
+              disabled={loading}
+            >
+              {loading ? "Đang xử lý..." : "Đăng ký"}
+            </button>
+            <p className="text-center text-blue-500 cursor-pointer mt-4" onClick={() => navigate("/login")}>
+              Bạn đã có tài khoản ư?
             </p>
           </form>
         </Form>
