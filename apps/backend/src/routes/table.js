@@ -13,5 +13,7 @@ const router = Router();
 router.use("/tables", authenticateJWT);
 router.post("/tables/:restaurantId/create", tableController.createTables);
 router.get("/tables/:restaurantId", tableController.getTables);
+router.patch("/tables/:restaurantId/:tableId", tableController.updateTable);
+router.delete("/tables/:restaurantId/:tableId", tableController.deleteTable);
 
 export default router;

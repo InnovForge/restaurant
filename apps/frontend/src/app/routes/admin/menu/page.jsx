@@ -8,9 +8,10 @@ import { Table, TableCell, TableHead, TableHeader, TableRow, TableBody } from "@
 import { Label } from "@/components/ui/label";
 import { useRestaurant } from "@/context/restaurant";
 import { api } from "@/lib/api-client";
+import { toast } from "sonner";
 
 const MenuPage = () => {
-  const [editItem, setEditItem] = useState({});
+  const [editItem, setEditItem] = useState(null);
   const [foods, setFoods] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -20,6 +21,7 @@ const MenuPage = () => {
     async function fetchData() {
       try {
         const res = await api.get(`v1/restaurants/${restaurantId}/foods`);
+        console.log("Data from API:", res.data.data); // Log dữ liệu từ API
         setFoods(res.data.data);
       } catch (err) {
         console.error("Lỗi lấy dữ liệu:", err);
@@ -28,7 +30,7 @@ const MenuPage = () => {
     fetchData();
   }, [restaurantId]);
 
-  const itemsPerPage = 8; // Increased items per page
+  const itemsPerPage = 8;
   const filteredData = foods.filter((item) =>
     Object.values(item).some((value) =>
       value ? value.toString().toLowerCase().includes(searchTerm.toLowerCase()) : false,
@@ -37,6 +39,43 @@ const MenuPage = () => {
 
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
   const paginatedData = filteredData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  const handleUpdateFood = async (idFood) => {
+    console.log("idmon: " + idFood);
+    try {
+      const { name, price, description, image } = editItem;
+      const updatedData = { name, price, description };
+
+      let newImageUrl = null;
+
+      await api.patch(`/v1/restaurants/${restaurantId}/foods/${idFood}`, updatedData);
+
+      if (image && image instanceof File) {
+        const imageData = new FormData();
+        imageData.append("image", image);
+
+        const res = await api.patch(`/v1/restaurants/${restaurantId}/foods/${idFood}/image`, imageData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+
+        newImageUrl = res.data.imageUrl;
+      }
+
+      setFoods((prevFoods) =>
+        prevFoods.map((food) =>
+          food.id === idFood ? { ...food, ...updatedData, imageUrl: newImageUrl || food.imageUrl } : food,
+        ),
+      );
+
+      toast("Thành công", { description: "Cập nhật món ăn thành công" });
+      window.location.reload();
+    } catch (err) {
+      console.error("Lỗi cập nhật:", err);
+      toast("Lỗi cập nhật", { description: err.response?.data?.message || "Cập nhật thất bại" });
+    }
+  };
 
   return (
     <div className="container mx-auto px-4 lg:pl-8 lg:pr-20 min-h-[calc(100vh-4rem)] py-8">
@@ -69,19 +108,6 @@ const MenuPage = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            {/* <div className="flex gap-2">
-              <Select defaultValue="all">
-                <SelectTrigger className="w-[180px] h-11">
-                  <Filter className="h-4 w-4 mr-2" />
-                  <SelectValue placeholder="Trạng thái" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Tất cả</SelectItem>
-                  <SelectItem value={1}>Còn món</SelectItem>
-                  <SelectItem value={0}>Hết món</SelectItem>
-                </SelectContent>
-              </Select>
-            </div> */}
           </div>
         </div>
 
@@ -93,7 +119,6 @@ const MenuPage = () => {
                 <TableRow className="bg-gray-50/50">
                   <TableHead className="w-[120px]">Hình ảnh</TableHead>
                   <TableHead>Tên Món Ăn</TableHead>
-                  {/* <TableHead className="w-[120px]">Tình trạng</TableHead> */}
                   <TableHead>Mô tả</TableHead>
                   <TableHead className="w-[150px]">Giá</TableHead>
                   <TableHead className="w-[100px] text-right">Thao tác</TableHead>
@@ -101,7 +126,7 @@ const MenuPage = () => {
               </TableHeader>
               <TableBody>
                 {paginatedData.map((item) => (
-                  <TableRow key={item.id} className="hover:bg-gray-50/50">
+                  <TableRow key={item.foodId} className="hover:bg-gray-50/50">
                     <TableCell>
                       <div className="relative h-16 w-16 rounded-lg border overflow-hidden shadow-sm">
                         <img
@@ -112,18 +137,18 @@ const MenuPage = () => {
                       </div>
                     </TableCell>
                     <TableCell className="font-medium">{item.name}</TableCell>
-                    {/* <TableCell>
-                      <Badge variant={item.available === 1 ? "default" : "destructive"} className="px-3 py-1">
-                        {item.status}
-                      </Badge>
-                    </TableCell> */}
                     <TableCell className="max-w-[300px] truncate">{item.description}</TableCell>
-                    <TableCell className="font-medium">{item.price.toLocaleString()} VNĐ</TableCell>
+                    <TableCell className="font-medium">{item.price + " " + item.priceType} </TableCell>
                     <TableCell>
                       <div className="flex justify-end gap-2">
                         <Dialog>
                           <DialogTrigger asChild>
-                            <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => setEditItem(item)}>
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => setEditItem({ ...item })}
+                            >
                               <Edit className="h-4 w-4" />
                             </Button>
                           </DialogTrigger>
@@ -135,42 +160,35 @@ const MenuPage = () => {
                               <div className="space-y-2">
                                 <Label>Tên món ăn</Label>
                                 <Input
-                                  value={editItem.name || ""}
+                                  value={editItem?.name || ""}
                                   onChange={(e) => setEditItem({ ...editItem, name: e.target.value })}
                                 />
                               </div>
                               <div className="space-y-2">
                                 <Label>Hình ảnh</Label>
                                 <Input
-                                  value={editItem.image || ""}
-                                  onChange={(e) => setEditItem({ ...editItem, image: e.target.value })}
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={(e) => setEditItem({ ...editItem, image: e.target.files[0] })}
                                 />
                               </div>
-                              {/* <div className="space-y-2">
-                                <Label>Tình trạng</Label>
-                                <Select
-                                  value={editItem.status || ""}
-                                  onValueChange={(value) => setEditItem({ ...editItem, status: value })}
-                                >
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Chọn tình trạng" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="Còn">Còn</SelectItem>
-                                    <SelectItem value="Hết">Hết</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                              </div> */}
                               <div className="space-y-2">
                                 <Label>Giá</Label>
                                 <Input
                                   type="number"
-                                  value={editItem.price || ""}
+                                  value={editItem?.price || ""}
                                   onChange={(e) => setEditItem({ ...editItem, price: e.target.value })}
                                 />
                               </div>
+                              <div className="space-y-2">
+                                <Label>Mô tả</Label>
+                                <Input
+                                  value={editItem?.description || ""}
+                                  onChange={(e) => setEditItem({ ...editItem, description: e.target.value })}
+                                />
+                              </div>
                             </div>
-                            <Button type="submit" className="w-full">
+                            <Button type="submit" className="w-full" onClick={() => handleUpdateFood(item.foodId)}>
                               Cập nhật
                             </Button>
                           </DialogContent>

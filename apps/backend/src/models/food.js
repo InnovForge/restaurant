@@ -1,3 +1,4 @@
+import { de } from "@faker-js/faker";
 import { pool } from "../configs/mysql.js";
 import { nanoidNumbersOnly } from "../utils/nanoid.js";
 
@@ -197,6 +198,13 @@ LIMIT ? OFFSET ?;
 
     const [foods] = await pool.query(query, [keyword, keyword, latitude, longitude, latitude, radius, limit, offset]);
     return foods;
+  },
+  async deleteFood(restaurantId, foodId) {
+    const [result] = await pool.query("DELETE FROM foods WHERE restaurant_id = ? AND food_id = ?", [
+      restaurantId,
+      foodId,
+    ]);
+    return result.affectedRows > 0;
   },
 };
 
