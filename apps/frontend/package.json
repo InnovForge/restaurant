@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --port 5174",
+    "dev:demo": "vite --port 5174 --host 0.0.0.0",
     "build": "vite build",
     "clean:dep": "rimraf ./node_modules/",
     "lint": "eslint .",

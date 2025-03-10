@@ -4,6 +4,7 @@
 	"description": "",
 	"scripts": {
 		"dev": "concurrently \"pnpm --filter backend-restaurant dev\" \"pnpm --filter frontend-restaurant dev\"",
+    "dev:demo": "concurrently \"pnpm --filter frontend-restaurant dev:demo\"",
 		"dev:be": "concurrently \"pnpm --filter backend-restaurant dev\"",
 		"dev:fe": "pnpm --filter frontend-restaurant dev",
 		"lint": "concurrently  \"pnpm --filter frontend-restaurant lint\" \"pnpm --filter backend-restaurant lint\"",
