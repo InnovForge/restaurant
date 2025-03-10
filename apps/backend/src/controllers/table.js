@@ -45,3 +45,34 @@ export const getTables = async (req, res) => {
     return responseHandler.internalServerError(res);
   }
 };
+
+export const updateTable = async (req, res) => {
+  const { tableName, seatCount } = req.body;
+  const { restaurantId, tableId } = req.params;
+
+  const errors = validateFields(req.body, ["tableName", "seatCount"], true);
+  if (errors) {
+    return responseHandler.badRequest(res, undefined, errors);
+  }
+  try {
+    await tableModel.updateTable(restaurantId, tableId, {
+      tableName,
+      seatCount,
+    });
+    return responseHandler.success(res);
+  } catch (error) {
+    console.log("error :>> ", error);
+    return responseHandler.internalServerError(res);
+  }
+};
+
+export const deleteTable = async (req, res) => {
+  const { restaurantId, tableId } = req.params;
+  try {
+    await tableModel.deleteTable(restaurantId, tableId);
+    return responseHandler.success(res);
+  } catch (error) {
+    console.log("error :>> ", error);
+    return responseHandler.internalServerError(res);
+  }
+};

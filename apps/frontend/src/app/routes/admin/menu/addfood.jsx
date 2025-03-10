@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router";
 import { ArrowLeft, Upload, X, ImagePlus } from "lucide-react";
-
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -10,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useRestaurant } from "@/context/restaurant";
 import { api } from "@/lib/api-client";
 import { toast } from "sonner";
+import { useEffect } from "react";
 
 const AddFood = () => {
   const [image, setImage] = useState(null);
@@ -35,7 +35,14 @@ const AddFood = () => {
       file,
       preview: imageUrl,
     });
+
+    // console.log("imageqqq", image);
   };
+
+  // Sử dụng useEffect để theo dõi sự thay đổi của image
+  useEffect(() => {
+    console.log("imageqqq", image); // Log giá trị mới của image
+  }, [image]); // Kích hoạt khi image thay đổi
 
   const removeImage = () => {
     if (image?.preview) {
@@ -56,15 +63,40 @@ const AddFood = () => {
         description: formData.get("description"),
       };
 
+      // Kiểm tra các trường bắt buộc
       if (!addFood.name || !addFood.price || !addFood.description) {
         toast.error("Vui lòng điền đầy đủ thông tin");
         return;
       }
 
+      // Thêm món ăn mới
       const res = await api.post(`/v1/restaurants/${restaurantId}/foods`, addFood);
+      const foodId = res.data.data.id;
+
+      // Nếu có ảnh, upload ảnh lên server
+      if (image?.file) {
+        const imageData = new FormData();
+        imageData.append("image", image.file); // Key "image" phải khớp với API
+
+        try {
+          const res = await api.patch(`/v1/restaurants/${restaurantId}/foods/${foodId}/image`, imageData, {
+            headers: {
+              "Content-Type": "multipart/form-data", // Đảm bảo header đúng
+            },
+          });
+
+          console.log("Upload ảnh thành công:", res.data); // Log kết quả từ API
+          toast.success("Upload ảnh thành công!");
+        } catch (err) {
+          console.error("Lỗi upload ảnh:", err);
+          toast.error("Lỗi upload ảnh: " + (err.response?.data?.message || "Vui lòng thử lại"));
+        }
+      }
+
+      // Thông báo thành công
       toast.success("Thêm món ăn thành công!");
 
-      // Reset form
+      // Reset form và ảnh
       e.target.reset();
       removeImage();
     } catch (err) {

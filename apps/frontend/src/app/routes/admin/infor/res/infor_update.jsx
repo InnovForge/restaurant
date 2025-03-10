@@ -16,7 +16,6 @@ import { Link } from "react-router";
 
 import { useUserRestaurants } from "@/hooks/use-user-restaurants";
 import { useRestaurant } from "@/context/restaurant";
-import { uploadRestaurantImage } from "@/features/management-restaurants/api/create-restaurant";
 
 export default function RestaurantUpdateInfoForm() {
   const [restaurantInfo, setRestaurantInfo] = useState(null);
@@ -30,8 +29,6 @@ export default function RestaurantUpdateInfoForm() {
   useEffect(() => {
     if (resT.data && resT.data.length > 0) {
       setRestaurantInfo(resT.data[0]);
-      // test
-      // console.log("infores", restaurantInfo)
       console.log(resT.data[0]);
       setLoading(false);
     }
@@ -57,7 +54,6 @@ export default function RestaurantUpdateInfoForm() {
     }
   }, [restaurantInfo]);
 
-  //
   const handleInputChange = (e) => {
     const { id, value } = e.target;
     setFormData((prev) => ({
@@ -91,13 +87,7 @@ export default function RestaurantUpdateInfoForm() {
       const file = e.target.files[0];
       if (!file) return;
 
-      // Kiểm tra kích thước file (giới hạn 5MB)
       if (file.size > 5 * 1024 * 1024) {
-        // toast({
-        //   title: "Lỗi",
-        //   description: "Kích thước ảnh không được vượt quá 5MB",
-        //   variant: "destructive",
-        // })
         toast("Lỗi", {
           description: "Kích thước ảnh không được vượt quá 5MB",
           action: {
@@ -108,13 +98,7 @@ export default function RestaurantUpdateInfoForm() {
         return;
       }
 
-      // Kiểm tra loại file
       if (!file.type.startsWith("image/")) {
-        // toast ({
-        //   title: "Lỗi",
-        //   description: "Vui lòng chọn file ảnh hợp lệ",
-        //   variant: "destructive",
-        // })
         toast("Lỗi", {
           description: "Vui lòng chọn file ảnh hợp lệ",
           action: {
@@ -158,7 +142,6 @@ export default function RestaurantUpdateInfoForm() {
     });
   }, []);
 
-  // Xử lý cập nhật thông tin
   const handleUpdate = async () => {
     try {
       setSaving(true);
@@ -172,27 +155,26 @@ export default function RestaurantUpdateInfoForm() {
         phoneNumber: formData.phoneNumber,
         email: formData.email,
       };
-      // const updatedImages = {
-      //   avatar: images.avatar.file,
-      //   cover: images.cover.file,
-      // }
-      // // Giả lập API call
-      // await new Promise((resolve) => setTimeout(resolve, 1000))
-      const updatedImages = {
-        avatar: images.avatar.file,
-        cover: images.cover.file,
-      };
-      // Giả lập API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      const res = await api.patch(`/v1/restaurants/${restaurantId}`, updatedData);
-      const resImages = await uploadRestaurantImage({ restaurantId, images: updatedImages });
-      if (resImages) {
-        toast({
-          title: " Cập nhật ảnh thành công",
-          description: "Cập nhật ảnh thông tin nhà hàng thành công",
+      await api.patch(`/v1/restaurants/${restaurantId}`, updatedData);
+
+      console.log("images", images);
+      if (images.avatar.file || images.cover.file) {
+        const formData = new FormData();
+        if (images.avatar.file) {
+          formData.append("logo", images.avatar.file);
+        }
+        if (images.cover.file) {
+          formData.append("cover", images.cover.file);
+        }
+
+        await api.patch(`/v1/restaurants/${restaurantId}/images`, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
         });
       }
+
       toast("Thành công", {
         description: "Cập nhật thông tin nhà hàng thành công",
         action: {
@@ -201,14 +183,14 @@ export default function RestaurantUpdateInfoForm() {
         },
       });
 
-      setRestaurantInfo(res.data[0]);
+      setRestaurantInfo((prev) => ({
+        ...prev,
+        ...updatedData,
+        logoUrl: images.avatar.preview,
+        coverUrl: images.cover.preview,
+      }));
     } catch (err) {
       console.error("Lỗi cập nhật:", err);
-      // toast ({
-      //   title: "Lỗi",
-      //   description: err.response?.data?.message || "Cập nhật thất bại",
-      //   variant: "destructive",
-      // })
       toast("Lỗi cập nhật", {
         description: err.response?.data?.message || "Cập nhật thất bại",
         action: {

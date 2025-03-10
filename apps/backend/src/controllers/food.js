@@ -111,3 +111,17 @@ export const getFoods = async (req, res) => {
     return responseHandler.internalServerError(res);
   }
 };
+
+export const deleteFood = async (req, res) => {
+  const { restaurantId, foodId } = req.params;
+  try {
+    const deleted = await foodModel.deleteFood(restaurantId, foodId);
+    if (!deleted) {
+      return responseHandler.badRequest(res);
+    }
+    return responseHandler.success(res);
+  } catch (error) {
+    console.log("error :>> ", error);
+    return responseHandler.internalServerError(res);
+  }
+};

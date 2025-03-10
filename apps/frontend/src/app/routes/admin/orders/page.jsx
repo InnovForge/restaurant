@@ -1,6 +1,4 @@
-"use client";
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight, Eye, Search, Filter, CalendarDays, Clock } from "lucide-react";
 import { Link } from "react-router";
 import { Button } from "@/components/ui/button";
@@ -10,55 +8,46 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useRestaurant } from "@/context/restaurant";
+import { api } from "@/lib/api-client";
 
 const statusMap = {
   ChuaThanhToan: { label: "Chưa Thanh Toán", variant: "warning" },
   DaThanhToan: { label: "Đã Thanh Toán", variant: "success" },
 };
 
-const data = [
-  {
-    id: "HD001",
-    table: "Bàn 01",
-    time: "10:30 02/03/2024",
-    total: 450000,
-    status: "Đã thanh toán",
-  },
-  {
-    id: "HD002",
-    table: "Bàn 03",
-    time: "11:15 02/03/2024",
-    total: 850000,
-    status: "Đã thanh toán",
-  },
-  {
-    id: "HD003",
-    table: "Bàn 05",
-    time: "12:00 02/03/2024",
-    total: 1250000,
-    status: "Chưa thanh toán",
-  },
-  {
-    id: "HD004",
-    table: "Bàn 02",
-    time: "12:45 02/03/2024",
-    total: 225000,
-    status: "Đã thanh toán",
-  },
-];
-
 const OrdersPage = () => {
   const { restaurantId } = useRestaurant();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
+  const [bills, setBills] = useState([]);
+  const [loading, setLoading] = useState(false);
   const itemsPerPage = 4;
 
-  const filteredData = data.filter((item) => {
+  useEffect(() => {
+    const fetchBills = async () => {
+      setLoading(true);
+      try {
+        // Gọi API để lấy danh sách hóa đơn
+        const response = await api.get(`/v1/restaurants/${restaurantId}/bills`, {
+          params: { status: statusFilter, searchTerm },
+        });
+        setBills(response.data.bills);
+      } catch (error) {
+        console.error("Error fetching bills:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBills();
+  }, [restaurantId, statusFilter, searchTerm]);
+
+  const filteredData = bills.filter((item) => {
     const matchesSearch = Object.values(item).some((value) =>
       value.toString().toLowerCase().includes(searchTerm.toLowerCase()),
     );
-    const matchesStatus = statusFilter === "all" || item.status === statusFilter;
+    const matchesStatus = statusFilter === "all" || item.order_status === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
@@ -130,24 +119,22 @@ const OrdersPage = () => {
               </TableHeader>
               <TableBody>
                 {paginatedData.map((item) => (
-                  <TableRow key={item.id} className="hover:bg-gray-50/50">
-                    <TableCell className="font-medium">{item.id}</TableCell>
-                    <TableCell>
-                      <TableCell className="font-medium">{item.table}</TableCell>
-                    </TableCell>
-                    <TableCell>{item.time}</TableCell>
-                    <TableCell className="text-center font-medium">{item.total}</TableCell>
+                  <TableRow key={item.bill_id} className="hover:bg-gray-50/50">
+                    <TableCell className="font-medium">{item.bill_id}</TableCell>
+                    <TableCell>{item.table_name}</TableCell>
+                    <TableCell>{new Date(item.created_at).toLocaleString()}</TableCell>
+                    <TableCell className="text-center font-medium">{item.total_amount.toLocaleString()} VNĐ</TableCell>
                     <TableCell>
                       <Badge
-                        variant={item.status === "Đã thanh toán" ? "default" : "destructive"}
+                        variant={item.order_status === "Đã thanh toán" ? "default" : "destructive"}
                         className="px-2.5 py-0.5"
                       >
-                        {item.status}
+                        {item.order_status}
                       </Badge>
                     </TableCell>
                     <TableCell>
                       <div className="flex justify-end gap-2">
-                        <Link to={`/d/restaurants/${restaurantId}/hoadon/chitiet/`}>
+                        <Link to={`/d/restaurants/${restaurantId}/hoadon/chitiet/${item.bill_id}`}>
                           <Button variant="outline" size="sm" className="h-8">
                             <Eye className="h-4 w-4 mr-2" />
                             Chi tiết

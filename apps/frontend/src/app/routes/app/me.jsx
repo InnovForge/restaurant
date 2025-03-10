@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 
 export const uploadAvatar = async (image) => {
   const formData = new FormData();
-
+  console.log("imageUsêr", image);
   if (image) {
     formData.append("avatar", image);
   }

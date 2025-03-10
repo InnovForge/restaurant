@@ -301,4 +301,10 @@ router.patch(
  */
 router.get("/foods", apiCache, foodController.getFoods);
 
+router.delete(
+  "/restaurants/:restaurantId/foods/:foodId",
+  authRestaurant([ROLE.owner, ROLE.manager]),
+  foodController.deleteFood,
+);
+
 export default router;
