@@ -12,20 +12,6 @@ import { Link } from "react-router";
 import { useEffect } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 
-// const { addresses } = useAddressStore();
-
-// const fetchFoods = async ({ pageParam = 1 }) => {
-//   const response = await api.get("/v1/foods", {
-//     params: {
-//       latitude: addresses[0].latitude,
-//       longitude: addresses[0].longitude,
-//       radius: 20000,
-//       page: pageParam,
-//     },
-//   });
-//   return response.data.data;
-// };
-
 const Show = () => {
   const fetchFoods = async ({ pageParam = 1 }) => {
     const response = await api.get("/v1/foods", {
@@ -62,6 +48,24 @@ const Show = () => {
     queryKey: ["get-food"],
     queryFn: async () => {
       const f = await api.get("/v1/foods", {
+        params: {
+          latitude: addresses[0].latitude,
+          longitude: addresses[0].longitude,
+          radius: 20000,
+          // page: 1,
+          // filter: nearby
+        },
+      });
+      // sF(f.data)
+      return f.data.data;
+    },
+    staleTime: 1000 * 60 * 1, // 5 minutes
+  });
+
+  const { data: dataRestaurant, isFetching: isFetchingRestaurant } = useQuery({
+    queryKey: ["get-restaurant"],
+    queryFn: async () => {
+      const f = await api.get("v1/restaurants", {
         params: {
           latitude: addresses[0].latitude,
           longitude: addresses[0].longitude,
@@ -174,6 +178,46 @@ const Show = () => {
           </div>
         </div>
       )}
+
+      {data && (
+        <div>
+          <div className="flex items-center gap-1 p-4 pl-0">
+            <Flame className="text-red-500" />
+            <h2 className="text-xl font-bold">Nhà hàng gần đây</h2>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 p-6">
+            {dataRestaurant.map((restaurant) => (
+              <Link to={`/restaurants/${restaurant.restaurantId}`} key={restaurant.restaurantId}>
+                <Card key={restaurant.restaurantId} className="overflow-hidden shadow-lg">
+                  <img
+                    src={restaurant.restaurantCover}
+                    alt={restaurant.restaurantName}
+                    className="w-full h-40 object-cover"
+                  />
+                  <CardContent className="p-4">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <img src={restaurant.restaurantLogo} alt="Logo" className="w-10 h-10 rounded-full" />
+                      <h3 className="font-semibold text-lg">{restaurant.restaurantName}</h3>
+                    </div>
+                    <p className="text-sm text-gray-600 mb-2">{restaurant.restaurantDescription}</p>
+                    <div className="flex items-center justify-between text-sm text-gray-500">
+                      <div className="flex items-center">
+                        <Star className="w-4 h-4 text-yellow-500" />
+                        <span className="ml-1">{restaurant.averageRating}</span>
+                      </div>
+                      <div className="flex items-center">
+                        {/* <MapPin className="w-4 h-4 text-red-500" /> */}
+                        <span className="ml-1">{restaurant.distance}</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
       {data && (
         <div>
           <div className="flex items-center gap-1 p-4 pl-0">
@@ -187,28 +231,30 @@ const Show = () => {
               key={item.foodId}
               className="bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-lg transition duration-300 w-full mb-6 flex"
             >
-              <div className="w-1/3 h-auto">
+              <div className="w-1/3 h-[300px]">
                 <img src={item.foodImage} alt={item.foodName} className="w-full h-full object-cover" />
               </div>
               <div className="p-6 w-2/3">
-                <div className="flex items-center mb-4">
-                  <img src={item.restaurantLogo} alt={item.restaurantName} className="w-10 h-10 rounded-full mr-3" />
-                  <div>
-                    <h3 className="text-lg font-semibold">{item.restaurantName}</h3>
-                    <p className="text-sm text-gray-500">
-                      {item.addressLine1 && item.addressLine2
-                        ? `${item.addressLine1}, ${item.addressLine2}`
-                        : item.addressLine1 || item.addressLine2}
-                    </p>
-                    <div className="flex items-center w-full gap-2 text-muted-foreground">
-                      <p className="text-xs">{item.distanceInfo.distance.toFixed()} km</p>
-                      <div className="flex items-center gap-1">
-                        <Clock2 className="w-4 h-4" />
-                        <p className="text-xs">{item.distanceInfo.duration.toFixed()} phút</p>
+                <Link to={`/restaurants/${item.restaurantId}`} key={item.foodId}>
+                  <div className="flex items-center mb-4">
+                    <img src={item.restaurantLogo} alt={item.restaurantName} className="w-10 h-10 rounded-full mr-3" />
+                    <div>
+                      <h3 className="text-lg font-semibold">{item.restaurantName}</h3>
+                      <p className="text-sm text-gray-500">
+                        {item.addressLine1 && item.addressLine2
+                          ? `${item.addressLine1}, ${item.addressLine2}`
+                          : item.addressLine1 || item.addressLine2}
+                      </p>
+                      <div className="flex items-center w-full gap-2 text-muted-foreground">
+                        <p className="text-xs">{item.distanceInfo.distance.toFixed()} km</p>
+                        <div className="flex items-center gap-1">
+                          <Clock2 className="w-4 h-4" />
+                          <p className="text-xs">{item.distanceInfo.duration.toFixed()} phút</p>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
+                </Link>
                 <h2 className="text-xl font-bold truncate w-full">{item.foodName}</h2>
                 <div className="flex items-center text-sm text-gray-600 mt-2">
                   <Star className="text-yellow-500" size={24} />
@@ -223,7 +269,7 @@ const Show = () => {
                 </p>
                 <button
                   onClick={() => addCart(item)}
-                  className="mt-4 px-6 py-2 w-full bg-green-500 text-white rounded-lg hover:bg-green-600 transition text-lg"
+                  className="mt-4 px-6 py-2 w-full bg-green-500 text-white rounded-lg hover:bg-black-600 transition text-lg"
                 >
                   Thêm vào giỏ hàng
                 </button>

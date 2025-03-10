@@ -24,6 +24,8 @@ export const uploadAvatar = async (image) => {
   });
 };
 const Me = () => {
+  const [editingIndex, setEditingIndex] = useState(null);
+
   const { authUser } = useAuthUserStore();
 
   console.log(authUser);
@@ -31,27 +33,54 @@ const Me = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(authUser.name);
   const [phone, setPhone] = useState("0123456789");
-  const [gender, setGender] = useState(1);
-  const [birthDate, setBirthDate] = useState(null);
   const [email, setEmail] = useState(authUser.email);
   const [addresses, setAddresses] = useState(authUser.addresses);
   const [avatar, setAvatar] = useState(authUser.avatarUrl);
   const [addF, setAddFile] = useState(null);
   const queryClient = useQueryClient();
+  const [isAdding, setIsAdding] = useState(false);
 
   const updateUserMutation = useMutation({
     mutationFn: () =>
       api.patch("v1/users/me", {
         name,
         phone,
-        gender,
-        birthDate,
         email,
-        addresses,
       }),
     onSuccess: () => {
       queryClient.invalidateQueries("update-user");
       alert("Cập nhật thông tin thành công");
+    },
+  });
+
+  const updateaddressesMutation = useMutation({
+    mutationFn: ({ id, data }) => {
+      api.patch(`v1/users/me/addresses/${id}`, data);
+      console.log("on f", id, data);
+    },
+    onSuccess: (_, { id, data }) => {
+      queryClient.invalidateQueries("update-addresses-user"); // Cập nhật cache
+      setAddresses((prev) => prev.map((addr) => (addr.addressId === id ? { ...addr, ...data } : addr)));
+      setEditingIndex(null); // Đóng form sau khi cập nhật
+      alert("Cập nhật địa chỉ thành công");
+    },
+  });
+
+  const deleteddressesMutation = useMutation({
+    mutationFn: (id) => api.delete(`v1/users/me/addresses/${id}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries("delete-addresses-user");
+      alert("Xoá thông tin thành công");
+    },
+  });
+
+  const createAddressMutation = useMutation({
+    mutationFn: ({ data }) => api.post("v1/users/me/addresses", data),
+    onSuccess: (_, data) => {
+      queryClient.invalidateQueries("create-addresses-user");
+      setAddresses((prev) => [...prev, data]);
+      setIsAdding(false);
+      alert("Thêm địa chỉ thành công");
     },
   });
 
@@ -81,7 +110,7 @@ const Me = () => {
   };
 
   const addAddress = () => {
-    setAddresses([...addresses, { ward: "", district: "", city: "", country: "" }]);
+    // setAddresses([...addresses, { ward: "", district: "", city: "", country: "" }]);
   };
 
   const removeAddress = (index) => {
@@ -114,7 +143,13 @@ const Me = () => {
   function onSubmit(values) {
     // mutate(values);
     console.log("values");
-    console.log(values);
+    console.log(values.address);
+    if (isAdding) {
+      createAddressMutation.mutate({ data: { ...values.address, phoneNumber: "09999999999", isDefault: true } });
+    } else {
+      updateaddressesMutation.mutate({ id: adressTd, data: values.address });
+    }
+
     // setAddresses();
     // form.reset();
 
@@ -123,6 +158,7 @@ const Me = () => {
   const addFile = (event) => {
     setAddFile(event.target.files[0]);
   };
+  const [adressTd, setAdressId] = useState();
   return (
     <div className="max-w-md mx-auto p-6 bg-white shadow-lg rounded-2xl">
       <h2 className="text-2xl font-bold mb-4">Thông Tin Người Dùng</h2>
@@ -198,69 +234,60 @@ const Me = () => {
             <div key={index} className="border p-2 mb-2 rounded-lg">
               {isEditing ? (
                 <>
-                  {/* <input
-                    type="text"
-                    value={addr.ward}
-                    onChange={(e) => updateAddress(index, "ward", e.target.value)}
-                    className="w-full p-2 border rounded-lg mb-1"
-                    placeholder="Phường/Xã"
-                  />
-                  <input
-                    type="text"
-                    value={addr.district}
-                    onChange={(e) => updateAddress(index, "district", e.target.value)}
-                    className="w-full p-2 border rounded-lg mb-1"
-                    placeholder="Quận/Huyện"
-                  />
-                  <input
-                    type="text"
-                    value={addr.city}
-                    onChange={(e) => updateAddress(index, "city", e.target.value)}
-                    className="w-full p-2 border rounded-lg mb-1"
-                    placeholder="Tỉnh/Thành phố"
-                  />
-                  <input
-                    type="text"
-                    value={addr.country}
-                    onChange={(e) => updateAddress(index, "country", e.target.value)}
-                    className="w-full p-2 border rounded-lg"
-                    placeholder="Quốc gia"
-                  /> */}
-                  {/* <button onClick={() => removeAddress(index)} className="text-red-500 mt-2">Xóa</button> */}
-
-                  <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
-                      <FormField
-                        control={form.control}
-                        name="address"
-                        render={({ field }) => (
-                          console.log("f", field),
-                          (
-                            <FormItem>
-                              <FormLabel>Địa chỉ</FormLabel>
-                              <FormControl>
-                                <div>
-                                  <SearchLocation {...field} />
-                                </div>
-                              </FormControl>
-
-                              <FormMessage />
-                            </FormItem>
-                          )
-                        )}
-                      />
-                      <Button
-                        // onChange={() => updateAddress(index, addAddress.addressLine1, "hello")}
-                        type="submit"
-                        className="w-full none"
+                  {editingIndex === index ? (
+                    <Form {...form}>
+                      <form
+                        onSubmit={form.handleSubmit((data) => {
+                          onSubmit(data);
+                          setEditingIndex(null); // Thoát chế độ chỉnh sửa sau khi gửi form
+                        })}
+                        className="space-y-3"
                       >
-                        Gửi yêu cầu
-                      </Button>
-                    </form>
-                  </Form>
-                  <button onClick={() => removeAddress(index)} className="text-red-500 mt-2">
-                    Xóa
-                  </button>
+                        <FormField
+                          control={form.control}
+                          name="address"
+                          render={({ field }) => (
+                            console.log("f", field),
+                            (
+                              <FormItem>
+                                <FormLabel>Địa chỉ</FormLabel>
+                                <FormControl>
+                                  <div>
+                                    <SearchLocation onChange={field.onChange} value={field.formatted} />
+                                  </div>
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )
+                          )}
+                        />
+                        <Button onClick={() => setAdressId(addr.addressId)} type="submit" className="w-full none">
+                          Gửi yêu cầu
+                        </Button>
+                      </form>
+                    </Form>
+                  ) : (
+                    <>
+                      <h1 className="text-xl font-semibold">{`${addr.addressLine1}, ${addr.addressLine2}`}</h1>
+                      <div className="flex space-x-2">
+                        <button className="text-red-500 mt-2" onClick={() => setEditingIndex(index)}>
+                          Sửa
+                        </button>
+                        <button
+                          onClick={() => {
+                            removeAddress(index);
+                            console.log("x", addr);
+                            deleteddressesMutation.mutate(addr.addressId);
+                          }}
+                          className="text-red-500 mt-2"
+                        >
+                          Xóa
+                        </button>
+                      </div>
+                    </>
+                  )}
+
+                  {/* </div> */}
                 </>
               ) : (
                 <h1 className="text-xl font-semibold">{`${addr.addressLine1}, ${addr.addressLine2}`}</h1>
@@ -269,7 +296,36 @@ const Me = () => {
           ))}
 
           {/* {isEditing && <button onClick={addAddress} className="text-blue-500 mt-2">Thêm địa chỉ</button>} */}
+          <Button onClick={() => setIsAdding(true)} className="w-full mt-2">
+            Thêm địa chỉ
+          </Button>
         </div>
+        {isAdding && (
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
+              <FormField
+                control={form.control}
+                name="address"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Địa chỉ</FormLabel>
+                    <FormControl>
+                      <SearchLocation onChange={field.onChange} value={field.formatted} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button onClick={() => setAddresses()} type="submit" className="w-full">
+                Lưu địa chỉ
+              </Button>
+              <Button onClick={() => setIsAdding(false)} className="w-full bg-gray-400 mt-2">
+                Hủy
+              </Button>
+            </form>
+          </Form>
+        )}
+
         <button
           onClick={() => (isEditing ? handleSave() : setIsEditing(true))}
           // type="submit"
