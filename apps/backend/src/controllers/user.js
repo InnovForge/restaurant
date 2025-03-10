@@ -216,7 +216,7 @@ export const createdBill = async (req, res) => {
       }
     }
 
-    const b = await billModel.getBillById(bill.billId);
+    const b = await userModel.getBillsByUserId(bill.billId);
 
     emitNewOrder(restaurantId, b);
 
