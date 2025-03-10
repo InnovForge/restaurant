@@ -88,6 +88,18 @@ const billModel = {
       connection.release();
     }
   },
+  async getBillById(billId) {
+    const connection = await pool.getConnection();
+    try {
+      const [bill] = await connection.query(`SELECT * FROM bills WHERE bill_id = ?`, [billId]);
+      return bill[0];
+    } catch (error) {
+      console.error("Error getting bill by id:", error);
+      return null;
+    } finally {
+      connection.release();
+    }
+  },
 };
 
 export default billModel;

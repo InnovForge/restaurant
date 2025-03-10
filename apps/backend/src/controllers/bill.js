@@ -77,3 +77,17 @@ export const loadBillItem = async (req, res) => {
     return responseHandler.internalServerError(res);
   }
 };
+
+export const getBillById = async (req, res) => {
+  const { billId } = req.params;
+
+  try {
+    // Gọi model để lấy thông tin hóa đơn
+    const bill = await billModel.getBillById(billId);
+
+    return responseHandler.success(res, "Bill loaded successfully", { bill });
+  } catch (error) {
+    console.error("Error loading bill:", error);
+    return responseHandler.internalServerError(res);
+  }
+};

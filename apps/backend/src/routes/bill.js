@@ -1,6 +1,7 @@
 import { Router } from "express";
 import * as billController from "../controllers/bill.js";
 import { authenticateJWT } from "../middlewares/authenticate.js";
+import { ro } from "@faker-js/faker";
 
 const router = Router();
 
@@ -132,5 +133,7 @@ router.get("/bills/:billId", authenticateJWT, billController.loadBill);
  *         $ref: '#/components/responses/500'
  */
 router.get("/bills/:billId/items", authenticateJWT, billController.loadBillItem);
+
+router.get("/bills/:billId", authenticateJWT, billController.getBillById);
 
 export default router;

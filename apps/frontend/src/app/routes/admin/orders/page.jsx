@@ -43,7 +43,7 @@ const OrdersPage = () => {
     fetchBills();
   }, [restaurantId, statusFilter, searchTerm]);
 
-  const filteredData = bills.filter((item) => {
+  const filteredData = bills?.filter((item) => {
     const matchesSearch = Object.values(item).some((value) =>
       value.toString().toLowerCase().includes(searchTerm.toLowerCase()),
     );
@@ -51,9 +51,9 @@ const OrdersPage = () => {
     return matchesSearch && matchesStatus;
   });
 
-  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredData?.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedData = filteredData.slice(startIndex, startIndex + itemsPerPage);
+  const paginatedData = filteredData?.slice(startIndex, startIndex + itemsPerPage);
 
   return (
     <div className="container mx-auto px-4 lg:pl-8 lg:pr-20 min-h-[calc(100vh-4rem)] py-8">
@@ -67,7 +67,7 @@ const OrdersPage = () => {
             </div>
             <div className="flex items-center gap-2">
               <CalendarDays className="h-5 w-5 text-primary" />
-              <span className="font-medium">Tổng số: {filteredData.length} hóa đơn</span>
+              <span className="font-medium">Tổng số: {filteredData?.length} hóa đơn</span>
             </div>
           </div>
         </div>
@@ -118,7 +118,7 @@ const OrdersPage = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {paginatedData.map((item) => (
+                {paginatedData?.map((item) => (
                   <TableRow key={item.bill_id} className="hover:bg-gray-50/50">
                     <TableCell className="font-medium">{item.bill_id}</TableCell>
                     <TableCell>{item.table_name}</TableCell>
@@ -151,8 +151,8 @@ const OrdersPage = () => {
           {/* Pagination */}
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-6">
             <span className="text-sm text-muted-foreground order-2 sm:order-1">
-              Hiển thị {startIndex + 1} đến {Math.min(startIndex + itemsPerPage, filteredData.length)} trong số{" "}
-              {filteredData.length} hóa đơn
+              Hiển thị {startIndex + 1} đến {Math.min(startIndex + itemsPerPage, filteredData?.length)} trong số{" "}
+              {filteredData?.length} hóa đơn
             </span>
             <div className="flex gap-2 order-1 sm:order-2">
               <Button
