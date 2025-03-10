@@ -5,11 +5,11 @@ import { useState } from "react";
 
 const History = () => {
   const { authUser } = useAuthUserStore();
-  const [selectedOrder, setSelectedOrder] = useState(null);
-  const [rating, setRating] = useState(0); // Thêm state để lưu đánh giá
-  const [comment, setComment] = useState(""); // Thêm state để lưu nhận xét
-
   const queryClient = useQueryClient();
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [rating, setRating] = useState(0);
+  const [comment, setComment] = useState("");
+
   const { data } = useQuery({
     queryKey: ["get-bills"],
     queryFn: async () => {
@@ -19,28 +19,24 @@ const History = () => {
     staleTime: 1000 * 60 * 1,
   });
 
-  // Thêm mutation để gửi đánh giá
   const submitReview = useMutation({
     mutationFn: async () => {
-      await api.post("/v1/users/me/reviews", {
+      const res = await api.post("/v1/users/me/reviews", {
         billId: selectedOrder.billId,
         rating,
         comment,
       });
+      return res.data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       alert("Đánh giá thành công!");
-
       queryClient.setQueryData(["get-bills"], (oldData) => {
         if (!oldData) return oldData;
         return oldData.map((order) =>
-          order.billId === selectedOrder.billId
-            ? { ...order, review: { rating, comment } } // Thêm đánh giá vào dữ liệu hiện tại
-            : order,
+          order.billId === selectedOrder.billId ? { ...order, review: { rating, comment } } : order,
         );
       });
-
-      setSelectedOrder(null);
+      setSelectedOrder((prev) => ({ ...prev, review: { rating, comment } }));
       setRating(0);
       setComment("");
     },
@@ -82,10 +78,9 @@ const History = () => {
         ))}
       </ul>
 
-      {/* Modal hiển thị chi tiết món ăn */}
       {selectedOrder && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full max-h-[80vh] overflow-y-auto">
             <h3 className="text-xl font-bold mb-4">Chi tiết đơn hàng</h3>
             <ul className="space-y-2">
               {selectedOrder.items.map((item, index) => (
@@ -99,8 +94,15 @@ const History = () => {
                 </li>
               ))}
             </ul>
-
-            {/* Đánh giá món ăn */}
+            {selectedOrder.review && (
+              <div className="mt-4">
+                <h3 className="text-lg font-bold mb-2">Lịch sử đánh giá</h3>
+                <div className="text-yellow-400 text-2xl">
+                  {"★".repeat(selectedOrder.review.rating) + "☆".repeat(5 - selectedOrder.review.rating)}
+                </div>
+                <p className="text-gray-600">{selectedOrder.review.comment}</p>
+              </div>
+            )}
             <div className="mt-4">
               <h3 className="text-lg font-bold mb-2">Đánh giá món ăn</h3>
               <div className="flex gap-2 text-yellow-400 text-2xl cursor-pointer">
@@ -124,7 +126,6 @@ const History = () => {
                 Gửi đánh giá
               </button>
             </div>
-
             <button
               className="mt-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
               onClick={() => setSelectedOrder(null)}
