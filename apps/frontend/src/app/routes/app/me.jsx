@@ -44,7 +44,6 @@ const Me = () => {
     mutationFn: () =>
       api.patch("v1/users/me", {
         name,
-        phone,
         email,
       }),
     onSuccess: () => {
@@ -189,7 +188,7 @@ const Me = () => {
             <h1 className="text-xl font-semibold">{name}</h1>
           )}
         </div>
-        <div>
+        {/* <div>
           <label className="block text-gray-600">Số điện thoại:</label>
           {isEditing ? (
             <input
@@ -201,7 +200,7 @@ const Me = () => {
           ) : (
             <h1 className="text-xl font-semibold">{phone}</h1>
           )}
-        </div>
+        </div> */}
         {/* <div>
           <label className="block text-gray-600">Ngày sinh:</label>
           {isEditing ? (
