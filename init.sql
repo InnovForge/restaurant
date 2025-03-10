@@ -147,8 +147,10 @@ CREATE TABLE IF NOT EXISTS bills (
 -- "preparing" – Đang chuẩn bị
 -- "completed" – Đã hoàn thành
 -- "canceled" – Đã hủy
+  total_amount DECIMAL(10, 2) NOT NULL,
   reservation_id VARCHAR(16),
   payment_method ENUM('cash', 'card', 'online', 'postpaid') NOT NULL,
+  online_provider ENUM('momo', 'zalopay'),
   payment_status ENUM('unpaid', 'paid') NOT NULL DEFAULT 'unpaid',
 	created_at TIMESTAMP NOT NULL DEFAULT NOW(),
 	updated_at TIMESTAMP NOT NULL DEFAULT NOW() ON UPDATE NOW(),
@@ -182,5 +184,17 @@ CREATE TABLE IF NOT EXISTS reviews (
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
     FOREIGN KEY (bill_id) REFERENCES bills(bill_id) ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS search_history (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id VARCHAR(16) NOT NULL,
+    search_query VARCHAR(255) NOT NULL,
+    search_query_normalized VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    FULLTEXT(search_query_normalized),
+    UNIQUE (user_id, search_query),
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
 
 INSERT INTO users (user_id, username, name, password) VALUES ('12345678910', 'team1', 'cdio team 1', '$2a$10$jpChleT2FvfRp/E39jKn5uet5wTL6TZrUu5n67q5dX4Scw6jx34xu')

@@ -61,6 +61,18 @@ const TableManagement = () => {
     }
   };
 
+  const handleDeleteTable = async (idBan) => {
+    try {
+      await api.delete(`/v1/tables/${restaurantId}/${idBan}`);
+      setTables((prevTables) => prevTables.filter((table) => table.tableId !== idBan));
+      toast.success("Xóa bàn thành công!");
+      window.location.reload();
+    } catch (err) {
+      console.error("Lỗi xóa bàn:", err);
+      toast.error("Lỗi xóa bàn: " + (err.response?.data?.message || "Vui lòng thử lại"));
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 lg:pl-8 lg:pr-20 min-h-[calc(100vh-4rem)] py-8">
       <div className="border-none shadow-lg">
@@ -134,7 +146,12 @@ const TableManagement = () => {
                         </DialogContent>
                       </Dialog>
 
-                      <Button variant="destructive" size="icon" className="h-8 w-8">
+                      <Button
+                        variant="destructive"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => handleDeleteTable(item.tableId)}
+                      >
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </TableCell>

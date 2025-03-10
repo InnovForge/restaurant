@@ -328,6 +328,8 @@ GROUP BY u.user_id;
     paymentStatus,
     items,
     tableId = null,
+    totalAmount,
+    onlineProvider = null,
     reservationId = null,
     checkInTime,
   ) {
@@ -362,11 +364,13 @@ GROUP BY u.user_id;
         }
       }
 
-      const billQuery = `INSERT INTO bills (bill_id, user_id, payment_status, payment_method, restaurant_id, reservation_id) 
-                           VALUES (?, ?, ?, ?, ?, ?)`;
+      const billQuery = `INSERT INTO bills (bill_id, user_id, total_amount, online_provider, payment_status, payment_method, restaurant_id, reservation_id) 
+                           VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
       const [billResult] = await connection.query(billQuery, [
         billId,
         userId,
+        totalAmount,
+        onlineProvider,
         paymentStatus,
         paymentMethod,
         restaurantId,

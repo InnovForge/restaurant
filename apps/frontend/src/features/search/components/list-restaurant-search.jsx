@@ -13,6 +13,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Avatar } from "@radix-ui/react-avatar";
 import { AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { generateAvatarInitial } from "@/utils/generateAvatarInitial";
+import InfiniteListRestaurantSearch from "./infinite-list-restaurant-search";
 const ListRestaurantSearch = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { addresses } = useAddressStore();
@@ -35,9 +36,11 @@ const ListRestaurantSearch = () => {
   if (isLoading) {
     return <div>Loading...</div>;
   }
+
   if (data?.data?.foods.length === 0 && data?.data?.restaurants.length === 0) {
     return <div className="text-red-500">Không tìm thấy kết quả</div>;
   }
+
   return (
     <div className="w-full">
       <div>
@@ -128,6 +131,7 @@ const ListRestaurantSearch = () => {
           </div>
         )}
       </div>
+      <InfiniteListRestaurantSearch />
     </div>
   );
 };

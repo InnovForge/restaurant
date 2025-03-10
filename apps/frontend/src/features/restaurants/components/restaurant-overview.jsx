@@ -149,7 +149,16 @@ const RestaurantOverview = () => {
                       </p>
                     </div>
                     <div className="flex mx-auto flex-col gap-2 justify-end">
-                      <Button onClick={() => addCart(food)} size="icon" className="bg-primary rounded-full text-white">
+                      <Button
+                        onClick={() =>
+                          addCart({
+                            ...food,
+                            restaurantId: params.restaurantId,
+                          })
+                        }
+                        size="icon"
+                        className="bg-primary rounded-full text-white"
+                      >
                         <Plus className="h-5 w-5" />
                       </Button>
                     </div>

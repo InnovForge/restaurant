@@ -27,7 +27,7 @@ export default function DashboardLayout({ children }) {
   const { restaurantId } = useParams();
   const { authUser } = useAuthUserStore();
 
-  console.log("DashboardLayout", authUser);
+  // console.log("DashboardLayout", authUser);
 
   const menuItems = [
     { path: "", icon: User, label: "Thông tin" },
