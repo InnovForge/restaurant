@@ -1,1 +1,2 @@
 git update-index --skip-worktree apps/backend/.env.development
+git update-index --skip-worktree apps/frontend/.env.development

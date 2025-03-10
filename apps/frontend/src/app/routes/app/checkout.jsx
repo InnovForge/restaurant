@@ -28,9 +28,26 @@ import { formatDate, toUTC } from "@/utils/format-date";
 import { CheckCircle } from "lucide-react";
 
 const Checkout = () => {
+  // const onlinePayment = useMutation({
+  // 	mutationFn: (p) => {
+  // 		return api.post("v1/payments/momo", p);
+  // 	},
+  // 	onSuccess: (data) => {
+  // 		console.log("data online :>> ", data.data.data);
+  //
+  // 	},
+  // });
+  //
   const mutation = useMutation({
     mutationFn: (newBill) => {
       return api.post("v1/users/me/bills", newBill);
+    },
+    onSuccess: (data) => {
+      console.log("data run :>> ", data.data.data);
+      const { billId, paymentUrl } = data.data.data;
+      if (paymentUrl) {
+        window.location.href = paymentUrl;
+      }
     },
   });
 
@@ -41,14 +58,20 @@ const Checkout = () => {
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedPayment, setSelectedPayment] = useState(null);
   const restaurantId = Cart[0]?.restaurantId;
-  // console.log(selectedTable,selectedTime,selectedDate,selectedPayment)
+
+  const handleCheckInTime = () => {
+    if (!selectedDate || !selectedTime) return;
+
+    const utcTime = toUTC(new Date(`${selectedDate}T${selectedTime}:00`));
+    return utcTime;
+  };
 
   useEffect(() => {
     async function fetchData() {
       try {
         const res = await api.get(`v1/tables/${restaurantId}/`);
         setTables(res.data.message);
-        console.log("res.data.data :>> ", res.data.message);
+        // console.log("res.data.data :>> ", res.data.message);
       } catch (err) {
         console.error("Lỗi lấy dữ liệu:", err);
       }
@@ -56,10 +79,11 @@ const Checkout = () => {
     fetchData();
   }, [restaurantId]);
 
-  if (mutation.isSuccess) {
+  const total = Cart.reduce((acc, item) => acc + item.quantity * item.price, 0);
+
+  if (mutation.isSuccess && !mutation.data.data.data.paymentUrl) {
     const { billId, checkInTime } = mutation.data.data.data;
     // addCart([]);
-    console.log("billId, checkInTime :>> ", billId, checkInTime, mutation.data);
     return (
       <div className="flex flex-col items-center justify-center">
         <Card className="w-full max-w-2xl text-center p-6 shadow-lg">
@@ -151,9 +175,9 @@ const Checkout = () => {
       <Card className="p-2 h-full flex flex-col gap-4">
         <h3>Chọn thanh toán</h3>
 
-        <Select defaultValue="momo" onValueChange={(value) => setSelectedPayment(value)}>
+        <Select onValueChange={(value) => setSelectedPayment(value)}>
           <SelectTrigger className="w-full h-fit">
-            <SelectValue placeholder="chọn phương thức thanh toán" />
+            <SelectValue placeholder="Chọn phương thức thanh toán" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="momo">
@@ -174,20 +198,22 @@ const Checkout = () => {
         <div className="w-full mt-auto">
           <h2 className="text-xl font-bold">Tổng cộng</h2>
           <p>{Cart.reduce((acc, item) => acc + item.quantity, 0)} món</p>
-          <p>{Cart.reduce((acc, item) => acc + item.quantity * item.price, 0)} ₫</p>
+          <p>{total} ₫</p>
 
           <Button
             onClick={() => {
               mutation.mutate({
                 restaurantId: restaurantId,
-                paymentMethod: selectedPayment,
+                paymentMethod: selectedPayment === "momo" ? "online" : "cash",
+                totalAmount: total,
+                onlineProvider: selectedPayment ? "momo" : null,
                 billItems: Cart.map((item) => ({
                   foodId: item.foodId,
                   quantity: item.quantity,
                   price: item.price,
                 })),
                 tableId: selectedTable,
-                checkInTime: toUTC(new Date(selectedDate + " " + selectedTime)),
+                checkInTime: handleCheckInTime(),
               });
             }}
             className="w-full"

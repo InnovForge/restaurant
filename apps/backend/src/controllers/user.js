@@ -1,4 +1,7 @@
+import billModel from "../models/bill.js";
 import userModel from "../models/user.js";
+import { momo } from "../services/payments/momo.js";
+import { emitNewOrder } from "../sockets/socket.js";
 import responseHandler from "../utils/response.js";
 import { uploadFileUser } from "../utils/s3.js";
 import { validateFields } from "../utils/validate-fields.js";
@@ -168,29 +171,56 @@ export const deleteUserAddress = async (req, res) => {
 };
 
 export const createdBill = async (req, res) => {
-  const { restaurantId, paymentMethod = "cash", paymentStatus = "unpaid", billItems, tableId, checkInTime } = req.body;
+  const {
+    restaurantId,
+    paymentMethod = "cash",
+    paymentStatus = "unpaid",
+    billItems,
+    tableId,
+    checkInTime,
+    totalAmount,
+    onlineProvider,
+  } = req.body;
 
-  if (!restaurantId || !billItems || billItems.length === 0) {
+  console.log("req.body", req.body);
+  if (!restaurantId || !billItems || billItems.length === 0 || totalAmount === undefined) {
     return responseHandler.badRequest(res, "Missing required fields");
   }
 
   try {
-    const billId = await userModel.createBill(
+    const bill = await userModel.createBill(
       req.userId,
       restaurantId,
       paymentMethod,
       paymentStatus,
       billItems,
       tableId,
+      totalAmount,
+      onlineProvider,
       null,
       checkInTime,
     );
+    console.log("billId", bill);
 
-    if (!billId) {
+    if (!bill) {
       return responseHandler.badRequest(res, "Không thể tạo hóa đơn");
     }
+    const response = {};
+    response.billId = bill.billId;
+    response.checkInTime = bill.checkInTime;
 
-    return responseHandler.created(res, undefined, billId);
+    if (paymentMethod === "online") {
+      switch (onlineProvider) {
+        case "momo":
+          response.paymentUrl = await momo(totalAmount, "Thanh toán đơn hàng", bill.billId);
+      }
+    }
+
+    const b = await billModel.getBillById(bill.billId);
+
+    emitNewOrder(restaurantId, b);
+
+    return responseHandler.created(res, undefined, response);
   } catch (error) {
     console.error("Error creating bill:", error);
     return responseHandler.internalServerError(res);

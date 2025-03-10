@@ -5,7 +5,11 @@ import dotenvFlow from "dotenv-flow";
 import { nanoidNumbersOnly } from "../src/utils/nanoid.js";
 import readline from "readline";
 import { generateUniqueFoods } from "./generate/food.js";
-
+import { removeDiacritics } from "../src/utils/removeDiacritics.js";
+import fs from "fs";
+import path from "path";
+import mime from "mime-types";
+import { uploadFileFood } from "../src/utils/s3.js";
 dotenvFlow.config();
 
 const connection = await mysql.createConnection({
@@ -16,9 +20,9 @@ const connection = await mysql.createConnection({
   port: process.env.MYSQL_PORT,
 });
 
-const NUMBER_OF_USERS = 30;
+const NUMBER_OF_USERS = 100;
 const NUMBER_OF_RESTAURANTS = Math.floor(NUMBER_OF_USERS / 3);
-const NUMBER_OF_FOODS_PER_RESTAURANT = 20;
+const NUMBER_OF_FOODS_PER_RESTAURANT = 100;
 const NUMBER_OF_BILLS = 200;
 
 const userIds = [];
@@ -276,20 +280,67 @@ const FOOD_CATEGORIES = [
   "Bánh tráng chảo",
 ];
 
+function getRandomImage() {
+  const files = fs.readdirSync(imagesDir);
+  if (files.length === 0) throw new Error("No images found in images/ directory");
+
+  const randomFile = files[Math.floor(Math.random() * files.length)];
+  console.log(randomFile);
+  return path.join(imagesDir, randomFile);
+}
+
+const imagesDir = path.join(process.cwd(), "images");
+
+const usedFileNames = new Set();
+
+async function uploadRandomImage(restaurantId, foodId) {
+  let imagePath, fileBuffer, fileSize, fileMimeType, fileName, objectName;
+  let attempt = 0;
+
+  do {
+    imagePath = getRandomImage();
+    fileBuffer = fs.readFileSync(imagePath);
+    fileSize = fileBuffer.length;
+    fileMimeType = mime.lookup(imagePath) || "application/octet-stream";
+
+    const parsedPath = path.parse(imagePath); // Tách phần mở rộng
+    fileName = parsedPath.name; // Lấy tên file không có đuôi mở rộng
+
+    if (usedFileNames.has(`${restaurantId}-${fileName}`)) {
+      attempt++;
+      fileName = `${parsedPath.name}-${attempt}`; // Thêm số nếu trùng
+    }
+  } while (usedFileNames.has(`${restaurantId}-${fileName}`));
+
+  usedFileNames.add(`${restaurantId}-${fileName}`);
+
+  objectName = `${restaurantId}/food/${foodId}/${fileName}${path.extname(imagePath)}`; // Giữ nguyên file khi upload
+
+  const fileUrl = await uploadFileFood(objectName, {
+    buffer: fileBuffer,
+    size: fileSize,
+    mimetype: fileMimeType,
+  });
+
+  return {
+    url: fileUrl,
+    name: fileName, // Chỉ trả về tên file, bỏ phần mở rộng
+  };
+}
+
 const createFoods = async () => {
   for (let i = 0; i < NUMBER_OF_RESTAURANTS; i++) {
     for (let j = 0; j < NUMBER_OF_FOODS_PER_RESTAURANT; j++) {
       const food_id = nanoidNumbersOnly();
       const restaurant_id = restaurantIds[Math.floor(Math.random() * restaurantIds.length)];
-      const name = faker.helpers.arrayElement(generateUniqueFoods());
+
       const description = faker.lorem.sentences(2);
-      const price = faker.number.float({
-        min: 10000,
-        max: 500000,
-        precision: 1000,
-      });
+      const price = faker.number.int({ min: 10000, max: 500000 }) & ~1;
+      const { url: image_url, name } = await uploadRandomImage(restaurant_id, food_id);
       const price_type = "VND";
-      const image_url = faker.image.url();
+      // const name = faker.helpers.arrayElement(generateUniqueFoods());
+
+      console.log(image_url, name);
       const available = faker.datatype.boolean();
 
       await connection.execute(
@@ -338,10 +389,7 @@ const createTablesReservationsAndBills = async ({
       const seat_count = faker.number.int({ min: 2, max: 10 });
 
       await connection.execute(
-        `
-        INSERT INTO tables (table_id, table_name, restaurant_id, seat_count)
-        VALUES (?, ?, ?, ?)
-        `,
+        `INSERT INTO tables (table_id, table_name, restaurant_id, seat_count) VALUES (?, ?, ?, ?)`,
         [table_id, table_name, restaurant_id, seat_count],
       );
     }
@@ -370,10 +418,8 @@ const createTablesReservationsAndBills = async ({
         const reservation_status = faker.helpers.arrayElement(["pending", "confirmed", "completed", "cancelled"]);
 
         await connection.execute(
-          `
-          INSERT INTO reservations (reservation_id, restaurant_id, user_id, table_id, reservation_datetime, check_in_time, reservation_status)
-          VALUES (?, ?, ?, ?, ?, ?, ?)
-          `,
+          `INSERT INTO reservations (reservation_id, restaurant_id, user_id, table_id, reservation_datetime, check_in_time, reservation_status)
+           VALUES (?, ?, ?, ?, ?, ?, ?)`,
           [reservation_id, restaurant_id, user_id, table_id, reservation_datetime, check_in_time, reservation_status],
         );
 
@@ -388,18 +434,29 @@ const createTablesReservationsAndBills = async ({
                 : "canceled";
 
         const bill_id = nanoidNumbersOnly();
-        const payment_method = faker.helpers.arrayElement(["cash", "card", "online", "postpaid"]) || "cash";
+        const payment_method = faker.helpers.arrayElement(["cash", "card", "online", "postpaid"]);
+        const online_provider = payment_method === "online" ? faker.helpers.arrayElement(["momo", "zalopay"]) : null;
         const payment_status = reservation_status === "completed" ? "paid" : "unpaid";
-
+        // ✅ Chèn bill trước, `total_amount` ban đầu là 0
         await connection.execute(
-          `
-          INSERT INTO bills (bill_id, restaurant_id, user_id, reservation_id, order_status, payment_method, payment_status)
-          VALUES (?, ?, ?, ?, ?, ?, ?)
-          `,
-          [bill_id, restaurant_id, user_id, reservation_id, order_status, payment_method, payment_status],
+          `INSERT INTO bills (bill_id, restaurant_id, user_id, reservation_id, order_status, online_provider,  payment_method, payment_status, total_amount)
+           VALUES (?, ?, ?, ?, ?,?, ?, ?, ?)`,
+          [
+            bill_id,
+            restaurant_id,
+            user_id,
+            reservation_id,
+            order_status,
+            online_provider,
+            payment_method,
+            payment_status,
+            0,
+          ],
         );
 
-        // ✅ Thêm các món ăn vào bill nếu reservation đã được xác nhận hoặc hoàn thành
+        const billItems = [];
+
+        // ✅ Chỉ thêm món ăn nếu reservation đã được xác nhận hoặc hoàn thành
         if (["confirmed", "completed"].includes(reservation_status)) {
           const numBillItems = faker.number.int(numBillItemsPerReservation);
 
@@ -420,13 +477,29 @@ const createTablesReservationsAndBills = async ({
             }
 
             const quantity = faker.number.int({ min: 1, max: 5 });
+            billItems.push([bill_item_id, bill_id, food_id, food.price, food.name, quantity]);
+          }
 
+          // ✅ Chèn bill items vào DB
+          if (billItems.length > 0) {
+            await connection.query(
+              `INSERT INTO bill_items (bill_item_id, bill_id, food_id, price_at_purchase, name_at_purchase, quantity)
+               VALUES ?`,
+              [billItems],
+            );
+
+            // ✅ Cập nhật lại `total_amount` từ `bill_items`
             await connection.execute(
               `
-              INSERT INTO bill_items (bill_item_id, bill_id, food_id, price_at_purchase, name_at_purchase, quantity)
-              VALUES (?, ?, ?, ?, ?, ?)
+              UPDATE bills
+              SET total_amount = (
+                SELECT COALESCE(SUM(price_at_purchase * quantity), 0)
+                FROM bill_items
+                WHERE bill_id = ?
+              )
+              WHERE bill_id = ?
               `,
-              [bill_item_id, bill_id, food_id, food.price, food.name, quantity],
+              [bill_id, bill_id],
             );
           }
         }
@@ -434,6 +507,159 @@ const createTablesReservationsAndBills = async ({
     }
   }
   console.log(`✅ Inserted tables, reservations, bills, and bill items`);
+};
+
+const foodSearchQueries = [
+  // Các món ăn sáng
+  "bánh mì",
+  "bánh mì chả lụa",
+  "bánh mì trứng",
+  "bánh mì thịt nướng",
+  "bánh cuốn",
+  "bún bò Huế",
+  "phở bò",
+  "phở gà",
+  "bún chả",
+  "xôi xéo",
+  "xôi gà",
+  "xôi lạp xưởng",
+  "xôi bắp",
+  "bánh ướt",
+  "hủ tiếu",
+  "mì quảng",
+  "bánh canh",
+  "bánh bèo",
+  "bún riêu cua",
+  "bánh đúc nóng",
+  "bánh hỏi lòng heo",
+
+  // Các món ăn trưa
+  "cơm tấm",
+  "cơm sườn",
+  "cơm gà Hội An",
+  "cơm chiên dương châu",
+  "cơm hến",
+  "bún thịt nướng",
+  "bún đậu mắm tôm",
+  "bún mắm",
+  "bún cá",
+  "bún bò Nam Bộ",
+  "mì vịt tiềm",
+  "cơm gà xối mỡ",
+  "cơm niêu",
+  "cơm rang",
+  "cơm trộn Hàn Quốc",
+  "cơm cá kho",
+  "cơm chay",
+
+  // Các món ăn tối
+  "bánh xèo",
+  "bánh khọt",
+  "nem lụi",
+  "gỏi cuốn",
+  "chả cá lã vọng",
+  "chả giò",
+  "gà nướng",
+  "gà bó xôi",
+  "mì cay",
+  "bò né",
+  "bò kho",
+  "bánh tráng nướng",
+  "bánh căn",
+  "bánh tráng trộn",
+  "bánh tráng cuốn",
+
+  // Hải sản & món nhậu
+  "lẩu thái",
+  "lẩu hải sản",
+  "lẩu bò",
+  "lẩu gà lá é",
+  "lẩu cá kèo",
+  "lẩu cua đồng",
+  "cá lóc nướng trui",
+  "tôm hùm",
+  "cua rang me",
+  "ghẹ hấp bia",
+  "ốc hương",
+  "ốc len xào dừa",
+  "sò huyết",
+  "sò điệp nướng mỡ hành",
+  "nghêu hấp sả",
+  "bò nhúng dấm",
+  "gỏi gà",
+  "gỏi bò bóp thấu",
+  "chân gà nướng",
+  "dê nướng",
+  "dê hấp tía tô",
+  "lòng nướng",
+  "lòng xào nghệ",
+  "bò tái chanh",
+
+  // Đồ ăn nhanh
+  "pizza",
+  "hamburger",
+  "gà rán",
+  "khoai tây chiên",
+  "mì cay Hàn Quốc",
+  "tokbokki",
+  "hotdog phô mai",
+  "ramen",
+  "takoyaki",
+  "sushi",
+  "cá viên chiên",
+  "bánh gạo cay",
+  "gà sốt cay Hàn Quốc",
+  "bánh mì que",
+
+  // Đồ uống & tráng miệng
+  "trà sữa",
+  "chè khúc bạch",
+  "chè bưởi",
+  "chè thập cẩm",
+  "chè trôi nước",
+  "sâm bổ lượng",
+  "nước mía",
+  "trà đào cam sả",
+  "cà phê sữa đá",
+  "bạc xỉu",
+  "sinh tố bơ",
+  "sinh tố xoài",
+  "sinh tố dâu",
+  "sữa chua nếp cẩm",
+  "kem dừa",
+  "kem flan",
+  "bánh flan",
+  "bánh bông lan trứng muối",
+  "bánh su kem",
+  "bánh crepe sầu riêng",
+  "bánh mousse chanh dây",
+  "bánh tiramisu",
+  "bánh donut",
+  "bánh tart trứng",
+];
+
+const createRandomSearchHistory = async () => {
+  for (const userId of userIds) {
+    const numberOfSearches = faker.number.int({ min: 40, max: 100 });
+    const searchSet = new Set();
+
+    for (let i = 0; i < numberOfSearches; i++) {
+      searchSet.add(faker.helpers.arrayElement(foodSearchQueries));
+    }
+
+    for (const searchQuery of searchSet) {
+      const normalizedQuery = removeDiacritics(searchQuery);
+
+      await connection.query(
+        `INSERT INTO search_history (user_id, search_query, search_query_normalized) 
+         VALUES (?, ?, ?) 
+         ON DUPLICATE KEY UPDATE created_at = NOW(), search_query_normalized = ?`,
+        [userId, searchQuery, normalizedQuery, normalizedQuery],
+      );
+    }
+  }
+
+  console.log("✅ Inserted random search history");
 };
 
 const seedDatabase = async (password) => {
@@ -446,6 +672,7 @@ const seedDatabase = async (password) => {
     await createFoodCategories();
     await createFoods();
     await createTablesReservationsAndBills();
+    await createRandomSearchHistory();
     await connection.commit();
     console.log("🎉 Seeding complete!");
   } catch (error) {
