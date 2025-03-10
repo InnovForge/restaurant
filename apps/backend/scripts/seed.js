@@ -6,7 +6,10 @@ import { nanoidNumbersOnly } from "../src/utils/nanoid.js";
 import readline from "readline";
 import { generateUniqueFoods } from "./generate/food.js";
 import { removeDiacritics } from "../src/utils/removeDiacritics.js";
-
+import fs from "fs";
+import path from "path";
+import mime from "mime-types";
+import { uploadFileFood } from "../src/utils/s3.js";
 dotenvFlow.config();
 
 const connection = await mysql.createConnection({
@@ -17,9 +20,9 @@ const connection = await mysql.createConnection({
   port: process.env.MYSQL_PORT,
 });
 
-const NUMBER_OF_USERS = 30;
+const NUMBER_OF_USERS = 100;
 const NUMBER_OF_RESTAURANTS = Math.floor(NUMBER_OF_USERS / 3);
-const NUMBER_OF_FOODS_PER_RESTAURANT = 20;
+const NUMBER_OF_FOODS_PER_RESTAURANT = 100;
 const NUMBER_OF_BILLS = 200;
 
 const userIds = [];
@@ -277,17 +280,67 @@ const FOOD_CATEGORIES = [
   "Bánh tráng chảo",
 ];
 
+function getRandomImage() {
+  const files = fs.readdirSync(imagesDir);
+  if (files.length === 0) throw new Error("No images found in images/ directory");
+
+  const randomFile = files[Math.floor(Math.random() * files.length)];
+  console.log(randomFile);
+  return path.join(imagesDir, randomFile);
+}
+
+const imagesDir = path.join(process.cwd(), "images");
+
+const usedFileNames = new Set();
+
+async function uploadRandomImage(restaurantId, foodId) {
+  let imagePath, fileBuffer, fileSize, fileMimeType, fileName, objectName;
+  let attempt = 0;
+
+  do {
+    imagePath = getRandomImage();
+    fileBuffer = fs.readFileSync(imagePath);
+    fileSize = fileBuffer.length;
+    fileMimeType = mime.lookup(imagePath) || "application/octet-stream";
+
+    const parsedPath = path.parse(imagePath); // Tách phần mở rộng
+    fileName = parsedPath.name; // Lấy tên file không có đuôi mở rộng
+
+    if (usedFileNames.has(`${restaurantId}-${fileName}`)) {
+      attempt++;
+      fileName = `${parsedPath.name}-${attempt}`; // Thêm số nếu trùng
+    }
+  } while (usedFileNames.has(`${restaurantId}-${fileName}`));
+
+  usedFileNames.add(`${restaurantId}-${fileName}`);
+
+  objectName = `${restaurantId}/food/${foodId}/${fileName}${path.extname(imagePath)}`; // Giữ nguyên file khi upload
+
+  const fileUrl = await uploadFileFood(objectName, {
+    buffer: fileBuffer,
+    size: fileSize,
+    mimetype: fileMimeType,
+  });
+
+  return {
+    url: fileUrl,
+    name: fileName, // Chỉ trả về tên file, bỏ phần mở rộng
+  };
+}
+
 const createFoods = async () => {
   for (let i = 0; i < NUMBER_OF_RESTAURANTS; i++) {
     for (let j = 0; j < NUMBER_OF_FOODS_PER_RESTAURANT; j++) {
       const food_id = nanoidNumbersOnly();
       const restaurant_id = restaurantIds[Math.floor(Math.random() * restaurantIds.length)];
-      const name = faker.helpers.arrayElement(generateUniqueFoods());
+
       const description = faker.lorem.sentences(2);
       const price = faker.number.int({ min: 10000, max: 500000 }) & ~1;
-
+      const { url: image_url, name } = await uploadRandomImage(restaurant_id, food_id);
       const price_type = "VND";
-      const image_url = faker.image.url();
+      // const name = faker.helpers.arrayElement(generateUniqueFoods());
+
+      console.log(image_url, name);
       const available = faker.datatype.boolean();
 
       await connection.execute(
