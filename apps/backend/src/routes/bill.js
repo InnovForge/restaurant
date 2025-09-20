@@ -1,7 +1,6 @@
 import { Router } from "express";
 import * as billController from "../controllers/bill.js";
 import { authenticateJWT } from "../middlewares/authenticate.js";
-import { ro } from "@faker-js/faker";
 
 const router = Router();
 

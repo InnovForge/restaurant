@@ -1,4 +1,3 @@
-import { de } from "@faker-js/faker";
 import { pool } from "../configs/mysql.js";
 import { nanoidNumbersOnly } from "../utils/nanoid.js";
 

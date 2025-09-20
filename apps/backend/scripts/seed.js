@@ -336,9 +336,10 @@ const createFoods = async () => {
 
       const description = faker.lorem.sentences(2);
       const price = faker.number.int({ min: 10000, max: 500000 }) & ~1;
-      const { url: image_url, name } = await uploadRandomImage(restaurant_id, food_id);
+      // const { url: image_url, name } = await uploadRandomImage(restaurant_id, food_id);
       const price_type = "VND";
-      // const name = faker.helpers.arrayElement(generateUniqueFoods());
+      const image_url = faker.image.urlPicsumPhotos({ width: 400, height: 400 });
+      const name = faker.helpers.arrayElement(generateUniqueFoods());
 
       console.log(image_url, name);
       const available = faker.datatype.boolean();

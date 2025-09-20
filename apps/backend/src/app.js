@@ -4,7 +4,6 @@ import router from "./routes/index.js";
 import dotenvFlow from "dotenv-flow";
 import { logger } from "./utils/logger.js";
 import cookieParser from "cookie-parser";
-import swaggerDocs from "./swagger.js";
 import { camelCase } from "./middlewares/camelCase.js";
 import { createServer } from "http";
 import { initSocket } from "./sockets/socket.js";
@@ -35,5 +34,4 @@ initSocket(server);
 
 server.listen(PORT, () => {
   logger.info(`Express server running on port http://localhost:${PORT}/`);
-  swaggerDocs(app, PORT);
 });

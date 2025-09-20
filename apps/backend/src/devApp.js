@@ -3,6 +3,7 @@ import ngrok from "@ngrok/ngrok";
 import { logger } from "./utils/logger.js";
 import localtunnel from "localtunnel";
 import { ensureBucketExists } from "./configs/minio.js";
+import swaggerDocs from "./swagger.js";
 
 const PORT = process.env.PORT || 3000;
 
@@ -33,6 +34,7 @@ nodemon
       await waitForMinIO();
       await ensureBucketExists("users");
       await ensureBucketExists("restaurants");
+      // swaggerDocs(app, PORT);
     })();
 
     if (!url) {

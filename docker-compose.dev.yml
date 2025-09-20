@@ -1,22 +1,127 @@
-services: 
-  db:
-    image: mysql:9.1.0
-    container_name: mysql-rt 
+services:  
+  mysql1:
+    image: mysql/mysql-server:8.0
+    container_name: mysql1
     restart: always
     environment:
       - MYSQL_DATABASE=${MYSQL_DATABASE}
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
       - MYSQL_USER=${MYSQL_USER}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_ROOT_HOST=%
       - TZ=UTC
+    command: >
+      --server-id=1
+      --log-bin=mysql-bin
+      --gtid-mode=ON
+      --enforce-gtid-consistency=ON
+      --binlog-checksum=NONE
+      --log-slave-updates=ON
+      --read-only=OFF
+      --plugin-load-add=mysql_clone.so
     ports:
-      - "${MYSQL_PORT}:3306"
+      - "3307:3306"
+    depends_on:
+      - mysql2
     volumes:
-      - mysql_volume:/var/lib/mysql
+      - mysql1_data:/var/lib/mysql
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     env_file: 
       - path: .env.development
         required: true
+
+  mysql2:
+    image: mysql/mysql-server:8.0
+    container_name: mysql2
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_ROOT_HOST=%
+      - TZ=UTC
+    command: >
+      --server-id=2
+      --log-bin=mysql-bin
+      --gtid-mode=ON
+      --enforce-gtid-consistency=ON
+      --binlog-checksum=NONE
+      --log-slave-updates=ON
+      --read-only=OFF
+      --plugin-load-add=mysql_clone.so
+    ports:
+      - "3308:3306"
+    volumes:
+      - mysql2_data:/var/lib/mysql
+
+  # mysql3: 
+  #   image: mysql/mysql-server:8.0
+  #   container_name: mysql3
+  #   restart: always
+  #   environment:
+  #     - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+  #     - MYSQL_ROOT_HOST=%
+  #     - TZ=UTC
+  #   command: >
+  #     --server-id=3
+  #     --log-bin=mysql-bin
+  #     --gtid-mode=ON
+  #     --enforce-gtid-consistency=ON
+  #     --binlog-checksum=NONE
+  #     --log-slave-updates=ON
+  #     --read-only=OFF
+  #     --plugin-load-add=mysql_clone.so
+  #   ports:
+  #     - "3309:3306"
+  #   volumes:
+  #     - mysql3_data:/var/lib/mysql
+
+  mysql-router:
+    image: mysql/mysql-router:8.0
+    container_name: mysql-router
+    restart: always
+    environment:
+      - MYSQL_HOST=mysql1
+      - MYSQL_PORT=3306
+      - MYSQL_USER=replicator
+      - MYSQL_PASSWORD=cdio@team1
+    depends_on:
+      - mysql-shell
+    ports:
+      - "6446:6446" # read/write endpoint
+      - "6447:6447" # read-only endpoint
+
+  mysql-shell:
+    build:
+      context: ./mysql-shell
+      dockerfile: Dockerfile
+    container_name: mysql-shell
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    depends_on:
+      mysql1:
+        condition: service_healthy
+      mysql2:
+        condition: service_healthy
+    volumes:
+      - ./init-cluster.js:/init-cluster.js
+    entrypoint: ["mysqlsh", "--js", "-f", "/init-cluster.js", "--no-wizard"]
+
+  # grafana:
+  #   image: grafana/grafana:latest
+  #   container_name: grafana
+  #   restart: always
+  #   environment:
+  #     - GF_SECURITY_ADMIN_USER=admin
+  #     - GF_SECURITY_ADMIN_PASSWORD=admin
+  #   ports:
+  #     - "3000:3000"   # Dashboard web UI
+  #   volumes:
+  #     - grafana_data:/var/lib/grafana
+  #   depends_on:
+  #     - mysql1
+  #     - mysql2
+  #     - mysql3
+
+
   s3:
     image: minio/minio
     container_name: minio-rt
@@ -35,6 +140,7 @@ services:
         required: false # default 
       - path: .env.development
         required: false
+
   redis:
     image: redis:7.4.2-alpine
     container_name: redis-rt
@@ -49,7 +155,11 @@ services:
       - path: .env.development
         required: false
 
+
 volumes:
-  mysql_volume:
+  # grafana_data:
+  mysql1_data:
+  mysql2_data:
+  # mysql3_data:
   minio_volume:
   redis_volume:

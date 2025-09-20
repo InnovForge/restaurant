@@ -3,7 +3,6 @@ import * as tableController from "../controllers/table.js";
 import { authRestaurant, ROLE } from "../middlewares/roleRestaurant.js";
 import { authenticateJWT } from "../middlewares/authenticate.js";
 import multer from "multer";
-import { ro } from "@faker-js/faker";
 // import tableModel from "../models/table.js";
 
 const storage = multer.memoryStorage();

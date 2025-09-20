@@ -2,7 +2,7 @@ FROM node:23-alpine
 
 WORKDIR /app
 
-ARG VITE_APP_API_URL=http://backend:3000
+ARG VITE_APP_API_URL=http://localhost:90/api
 
 ENV VITE_APP_API_URL=$VITE_APP_API_URL
 
