@@ -28,6 +28,7 @@
 		"docker:start": "docker compose -f docker-compose.dev.yml --env-file .env.development start",
 		"docker:stop": "docker compose -f docker-compose.dev.yml --env-file .env.development stop",
 		"docker:restart": "docker compose -f docker-compose.dev.yml --env-file .env.development restart",
+    "test": "docker compose run --rm k6 run /scripts/test.js",
 		"prepare": "husky"
 	},
 	"keywords": [],

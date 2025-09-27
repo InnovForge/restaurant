@@ -4,24 +4,31 @@ import userModel from "../models/user.js";
 import { createNewAccessToken, createSesionLogin } from "../utils/jwt.js";
 import responseHandler from "../utils/response.js";
 import { validateFields } from "../utils/validate-fields.js";
+import logger from "../configs/logger.js";
 
 export const login = async (req, res) => {
-  const { username, password } = req.body;
-  const errors = validateFields(req.body, ["username", "password"], true);
-  if (errors) {
-    return responseHandler.badRequest(res, undefined, errors);
-  }
+  try {
+    const { username, password } = req.body;
+    const errors = validateFields(req.body, ["username", "password"], true);
+    if (errors) {
+      return responseHandler.badRequest(res, undefined, errors);
+    }
 
-  const user = await userModel.getUserByUsername(username);
-  if (!user) {
-    return responseHandler.unauthorized(res, "Unauthorized, invalid username or password");
+    const user = await userModel.getUserByUsername(username);
+    if (!user) {
+      return responseHandler.unauthorized(res, "Unauthorized, invalid username or password");
+    }
+    const isPasswordMatch = await bcrypt.compare(password, user.password);
+    if (!isPasswordMatch) {
+      return responseHandler.unauthorized(res, "Unauthorized, invalid username or password");
+    }
+    createSesionLogin(res, user.user_id);
+    logger.info(`User ${username} logged in`);
+    return responseHandler.success(res);
+  } catch (error) {
+    logger.error("Login error:", error);
+    return responseHandler.internalServerError(res);
   }
-  const isPasswordMatch = await bcrypt.compare(password, user.password);
-  if (!isPasswordMatch) {
-    return responseHandler.unauthorized(res, "Unauthorized, invalid username or password");
-  }
-  createSesionLogin(res, user.user_id);
-  return responseHandler.success(res);
 };
 
 export const register = async (req, res) => {
@@ -43,6 +50,7 @@ export const register = async (req, res) => {
       phoneNumber,
     });
 
+    logger.info(`User ${username} registered`);
     responseHandler.created(res);
   } catch (error) {
     if (error.code === "ER_DUP_ENTRY") {
@@ -58,7 +66,7 @@ export const register = async (req, res) => {
         "ER_DUP_ENTRY",
       );
     }
-    console.log("error :>> ", error);
+    logger.error("Registration error:", error);
     return responseHandler.internalServerError(res);
   }
 };
@@ -76,10 +84,11 @@ export const refreshToken = async (req, res) => {
         return responseHandler.unauthorized(res, undefined, "TOKEN_EXPIRED");
       }
       createNewAccessToken(res, user.userId);
+      logger.info(`Access token refreshed for user ID ${user.userId}`);
       return responseHandler.created(res);
     });
   } catch (error) {
-    console.log("error :>> ", error);
+    logger.error("Refresh token error:", error);
     return responseHandler.internalServerError(res);
   }
 };

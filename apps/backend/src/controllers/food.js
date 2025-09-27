@@ -104,7 +104,7 @@ export const getFoods = async (req, res) => {
       default:
         return responseHandler.badRequest(res, ERROR_TYPE.INVALID_QUERY_PARAMS);
     }
-    cacheResponse(req.originalUrl, foods, 60 * 2);
+    cacheResponse(req.originalUrl, foods, 60 * 5);
     return responseHandler.success(res, undefined, foods);
   } catch (error) {
     console.log("error :>> ", error);

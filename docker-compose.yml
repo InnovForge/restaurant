@@ -18,6 +18,7 @@ services:
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
       - MYSQL_DATABASE=${MYSQL_DATABASE}
       - MYSQL_USER=${MYSQL_USER}
+      - HOST_NAME=backend1
     env_file: 
       - path: .env
         required: true
@@ -43,6 +44,7 @@ services:
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
       - MYSQL_DATABASE=${MYSQL_DATABASE}
       - MYSQL_USER=${MYSQL_USER}
+      - HOST_NAME=backend2
     env_file: 
       - path: .env
         required: true
@@ -101,6 +103,7 @@ services:
       --log-slave-updates=ON
       --read-only=OFF
       --plugin-load-add=mysql_clone.so
+      --local-infile=1
     ports:
       - "3307:3306"
     volumes:
@@ -237,13 +240,16 @@ services:
         "--appendonly",
         "yes",
         "--protected-mode",
-        "no"
+        "no",
+        "--bind",
+        "0.0.0.0"
       ]
     env_file:
       - path: .env
         required: true 
     networks:
-      - app-net
+      redis-net:
+       ipv4_address: 172.50.0.2
 
   redis2-rt:
     image: redis:7.4.2-alpine
@@ -254,77 +260,88 @@ services:
     volumes:
       - redis_volume2:/data
     command:
-      [
-        "redis-server",
-        "--appendonly", "yes",
-        "--replicaof", "redis1-rt", "6379",
-        "--repl-diskless-load", "on-empty-db",
-        "--replica-announce-ip", "redis2-rt",
-        "--replica-announce-port", "6379",
-        "--protected-mode", "no"
-      ]
+     [
+      "redis-server",
+      "--appendonly", "yes",
+      "--slaveof", "redis1-rt", "6379",
+      "--bind", "0.0.0.0",
+     ] 
     env_file:
       - path: .env
         required: true 
     networks:
-      - app-net
+      redis-net:
+       ipv4_address: 172.50.0.3
 
   redis3-rt:
     image: redis:7.4.2-alpine
     container_name: redis3-rt
     restart: always
     ports:
-      - "6383:6379"
+      - "6383:6379" 
     command:
-      [
-        "redis-server",
-        "--appendonly",
-        "yes",
-        "--replicaof",
-        "redis1-rt",
-        "6379",
-        "--repl-diskless-load",
-        "on-empty-db",
-        "--replica-announce-ip",
-        "redis3-rt",
-        "--replica-announce-port",
-        "6379",
-        "--protected-mode",
-        "no"
-      ]
+     [
+      "redis-server",
+      "--appendonly", "yes",
+      "--slaveof", "redis1-rt", "6379",
+      "--bind", "0.0.0.0",
+     ]
     volumes:
       - redis_volume3:/data
     env_file:
       - path: .env
         required: true 
     networks:
-      - app-net
+      redis-net:
+       ipv4_address: 172.50.0.4
 
   redis-sentinel1:
     image: redis:7.4.2-alpine
     container_name: redis-sentinel1
     restart: always
+
+    command: >
+      sh -c 'cp /sentinel.conf /etc/sentinel.conf && redis-sentinel /etc/sentinel.conf'
     volumes:
-      - ./redis/sentinel1:/etc/redis
-      - redis_s1:/data
-    command: ["redis-sentinel", "/etc/redis/sentinel.conf"]
+      - ./redis/sentinel2/sentinel.conf:/sentinel.conf
+    # command: >
+    #   sh -c 'echo "bind 0.0.0.0" > /etc/sentinel.conf &&
+    #      echo "port 26379" >> /etc/sentinel.conf &&
+    #      echo "sentinel monitor mymaster redis1-rt 6379 2" >> /etc/sentinel.conf &&
+    #      echo "sentinel resolve-hostnames yes" >> /etc/sentinel.conf &&
+    #      echo "sentinel down-after-milliseconds mymaster 5000" >> /etc/sentinel.conf &&
+    #      echo "sentinel failover-timeout mymaster 10000" >> /etc/sentinel.conf &&
+    #      echo "sentinel parallel-syncs mymaster 1" >> /etc/sentinel.conf &&
+    #      redis-sentinel /etc/sentinel.conf'
     ports:
       - "26381:26379"
+  
     depends_on:
       - redis1-rt
       - redis2-rt
       - redis3-rt
     networks:
-      - app-net
+      redis-net:
+       ipv4_address: 172.50.0.5
 
   redis-sentinel2:
     image: redis:7.4.2-alpine
     container_name: redis-sentinel2
     restart: always
+  
+    command: >
+      sh -c 'cp /sentinel.conf /etc/sentinel.conf && redis-sentinel /etc/sentinel.conf'
     volumes:
-      - ./redis/sentinel2:/etc/redis
-      - redis_s2:/data
-    command: ["redis-sentinel", "/etc/redis/sentinel.conf"]
+      - ./redis/sentinel2/sentinel.conf:/sentinel.conf
+    # command: >
+    #   sh -c 'echo "bind 0.0.0.0" > /etc/sentinel.conf &&
+    #      echo "port 26379" >> /etc/sentinel.conf &&
+    #      echo "sentinel monitor mymaster redis1-rt 6379 2" >> /etc/sentinel.conf &&
+    #      echo "sentinel resolve-hostnames yes" >> /etc/sentinel.conf &&
+    #      echo "sentinel down-after-milliseconds mymaster 5000" >> /etc/sentinel.conf &&
+    #      echo "sentinel failover-timeout mymaster 10000" >> /etc/sentinel.conf &&
+    #      echo "sentinel parallel-syncs mymaster 1" >> /etc/sentinel.conf &&
+    #      redis-sentinel /etc/sentinel.conf'
     ports:
       - "26382:26379"
     depends_on:
@@ -332,16 +349,28 @@ services:
       - redis2-rt
       - redis3-rt
     networks:
-      - app-net
+      redis-net:
+       ipv4_address: 172.50.0.6
+
 
   redis-sentinel3:
     image: redis:7.4.2-alpine
     container_name: redis-sentinel3
     restart: always
+
+    command: >
+      sh -c 'cp /sentinel.conf /etc/sentinel.conf && redis-sentinel /etc/sentinel.conf'
     volumes:
-      - ./redis/sentinel3:/etc/redis
-      - redis_s3:/data
-    command: ["redis-sentinel", "/etc/redis/sentinel.conf"]
+      - ./redis/sentinel3/sentinel.conf:/sentinel.conf
+    # command: >
+    #   sh -c 'echo "bind 0.0.0.0" > /etc/sentinel.conf &&
+    #      echo "port 26379" >> /etc/sentinel.conf &&
+    #      echo "sentinel monitor mymaster redis1-rt 6379 2" >> /etc/sentinel.conf &&
+    #      echo "sentinel resolve-hostnames yes" >> /etc/sentinel.conf &&
+    #      echo "sentinel down-after-milliseconds mymaster 5000" >> /etc/sentinel.conf &&
+    #      echo "sentinel failover-timeout mymaster 10000" >> /etc/sentinel.conf &&
+    #      echo "sentinel parallel-syncs mymaster 1" >> /etc/sentinel.conf &&
+    #      redis-sentinel /etc/sentinel.conf'
     ports:
       - "26383:26379"
     depends_on:
@@ -349,7 +378,8 @@ services:
       - redis2-rt
       - redis3-rt
     networks:
-      - app-net
+      redis-net:
+       ipv4_address: 172.50.0.7
 
   redisinsight:
     image: redis/redisinsight:latest
@@ -364,7 +394,7 @@ services:
     container_name: redis-haproxy
     restart: always
     ports:
-      - "63790:6379"   # HAProxy port cho client
+      - "63790:6379"   
       - "8404:8404"
     volumes:
      - ./redis/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
@@ -373,7 +403,9 @@ services:
      - redis2-rt
      - redis3-rt
     networks:
-      - app-net
+      redis-net:
+       ipv4_address: 172.50.0.8
+      app-net:
 
   nginx:
     image: nginx:alpine
@@ -386,6 +418,99 @@ services:
     networks:
       - app-net
 
+  mysqld-exporter:
+    image: prom/mysqld-exporter:latest
+    container_name: mysqld-exporter
+    restart: always
+    command:
+     - "--config.my-cnf=/etc/mysql/exporter.cnf"
+     - "--collect.global_status"
+     - "--collect.info_schema.innodb_metrics"
+     - "--collect.auto_increment.columns"
+    volumes:
+     - ./exporter.cnf:/etc/mysql/exporter.cnf:ro
+    ports:
+     - "9104:9104"
+    networks:
+     - app-net  
+
+  redis-exporter:
+    image: oliver006/redis_exporter:latest
+    container_name: redis_exporter
+    command:
+     - "--redis.addr="
+    ports:
+     - "9121:9121"
+    networks:
+      redis-net:
+       ipv4_address: 172.50.0.9
+      app-net:
+   
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    restart: always
+    depends_on:
+      - mysql-router
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - app-net
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: always
+    ports:
+      - "3000:3000"  
+    depends_on:
+      - prometheus
+    volumes:
+    - grafana_data:/var/lib/grafana
+    - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+    - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    networks:
+      - app-net
+
+  # alloy:
+  #   image: grafana/alloy:latest
+  #   container_name: alloy
+  #   volumes:
+  #     - ./alloy-config.alloy:/etc/alloy/config.alloy
+  #     - /var/run/docker.sock:/var/run/docker.sock
+  #   command: run --config.file=/etc/alloy/config.alloy
+  #   depends_on:
+  #     - backend1
+  #     - backend2
+  #     - loki
+  #   networks:
+  #     - app-net
+  #
+
+  loki:
+    image: grafana/loki:latest
+    ports:
+      - "3100:3100"
+    restart: unless-stopped
+    networks:
+      - app-net
+
+  k6:
+    image: grafana/k6:latest
+    volumes:
+      - ./tests:/scripts
+    working_dir: /scripts
+    entrypoint: [ "k6" ]
+    depends_on:
+      - nginx
+
+ 
+
 volumes:
   mysql1_data:
   mysql2_data:
@@ -394,11 +519,15 @@ volumes:
   redis_volume1:
   redis_volume2:
   redis_volume3:
-  redis_s1:
-  redis_s2:
-  redis_s3:
-
+  grafana_data:
+ 
 networks:
   app-net:
     driver: bridge
+  redis-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.50.0.0/24
+
 

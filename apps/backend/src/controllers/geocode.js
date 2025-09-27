@@ -1,6 +1,6 @@
+import logger from "../configs/logger.js";
 import { cacheResponse } from "../middlewares/apiCache.js";
 import * as service from "../services/geocode.js";
-import { logger } from "../utils/logger.js";
 import responseHandler from "../utils/response.js";
 
 const processLocationResults = (data) => {
@@ -40,6 +40,7 @@ export const geocode = async (req, res) => {
     return responseHandler.success(res, undefined, locations);
   } catch (error) {
     logger.error("Error during geocoding:", error);
+
     return responseHandler.internalServerError(res);
   }
 };

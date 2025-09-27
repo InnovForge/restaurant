@@ -9,6 +9,7 @@ import { removeDiacritics } from "../src/utils/removeDiacritics.js";
 import fs from "fs";
 import path from "path";
 import mime from "mime-types";
+import cliProgress from "cli-progress";
 import { uploadFileFood } from "../src/utils/s3.js";
 dotenvFlow.config();
 
@@ -20,9 +21,10 @@ const connection = await mysql.createConnection({
   port: process.env.MYSQL_PORT,
 });
 
-const NUMBER_OF_USERS = 100;
-const NUMBER_OF_RESTAURANTS = Math.floor(NUMBER_OF_USERS / 3);
-const NUMBER_OF_FOODS_PER_RESTAURANT = 100;
+const TOTAL_FOODS_TARGET = 500000;
+const FOODS_PER_RESTAURANT = 100;
+const NUMBER_OF_RESTAURANTS = Math.ceil(TOTAL_FOODS_TARGET / FOODS_PER_RESTAURANT);
+const NUMBER_OF_USERS = NUMBER_OF_RESTAURANTS * 3;
 const NUMBER_OF_BILLS = 200;
 
 const userIds = [];
@@ -30,86 +32,154 @@ const addressIds = [];
 const restaurantIds = [];
 const foodIds = [];
 
-const createUsers = async (pass = "cdio@team1") => {
-  for (let i = 0; i < NUMBER_OF_USERS; i++) {
-    const user_id = nanoidNumbersOnly();
-    userIds.push(user_id);
+const USER_BATCH = 10000;
 
-    const name = faker.person.fullName();
-    const gender = faker.number.int({ min: 0, max: 2 });
-    const username = faker.internet.username().toLowerCase();
-    const password = await bcrypt.hash(pass, 10);
-    const email = faker.internet.email();
-    const avatar_url = faker.image.avatar();
-    const phone_number = faker.phone.number({ style: "international" });
+export async function createUsers(connection, pass = "cdio@team1") {
+  const hashPassword = await bcrypt.hash(pass, 10);
+  const bar = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic);
+  bar.start(NUMBER_OF_USERS, 0);
 
-    await connection.execute(
-      `
-      INSERT INTO users (user_id, name, gender, username, password, email, avatar_url, phone_number)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    `,
-      [user_id, name, gender, username, password, email, avatar_url, phone_number],
-    );
+  for (let i = 0; i < NUMBER_OF_USERS; i += USER_BATCH) {
+    const usersChunk = [];
+    const addressesChunk = [];
+    const userAddressesChunk = [];
 
-    const numAddresses = faker.number.int({ min: 1, max: 5 });
+    for (let j = 0; j < USER_BATCH && i + j < NUMBER_OF_USERS; j++) {
+      const user_id = nanoidNumbersOnly();
+      userIds.push(user_id);
 
-    let addresses = [];
-    for (let j = 0; j < numAddresses; j++) {
-      const address_id = nanoidNumbersOnly();
-      const address_line1 = faker.location.streetAddress();
-      const address_line2 = faker.datatype.boolean() ? faker.location.secondaryAddress() : null;
-      const longitude = parseFloat(faker.location.longitude({ min: 108.1, max: 108.3 }));
-      const latitude = parseFloat(faker.location.latitude({ min: 15.95, max: 16.15 }));
+      let baseUsername = faker.internet.username().toLowerCase();
+      const suffix = faker.number.int({ min: 1000, max: 9999 }).toString();
+      const username = (baseUsername + suffix).slice(0, 30);
 
-      await connection.execute(
-        `
-        INSERT INTO addresses (address_id, address_line1, address_line2, longitude, latitude)
-        VALUES (?, ?, ?, ?, ?)
-      `,
-        [address_id, address_line1, address_line2, longitude, latitude],
-      );
+      // user
+      usersChunk.push([
+        user_id,
+        faker.person.fullName(),
+        faker.number.int({ min: 0, max: 2 }),
+        username,
+        hashPassword,
+        faker.internet.email(),
+        faker.image.avatar(),
+        faker.phone.number({ style: "international" }),
+      ]);
 
-      addresses.push(address_id);
+      // address(es)
+      const numAddresses = faker.number.int({ min: 1, max: 5 });
+      for (let k = 0; k < numAddresses; k++) {
+        const address_id = nanoidNumbersOnly();
+        addressesChunk.push([
+          address_id,
+          faker.location.streetAddress(),
+          faker.datatype.boolean() ? faker.location.secondaryAddress() : null,
+          parseFloat(faker.location.longitude({ min: 108.1, max: 108.3 })),
+          parseFloat(faker.location.latitude({ min: 15.95, max: 16.15 })),
+        ]);
+        userAddressesChunk.push([
+          nanoidNumbersOnly(),
+          address_id,
+          user_id,
+          faker.phone.number({ style: "international" }),
+          k === 0, // địa chỉ đầu tiên là default
+        ]);
+      }
     }
 
-    for (let j = 0; j < addresses.length; j++) {
-      await connection.execute(
-        `
-        INSERT INTO user_addresses (user_address_id, address_id, user_id, phone_number, is_default)
-        VALUES (?, ?, ?, ?, ?)
-      `,
-        [nanoidNumbersOnly(), addresses[j], user_id, phone_number, j === 0],
-      );
+    try {
+      await connection.beginTransaction();
+
+      if (usersChunk.length)
+        await connection.query(
+          `INSERT INTO users (user_id, name, gender, username, password, email, avatar_url, phone_number) VALUES ?`,
+          [usersChunk],
+        );
+
+      if (addressesChunk.length)
+        await connection.query(
+          `INSERT INTO addresses (address_id, address_line1, address_line2, longitude, latitude) VALUES ?`,
+          [addressesChunk],
+        );
+
+      if (userAddressesChunk.length)
+        await connection.query(
+          `INSERT INTO user_addresses (user_address_id, address_id, user_id, phone_number, is_default) VALUES ?`,
+          [userAddressesChunk],
+        );
+
+      await connection.commit();
+    } catch (err) {
+      await connection.rollback();
+      console.error("❌ Lỗi khi insert batch users:", err);
+      throw err;
     }
+
+    bar.update(Math.min(i + USER_BATCH, NUMBER_OF_USERS));
   }
-  console.log(`✅ Inserted ${NUMBER_OF_USERS} users with multiple addresses`);
-};
 
-const createAddresses = async () => {
+  bar.stop();
+  console.log(`✅ Inserted ${NUMBER_OF_USERS} users (batch mode)`);
+}
+
+const createAddresses = async (batchSize = 15000) => {
+  const addressesToInsert = [];
+  const progressBar = new cliProgress.SingleBar({
+    format: "Seeding address |{bar}| {percentage}% || {value}/{total} address restaurant",
+    barCompleteChar: "\u2588",
+    barIncompleteChar: "\u2591",
+    hideCursor: true,
+  });
+
+  progressBar.start(NUMBER_OF_RESTAURANTS, 0);
+
   for (let i = 0; i < NUMBER_OF_RESTAURANTS; i++) {
     const address_id = nanoidNumbersOnly();
     addressIds.push(address_id);
+
     const address_line1 = faker.location.streetAddress();
     const address_line2 = faker.location.secondaryAddress();
     const longitude = parseFloat(faker.location.longitude({ min: 108.1, max: 108.3 }));
     const latitude = parseFloat(faker.location.latitude({ min: 15.95, max: 16.15 }));
 
-    await connection.execute(
-      `
-      INSERT INTO addresses (address_id, address_line1, address_line2, longitude, latitude)
-      VALUES (?, ?, ?, ?, ?)
-    `,
-      [address_id, address_line1, address_line2, longitude, latitude],
-    );
+    addressesToInsert.push([address_id, address_line1, address_line2, longitude, latitude]);
+
+    if (addressesToInsert.length >= batchSize) {
+      await insertAddressBatch();
+    }
+    progressBar.update(i + 1);
   }
-  console.log(`✅ Inserted ${NUMBER_OF_RESTAURANTS} addresses`);
+
+  if (addressesToInsert.length > 0) await insertAddressBatch();
+
+  progressBar.stop();
+
+  async function insertAddressBatch() {
+    await connection.beginTransaction();
+    try {
+      if (addressesToInsert.length) {
+        await connection.query(
+          `INSERT INTO addresses (address_id, address_line1, address_line2, longitude, latitude) VALUES ?`,
+          [addressesToInsert],
+        );
+      }
+      await connection.commit();
+      addressesToInsert.length = 0; // reset batch
+    } catch (err) {
+      await connection.rollback();
+      console.error("❌ Lỗi khi insert batch addresses:", err);
+    }
+  }
 };
 
-const createRestaurants = async () => {
+const createRestaurants = async (batchSize = 6000) => {
+  const restaurantsToInsert = [];
+  const restaurantManagersToInsert = [];
+  const restaurantSchedulesToInsert = [];
+  const assignedOwners = new Set(); // track owner đã dùng cho 1 nhà hàng
+
   for (let i = 0; i < NUMBER_OF_RESTAURANTS; i++) {
     if (addressIds.length === 0) {
       console.log("❌ Not enough addresses to assign as restaurant address");
-      return;
+      break;
     }
 
     const restaurant_id = nanoidNumbersOnly();
@@ -121,23 +191,11 @@ const createRestaurants = async () => {
     const logo_url = faker.image.urlPicsumPhotos({ width: 200, height: 200 });
     const cover_url = faker.image.urlPicsumPhotos({ width: 800, height: 400 });
 
-    await connection.execute(
-      `
-      INSERT INTO restaurants (restaurant_id, name, description, address_id, phone_number, logo_url, cover_url)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
-    `,
-      [restaurant_id, name, description, address_id, phone_number, logo_url, cover_url],
-    );
+    restaurantsToInsert.push([restaurant_id, name, description, address_id, phone_number, logo_url, cover_url]);
 
-    await connection.execute(
-      `
-      INSERT INTO restaurant_managers (user_id, restaurant_id, role)
-      VALUES (?, ?, ?)
-    `,
-      [userIds.shift(), restaurant_id, "owner"],
-    );
+    restaurantManagersToInsert.push([userIds.shift(), restaurant_id, "owner"]);
 
-    const schedules = [];
+    // Tạo lịch mở cửa cho 7 ngày
     for (let day = 0; day <= 6; day++) {
       const openingHour = faker.number.int({ min: 6, max: 10 }).toString().padStart(2, "0");
       const openingMinute = faker.number.int({ min: 0, max: 59 }).toString().padStart(2, "0");
@@ -147,71 +205,146 @@ const createRestaurants = async () => {
       const closingMinute = faker.number.int({ min: 0, max: 59 }).toString().padStart(2, "0");
       const closingTime = `${closingHour}:${closingMinute}:00`;
 
-      const isClosed = faker.datatype.boolean({ probability: 0.1 }); // 10%  đóng cửa cả ngày
+      const isClosed = faker.datatype.boolean({ probability: 0.1 });
 
-      schedules.push([restaurant_id, day.toString(), openingTime, closingTime, isClosed]);
+      restaurantSchedulesToInsert.push([restaurant_id, day.toString(), openingTime, closingTime, isClosed]);
     }
 
-    await connection.query(
-      `
-      INSERT INTO restaurant_schedules (restaurant_id, day_of_week, opening_time, closing_time, is_closed)
-      VALUES ?
-    `,
-      [schedules],
-    );
+    // Batch insert
+    if (restaurantsToInsert.length >= batchSize || i === NUMBER_OF_RESTAURANTS - 1) {
+      await connection.beginTransaction();
+      try {
+        if (restaurantsToInsert.length > 0) {
+          await connection.query(
+            `INSERT INTO restaurants (restaurant_id, name, description, address_id, phone_number, logo_url, cover_url) VALUES ?`,
+            [restaurantsToInsert],
+          );
+        }
+        if (restaurantManagersToInsert.length > 0) {
+          await connection.query(`INSERT INTO restaurant_managers (user_id, restaurant_id, role) VALUES ?`, [
+            restaurantManagersToInsert,
+          ]);
+        }
+        if (restaurantSchedulesToInsert.length > 0) {
+          await connection.query(
+            `INSERT INTO restaurant_schedules (restaurant_id, day_of_week, opening_time, closing_time, is_closed) VALUES ?`,
+            [restaurantSchedulesToInsert],
+          );
+        }
 
-    // console.log(`✅ Inserted restaurant: ${NUMBER_OF_RESTAURANTS} with random schedules`);
+        await connection.commit();
+        restaurantsToInsert.length = 0;
+        restaurantManagersToInsert.length = 0;
+        restaurantSchedulesToInsert.length = 0;
+      } catch (error) {
+        await connection.rollback();
+        console.error("❌ Lỗi khi insert batch restaurants:", error);
+      }
+    }
   }
-  console.log(`✅ Inserted ${NUMBER_OF_RESTAURANTS} restaurants with random schedules`);
+
+  console.log(`✅ Inserted ${NUMBER_OF_RESTAURANTS} restaurants with random schedules (batch)`);
 };
 
-const createRestaurantManagers = async () => {
-  const usedUserIds = new Set();
+const createRestaurantManagers = async (batchSize = 15000) => {
+  const managersToInsert = [];
+  const availableUserIds = [...userIds]; // copy để không ảnh hưởng gốc
 
-  while (usedUserIds.size < userIds.length) {
-    const user_id = userIds[Math.floor(Math.random() * userIds.length)];
-    if (usedUserIds.has(user_id)) continue;
-
-    const restaurant_id = restaurantIds[Math.floor(Math.random() * restaurantIds.length)];
-    const role = faker.helpers.arrayElement(["manager", "staff"]);
-
-    await connection.execute(
-      `
-      INSERT INTO restaurant_managers (user_id, restaurant_id, role)
-      VALUES (?, ?, ?)
-    `,
-      [user_id, restaurant_id, role],
-    );
-
-    usedUserIds.add(user_id);
-  }
-
-  console.log(`✅ Inserted ${usedUserIds.size} restaurant managers`);
-};
-
-const createFoodCategories = async () => {
   for (const restaurant_id of restaurantIds) {
-    const numCategories = faker.number.int({ min: 15, max: 30 }); // Mỗi nhà hàng có 5-10 danh mục
+    // random số lượng staff/manager (1–3)
+    const numberOfStaff = faker.number.int({ min: 1, max: 3 });
 
-    const existingCategories = new Set(); // Để lưu danh mục đã tạo cho nhà hàng
+    for (let i = 0; i < numberOfStaff; i++) {
+      if (availableUserIds.length === 0) {
+        console.warn("! Hết userIds để gán role!");
+        break;
+      }
+
+      // lấy user random rồi xóa khỏi danh sách
+      const idx = faker.number.int({
+        min: 0,
+        max: availableUserIds.length - 1,
+      });
+      const [user_id] = availableUserIds.splice(idx, 1);
+
+      const role = faker.helpers.arrayElement(["manager", "staff"]);
+      managersToInsert.push([user_id, restaurant_id, role]);
+    }
+
+    // batch insert
+    if (managersToInsert.length >= batchSize) {
+      try {
+        await connection.query(`INSERT INTO restaurant_managers (user_id, restaurant_id, role) VALUES ?`, [
+          managersToInsert,
+        ]);
+        managersToInsert.length = 0;
+      } catch (error) {
+        console.error("❌ Lỗi khi insert batch restaurant managers:", error);
+      }
+    }
+  }
+
+  // insert phần còn lại
+  if (managersToInsert.length > 0) {
+    try {
+      await connection.query(`INSERT INTO restaurant_managers (user_id, restaurant_id, role) VALUES ?`, [
+        managersToInsert,
+      ]);
+    } catch (error) {
+      console.error("❌ Lỗi khi insert phần còn lại:", error);
+    }
+  }
+
+  console.log("✅ Inserted managers/staff (1–3 per restaurant)");
+};
+
+const createFoodCategories = async (batchSize = 5000) => {
+  const categoriesToInsert = [];
+
+  for (const restaurant_id of restaurantIds) {
+    const numCategories = faker.number.int({ min: 15, max: 30 });
+    const existingCategories = new Set();
 
     for (let i = 0; i < numCategories; i++) {
       let name;
       do {
         name = faker.helpers.arrayElement(FOOD_CATEGORIES);
-      } while (existingCategories.has(name)); // Chọn lại nếu trùng
-
+      } while (existingCategories.has(name));
       existingCategories.add(name);
-      const food_category_id = nanoidNumbersOnly();
 
-      await connection.execute(`INSERT INTO food_categories (food_category_id, restaurant_id, name) VALUES (?, ?, ?)`, [
-        food_category_id,
-        restaurant_id,
-        name,
-      ]);
+      const food_category_id = nanoidNumbersOnly();
+      categoriesToInsert.push([food_category_id, restaurant_id, name]);
+
+      if (categoriesToInsert.length >= batchSize) {
+        await connection.beginTransaction();
+        try {
+          await connection.query(`INSERT INTO food_categories (food_category_id, restaurant_id, name) VALUES ?`, [
+            categoriesToInsert,
+          ]);
+          await connection.commit();
+          categoriesToInsert.length = 0;
+        } catch (error) {
+          await connection.rollback();
+          console.error("❌ Lỗi khi insert batch food categories:", error);
+        }
+      }
     }
   }
-  console.log(`✅ Created food categories with diverse options`);
+
+  if (categoriesToInsert.length > 0) {
+    await connection.beginTransaction();
+    try {
+      await connection.query(`INSERT INTO food_categories (food_category_id, restaurant_id, name) VALUES ?`, [
+        categoriesToInsert,
+      ]);
+      await connection.commit();
+    } catch (error) {
+      await connection.rollback();
+      console.error("❌ Lỗi khi insert final batch food categories:", error);
+    }
+  }
+
+  console.log(`✅ Created food categories with diverse options (batch)`);
 };
 
 const FOOD_CATEGORIES = [
@@ -328,88 +461,151 @@ async function uploadRandomImage(restaurantId, foodId) {
   };
 }
 
-const createFoods = async () => {
-  for (let i = 0; i < NUMBER_OF_RESTAURANTS; i++) {
-    for (let j = 0; j < NUMBER_OF_FOODS_PER_RESTAURANT; j++) {
-      const food_id = nanoidNumbersOnly();
-      const restaurant_id = restaurantIds[Math.floor(Math.random() * restaurantIds.length)];
+const insertFoodsBatchFast = async (foods, foodCategoryMappings, conn) => {
+  if (foods.length > 0) {
+    await conn.query(
+      `INSERT INTO foods 
+        (food_id, restaurant_id, name, description, price, price_type, image_url, available) 
+       VALUES ?`,
+      [foods],
+    );
+  }
 
-      const description = faker.lorem.sentences(2);
-      const price = faker.number.int({ min: 10000, max: 500000 }) & ~1;
-      // const { url: image_url, name } = await uploadRandomImage(restaurant_id, food_id);
-      const price_type = "VND";
-      const image_url = faker.image.urlPicsumPhotos({ width: 400, height: 400 });
-      const name = faker.helpers.arrayElement(generateUniqueFoods());
+  if (foodCategoryMappings.length > 0) {
+    await conn.query(`INSERT INTO food_category_mapping (food_id, food_category_id) VALUES ?`, [foodCategoryMappings]);
+  }
+};
 
-      console.log(image_url, name);
-      const available = faker.datatype.boolean();
+const createFoods = async (conn, batchSize = 30000) => {
+  const totalFoods = NUMBER_OF_RESTAURANTS * FOODS_PER_RESTAURANT;
+  let foodsInserted = 0;
 
-      await connection.execute(
-        `
-        INSERT INTO foods (food_id, restaurant_id, name, description, price, price_type, image_url, available)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        `,
-        [food_id, restaurant_id, name, description, price, price_type, image_url, available],
-      );
-      foodIds.push(food_id);
+  const progressBar = new cliProgress.SingleBar({
+    format:
+      "Seeding Foods |{bar}| {percentage}% || {value}/{total} foods || ETA: {eta_formatted} || Elapsed: {duration_formatted}",
+    barCompleteChar: "\u2588",
+    barIncompleteChar: "\u2591",
+    hideCursor: true,
+  });
 
-      const [categories] = await connection.execute(
-        `SELECT food_category_id FROM food_categories WHERE restaurant_id = ?`,
-        [restaurant_id],
-      );
+  progressBar.start(totalFoods, 0);
 
-      if (categories.length > 0) {
-        const selectedCategories = faker.helpers.arrayElements(categories, faker.number.int({ min: 1, max: 2 }));
+  // ⚡ Disable FK & index
+  await conn.query("SET FOREIGN_KEY_CHECKS=0;");
+  await conn.query("ALTER TABLE foods DISABLE KEYS;");
+  await conn.query("ALTER TABLE food_category_mapping DISABLE KEYS;");
 
-        for (const category of selectedCategories) {
-          await connection.execute(`INSERT INTO food_category_mapping (food_id, food_category_id) VALUES (?, ?)`, [
-            food_id,
-            category.food_category_id,
-          ]);
+  try {
+    const [allCategories] = await conn.execute(`SELECT food_category_id, restaurant_id FROM food_categories`);
+
+    // Map categories theo restaurant
+    const categoryMap = new Map();
+    for (const row of allCategories) {
+      if (!categoryMap.has(row.restaurant_id)) {
+        categoryMap.set(row.restaurant_id, []);
+      }
+      categoryMap.get(row.restaurant_id).push(row.food_category_id);
+    }
+
+    // ⚡ Pre-generate pool dữ liệu để tránh gọi faker nhiều
+    const baseFoods = generateUniqueFoods();
+    const descPool = Array.from({ length: 200 }, () => faker.lorem.sentences(2));
+    const imagePool = Array.from({ length: 200 }, () => faker.image.urlPicsumPhotos({ width: 400, height: 400 }));
+
+    let foodsToInsert = [];
+    let foodCategoryMappings = [];
+
+    for (let i = 0; i < NUMBER_OF_RESTAURANTS; i++) {
+      const restaurant_id = restaurantIds[i];
+      const categories = categoryMap.get(restaurant_id) || [];
+
+      for (let j = 0; j < FOODS_PER_RESTAURANT; j++) {
+        const baseName = baseFoods[j % baseFoods.length];
+        const name = j < baseFoods.length ? baseName : `${baseName} (${j})`;
+
+        const food_id = nanoidNumbersOnly();
+        foodIds.push(food_id);
+
+        foodsToInsert.push([
+          food_id,
+          restaurant_id,
+          name,
+          faker.helpers.arrayElement(descPool),
+          faker.number.int({ min: 10000, max: 500000 }) & ~1,
+          "VND",
+          faker.helpers.arrayElement(imagePool),
+          faker.datatype.boolean(),
+        ]);
+
+        if (categories.length > 0) {
+          const selectedCategories = faker.helpers.arrayElements(categories, faker.number.int({ min: 1, max: 2 }));
+          for (const catId of selectedCategories) {
+            foodCategoryMappings.push([food_id, catId]);
+          }
+        }
+
+        // ✅ Batch insert
+        if (foodsToInsert.length >= batchSize) {
+          await insertFoodsBatchFast(foodsToInsert, foodCategoryMappings, conn);
+          foodsInserted += foodsToInsert.length;
+          progressBar.update(Math.min(foodsInserted, totalFoods));
+
+          foodsToInsert = [];
+          foodCategoryMappings = [];
         }
       }
     }
+
+    // Batch cuối
+    if (foodsToInsert.length > 0) {
+      await insertFoodsBatchFast(foodsToInsert, foodCategoryMappings, conn);
+      foodsInserted += foodsToInsert.length;
+      progressBar.update(totalFoods);
+    }
+  } finally {
+    // ⚡ Re-enable FK & index
+    await conn.query("ALTER TABLE foods ENABLE KEYS;");
+    await conn.query("ALTER TABLE food_category_mapping ENABLE KEYS;");
+    await conn.query("SET FOREIGN_KEY_CHECKS=1;");
   }
-  console.log(`✅ Inserted ${NUMBER_OF_RESTAURANTS * NUMBER_OF_FOODS_PER_RESTAURANT} foods with categories`);
+
+  progressBar.stop();
+  console.log(`✅ Inserted ${totalFoods} foods with categories (unique per restaurant)`);
 };
 
 const createTablesReservationsAndBills = async ({
   numTablesPerRestaurant = { min: 5, max: 15 },
   numReservationsPerTable = { min: 1, max: 5 },
   numBillItemsPerReservation = { min: 1, max: 5 },
+  batchSize = 5000,
 } = {}) => {
+  const tablesToInsert = [];
+  const reservationsToInsert = [];
+  const billsToInsert = [];
+  const billItemsToInsert = [];
+
   for (const restaurant_id of restaurantIds) {
     const numTables = faker.number.int(numTablesPerRestaurant);
     const tableIds = [];
 
-    // ✅ Tạo danh sách bàn ăn
+    // Tạo bàn ăn
     for (let i = 0; i < numTables; i++) {
       const table_id = nanoidNumbersOnly();
       tableIds.push(table_id);
       const table_name = `Bàn ${i + 1}`;
       const seat_count = faker.number.int({ min: 2, max: 10 });
-
-      await connection.execute(
-        `INSERT INTO tables (table_id, table_name, restaurant_id, seat_count) VALUES (?, ?, ?, ?)`,
-        [table_id, table_name, restaurant_id, seat_count],
-      );
+      tablesToInsert.push([table_id, table_name, restaurant_id, seat_count]);
     }
 
+    // Tạo reservations, bills và bill_items
     for (const table_id of tableIds) {
       const numReservations = faker.number.int(numReservationsPerTable);
 
       for (let i = 0; i < numReservations; i++) {
-        if (userIds.length === 0) {
-          console.log("❌ Not enough users for reservations");
-          return;
-        }
-
+        if (userIds.length === 0) continue;
         const reservation_id = nanoidNumbersOnly();
         const user_id = faker.helpers.arrayElement(userIds);
-        if (!user_id) {
-          console.error("❌ Lỗi: Không có user_id");
-          continue;
-        }
+        if (!user_id) continue;
 
         const reservation_datetime = faker.date.future();
         const check_in_time = faker.date.between({
@@ -418,13 +614,16 @@ const createTablesReservationsAndBills = async ({
         });
         const reservation_status = faker.helpers.arrayElement(["pending", "confirmed", "completed", "cancelled"]);
 
-        await connection.execute(
-          `INSERT INTO reservations (reservation_id, restaurant_id, user_id, table_id, reservation_datetime, check_in_time, reservation_status)
-           VALUES (?, ?, ?, ?, ?, ?, ?)`,
-          [reservation_id, restaurant_id, user_id, table_id, reservation_datetime, check_in_time, reservation_status],
-        );
+        reservationsToInsert.push([
+          reservation_id,
+          restaurant_id,
+          user_id,
+          table_id,
+          reservation_datetime,
+          check_in_time,
+          reservation_status,
+        ]);
 
-        // ✅ Xác định order_status dựa trên reservation_status
         const order_status =
           reservation_status === "pending"
             ? "pending"
@@ -438,76 +637,99 @@ const createTablesReservationsAndBills = async ({
         const payment_method = faker.helpers.arrayElement(["cash", "card", "online", "postpaid"]);
         const online_provider = payment_method === "online" ? faker.helpers.arrayElement(["momo", "zalopay"]) : null;
         const payment_status = reservation_status === "completed" ? "paid" : "unpaid";
-        // ✅ Chèn bill trước, `total_amount` ban đầu là 0
-        await connection.execute(
-          `INSERT INTO bills (bill_id, restaurant_id, user_id, reservation_id, order_status, online_provider,  payment_method, payment_status, total_amount)
-           VALUES (?, ?, ?, ?, ?,?, ?, ?, ?)`,
-          [
-            bill_id,
-            restaurant_id,
-            user_id,
-            reservation_id,
-            order_status,
-            online_provider,
-            payment_method,
-            payment_status,
-            0,
-          ],
-        );
 
-        const billItems = [];
+        billsToInsert.push([
+          bill_id,
+          restaurant_id,
+          user_id,
+          reservation_id,
+          order_status,
+          online_provider,
+          payment_method,
+          payment_status,
+          0, // total_amount tạm thời
+        ]);
 
-        // ✅ Chỉ thêm món ăn nếu reservation đã được xác nhận hoặc hoàn thành
         if (["confirmed", "completed"].includes(reservation_status)) {
           const numBillItems = faker.number.int(numBillItemsPerReservation);
-
           for (let j = 0; j < numBillItems; j++) {
             const bill_item_id = nanoidNumbersOnly();
-            const food_id = foodIds[Math.floor(Math.random() * foodIds.length)];
-
-            if (!food_id) {
-              console.error("❌ Lỗi: Không có food_id");
-              continue;
-            }
+            const food_id = faker.helpers.arrayElement(foodIds);
+            if (!food_id) continue;
 
             const [[food]] = await connection.execute(`SELECT name, price FROM foods WHERE food_id = ?`, [food_id]);
-
-            if (!food || !food.name || food.price === undefined) {
-              console.error(`❌ Food item với ID ${food_id} không tồn tại hoặc bị lỗi.`);
-              continue;
-            }
+            if (!food || food.price === undefined) continue;
 
             const quantity = faker.number.int({ min: 1, max: 5 });
-            billItems.push([bill_item_id, bill_id, food_id, food.price, food.name, quantity]);
+            billItemsToInsert.push([bill_item_id, bill_id, food_id, food.price, food.name, quantity]);
           }
+        }
 
-          // ✅ Chèn bill items vào DB
-          if (billItems.length > 0) {
-            await connection.query(
-              `INSERT INTO bill_items (bill_item_id, bill_id, food_id, price_at_purchase, name_at_purchase, quantity)
-               VALUES ?`,
-              [billItems],
-            );
-
-            // ✅ Cập nhật lại `total_amount` từ `bill_items`
-            await connection.execute(
-              `
-              UPDATE bills
-              SET total_amount = (
-                SELECT COALESCE(SUM(price_at_purchase * quantity), 0)
-                FROM bill_items
-                WHERE bill_id = ?
-              )
-              WHERE bill_id = ?
-              `,
-              [bill_id, bill_id],
-            );
-          }
+        // Batch insert nếu đủ batchSize
+        if (
+          tablesToInsert.length >= batchSize ||
+          reservationsToInsert.length >= batchSize ||
+          billsToInsert.length >= batchSize ||
+          billItemsToInsert.length >= batchSize
+        ) {
+          await insertBatches(tablesToInsert, reservationsToInsert, billsToInsert, billItemsToInsert);
         }
       }
     }
   }
-  console.log(`✅ Inserted tables, reservations, bills, and bill items`);
+
+  await insertBatches(tablesToInsert, reservationsToInsert, billsToInsert, billItemsToInsert);
+
+  console.log(`✅ Inserted tables, reservations, bills, and bill items (batch)`);
+};
+
+const insertBatches = async (tables, reservations, bills, billItems) => {
+  if (tables.length === 0 && reservations.length === 0 && bills.length === 0 && billItems.length === 0) return;
+
+  await connection.beginTransaction();
+  try {
+    if (tables.length > 0) {
+      await connection.query(`INSERT INTO tables (table_id, table_name, restaurant_id, seat_count) VALUES ?`, [tables]);
+      tables.length = 0;
+    }
+    if (reservations.length > 0) {
+      await connection.query(
+        `INSERT INTO reservations (reservation_id, restaurant_id, user_id, table_id, reservation_datetime, check_in_time, reservation_status) VALUES ?`,
+        [reservations],
+      );
+      reservations.length = 0;
+    }
+    if (bills.length > 0) {
+      await connection.query(
+        `INSERT INTO bills (bill_id, restaurant_id, user_id, reservation_id, order_status, online_provider, payment_method, payment_status, total_amount) VALUES ?`,
+        [bills],
+      );
+      bills.length = 0;
+    }
+    if (billItems.length > 0) {
+      await connection.query(
+        `INSERT INTO bill_items (bill_item_id, bill_id, food_id, price_at_purchase, name_at_purchase, quantity) VALUES ?`,
+        [billItems],
+      );
+      billItems.length = 0;
+    }
+
+    // Cập nhật tổng amount cho bills
+    await connection.query(`
+      UPDATE bills b
+      JOIN (
+        SELECT bill_id, SUM(price_at_purchase * quantity) AS total_amount
+        FROM bill_items
+        GROUP BY bill_id
+      ) bi ON b.bill_id = bi.bill_id
+      SET b.total_amount = bi.total_amount
+    `);
+
+    await connection.commit();
+  } catch (err) {
+    await connection.rollback();
+    console.error("❌ Lỗi khi insert batch tables/reservations/bills:", err);
+  }
 };
 
 const foodSearchQueries = [
@@ -639,7 +861,9 @@ const foodSearchQueries = [
   "bánh tart trứng",
 ];
 
-const createRandomSearchHistory = async () => {
+const createRandomSearchHistory = async (batchSize = 5000) => {
+  const rowsToInsert = [];
+
   for (const userId of userIds) {
     const numberOfSearches = faker.number.int({ min: 40, max: 100 });
     const searchSet = new Set();
@@ -650,28 +874,54 @@ const createRandomSearchHistory = async () => {
 
     for (const searchQuery of searchSet) {
       const normalizedQuery = removeDiacritics(searchQuery);
+      rowsToInsert.push([userId, searchQuery, normalizedQuery]);
 
-      await connection.query(
-        `INSERT INTO search_history (user_id, search_query, search_query_normalized) 
-         VALUES (?, ?, ?) 
-         ON DUPLICATE KEY UPDATE created_at = NOW(), search_query_normalized = ?`,
-        [userId, searchQuery, normalizedQuery, normalizedQuery],
-      );
+      if (rowsToInsert.length >= batchSize) {
+        await insertSearchHistoryBatch(rowsToInsert);
+        rowsToInsert.length = 0;
+      }
     }
   }
 
-  console.log("✅ Inserted random search history");
+  // Chèn phần còn lại
+  if (rowsToInsert.length > 0) {
+    await insertSearchHistoryBatch(rowsToInsert);
+  }
+
+  console.log("✅ Inserted random search history (batch)");
+};
+
+const insertSearchHistoryBatch = async (rows) => {
+  if (rows.length === 0) return;
+
+  // MySQL batch insert với ON DUPLICATE KEY UPDATE
+  const placeholders = rows.map(() => "(?, ?, ?)").join(",");
+  const flatValues = rows.flat();
+
+  const sql = `
+    INSERT INTO search_history (user_id, search_query, search_query_normalized)
+    VALUES ${placeholders}
+    ON DUPLICATE KEY UPDATE 
+      created_at = NOW(),
+      search_query_normalized = VALUES(search_query_normalized)
+  `;
+
+  try {
+    await connection.query(sql, flatValues);
+  } catch (err) {
+    console.error("❌ Lỗi khi insert batch search history:", err);
+  }
 };
 
 const seedDatabase = async (password) => {
   try {
     await connection.beginTransaction();
-    await createUsers(password);
+    await createUsers(connection, password);
     await createAddresses();
     await createRestaurants();
     await createRestaurantManagers();
     await createFoodCategories();
-    await createFoods();
+    await createFoods(connection);
     await createTablesReservationsAndBills();
     await createRandomSearchHistory();
     await connection.commit();

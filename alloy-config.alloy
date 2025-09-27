@@ -1,0 +1,34 @@
+logging {
+  level = "info"
+  format = "logfmt"
+}
+
+loki.write "default" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+  }
+}
+
+docker_sd "default" {
+  host = "unix:///var/run/docker.sock"
+}
+
+loki.process "docker_logs" {
+  forward_to = [loki.write.default.receiver]
+
+  stage.json {
+    expressions = {}
+  }
+
+  labels = {
+    job       = "docker",
+    container = "{{.ContainerName}}",
+    instance  = "{{.ContainerID}}",
+  }
+}
+
+loki.source.docker "docker" {
+  targets    = docker_sd.default.targets
+  forward_to = [loki.process.docker_logs.receiver]
+}
+

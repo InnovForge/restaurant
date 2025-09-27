@@ -6,8 +6,8 @@ const router = Router();
 
 router.get("/search", apiCache, searchController.searchFood);
 router.post("/search-history", authenticateJWT, searchController.saveSearchHistory);
-router.get("/search-history", authenticateJWT, searchController.getSearchHistory);
+router.get("/search-history", apiCache, authenticateJWT, searchController.getSearchHistory);
 router.delete("/search-history/:id", authenticateJWT, searchController.deleteSearchHistory);
-router.get("/search-suggest", searchController.suggestSearch);
+router.get("/search-suggest", apiCache, searchController.suggestSearch);
 
 export default router;

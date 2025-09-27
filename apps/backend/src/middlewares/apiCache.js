@@ -3,8 +3,6 @@ import responseHandler from "../utils/response.js";
 
 const apiCache = (req, res, next) => {
   const key = req.originalUrl;
-  // console.log("key :>> ", key);
-
   redisApiCache.get(key).then((cachedData) => {
     if (cachedData) {
       return responseHandler.success(res, undefined, JSON.parse(cachedData));
@@ -14,7 +12,7 @@ const apiCache = (req, res, next) => {
   });
 };
 
-const cacheResponse = (key, data, ttl = 60) => {
+const cacheResponse = (key, data, ttl = 60 * 5) => {
   redisApiCache.setex(key, ttl, JSON.stringify(data));
 };
 

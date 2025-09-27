@@ -1,0 +1,11 @@
+[
+  {
+    "id": "redis-master-01",
+    "name": "Redis Master",
+    "host": "redis-master",
+    "port": 6379,
+    "username": "",
+    "password": ""
+  }
+]
+

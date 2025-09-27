@@ -1,21 +1,17 @@
+import logger from "../configs/logger.js";
 import { redisApiCache } from "../configs/redis.js";
 import { cacheResponse } from "../middlewares/apiCache.js";
-
 export const distance = async (waypoints) => {
   const key = "distance:" + waypoints;
   const cachedData = await redisApiCache.get(key);
 
   if (cachedData) {
-    // console.log("found cache", cachedData);
     return JSON.parse(cachedData);
   } else {
-    console.log("can't find cache for", key);
     const response = await fetch(
       `https://api.geoapify.com/v1/routing?waypoints=${waypoints}&mode=scooter&apiKey=${process.env.GEOAPIFY_API_KEY}`,
     );
     const data = await response.json();
-    // console.log(waypoints);
-    //
     if (data?.features?.length > 0) {
       const distance = {
         distance: data.features[0].properties.distance,
@@ -26,6 +22,7 @@ export const distance = async (waypoints) => {
       cacheResponse(key, distance, 7 * 24 * 60 * 60); // 7 days
       return distance;
     } else {
+      logger.error("No route found:", data);
       // console.error("No route found:", data);
       return {
         distance: 0,

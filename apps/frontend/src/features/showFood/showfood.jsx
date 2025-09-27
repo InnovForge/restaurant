@@ -179,7 +179,7 @@ const Show = () => {
         </div>
       )}
 
-      {data && (
+      {dataRestaurant && (
         <div>
           <div className="flex items-center gap-1 p-4 pl-0">
             <Flame className="text-red-500" />
@@ -218,7 +218,7 @@ const Show = () => {
         </div>
       )}
 
-      {data && (
+      {foods && (
         <div>
           <div className="flex items-center gap-1 p-4 pl-0">
             <Flame className="text-red-500" />

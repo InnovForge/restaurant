@@ -4,6 +4,7 @@ import responseHandler, { ERROR_TYPE } from "../utils/response.js";
 import { uploadFileRestaurant } from "../utils/s3.js";
 import { validateFields } from "../utils/validate-fields.js";
 import * as restaurantService from "../services/restaurant.js";
+import logger from "../configs/logger.js";
 
 export const updateRestaurant = async (req, res) => {
   const { restaurantId } = req.params;
@@ -23,9 +24,10 @@ export const updateRestaurant = async (req, res) => {
       phone_number: phoneNumber,
       email: email,
     });
+    logger.info(`Restaurant ${restaurantId} updated`);
     return responseHandler.success(res);
   } catch (error) {
-    console.log("error :>> ", error);
+    logger.error("Error updating restaurant:", error);
     return responseHandler.internalServerError(res);
   }
 };
@@ -105,7 +107,7 @@ export const getRestaurant = async (req, res) => {
     const restaurant = await restaurantModel.getRestaurant(restaurantId);
     return responseHandler.success(res, undefined, restaurant);
   } catch (error) {
-    console.log("error :>> ", error);
+    logger.error("Error getting restaurant:", error);
     return responseHandler.internalServerError(res);
   }
 };
@@ -117,7 +119,7 @@ export const getRestaurantByUserId = async (req, res) => {
     const restaurant = await restaurantModel.getRestaurantByUserId(userId);
     return responseHandler.success(res, undefined, restaurant);
   } catch (error) {
-    console.log("error :>> ", error);
+    logger.error("Error getting restaurant by user ID:", error);
     return responseHandler.internalServerError(res);
   }
 };
@@ -128,7 +130,7 @@ export const getAllFoodByResId = async (req, res) => {
     const foods = await restaurantModel.GetAllFoodByResId(restaurantId);
     return responseHandler.success(res, undefined, foods);
   } catch (error) {
-    console.log("error :>> ", error);
+    logger.error("Error getting foods by restaurant ID:", error);
     return responseHandler.internalServerError(res);
   }
 };
@@ -152,7 +154,7 @@ export const getPopularRestaurants = async (req, res) => {
     cacheResponse(req.originalUrl, restaurants, 60 * 2);
     return responseHandler.success(res, undefined, restaurants);
   } catch (error) {
-    console.log("error :>> ", error);
+    logger.error("Error getting popular restaurants:", error);
     return responseHandler.internalServerError(res);
   }
 };
@@ -163,7 +165,7 @@ export const getFoodByRestaurantId = async (req, res) => {
     const foods = await restaurantModel.getFoodsByRestaurantId(restaurantId);
     return responseHandler.success(res, undefined, foods);
   } catch (error) {
-    console.log("error :>> ", error);
+    logger.error("Error getting foods by restaurant ID:", error);
     return responseHandler.internalServerError(res);
   }
 };
@@ -174,7 +176,7 @@ export const getBillsByRestaurantId = async (req, res) => {
     const bills = await restaurantModel.getBillsByRestaurantId(restaurantId);
     return responseHandler.success(res, undefined, bills);
   } catch (error) {
-    console.log("error :>> ", error);
+    logger.error("Error getting bills by restaurant ID:", error);
     return responseHandler.internalServerError(res);
   }
 };

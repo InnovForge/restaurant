@@ -54,7 +54,7 @@ export const searchFood = async (req, res) => {
       default:
         return responseHandler.badRequest(res, "Invalid type parameter");
     }
-    cacheResponse(req.originalUrl, responseData, 60); // 1 minute
+    cacheResponse(req.originalUrl, responseData, 60 * 5); // 1 minute
     return responseHandler.success(res, undefined, responseData);
   } catch (error) {
     console.log("error :>> ", error);
