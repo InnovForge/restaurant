@@ -21,7 +21,7 @@ const connection = await mysql.createConnection({
   port: process.env.MYSQL_PORT,
 });
 
-const TOTAL_FOODS_TARGET = 500000;
+const TOTAL_FOODS_TARGET = 1000000;
 const FOODS_PER_RESTAURANT = 100;
 const NUMBER_OF_RESTAURANTS = Math.ceil(TOTAL_FOODS_TARGET / FOODS_PER_RESTAURANT);
 const NUMBER_OF_USERS = NUMBER_OF_RESTAURANTS * 3;

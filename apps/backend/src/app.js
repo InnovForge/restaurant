@@ -27,17 +27,6 @@ app.use(
   }),
 );
 
-const LOG_COOLDOWN = 10 * 60; // 10 phút
-
-async function safeLogRateLimit(ip, msg) {
-  const key = `ratelimit:log:${ip}`;
-  const exists = await redisApiCache.exists(key);
-  if (!exists) {
-    logger.warn(msg);
-    await redisApiCache.set(key, "1", "EX", LOG_COOLDOWN);
-  }
-}
-
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 phút
   limit: 100, // mỗi IP max 100 request
@@ -48,7 +37,7 @@ const limiter = rateLimit({
     sendCommand: (...args) => redisApiCache.call(...args),
   }),
   handler: async (req, res) => {
-    await safeLogRateLimit(req.ip, `Rate limit exceeded for IP: ${req.ip}`);
+    logger.warn(`Rate limit exceeded for IP: ${req.ip}`);
     res.status(429).json({ message: "Too many requests" });
   },
 });

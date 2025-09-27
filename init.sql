@@ -196,66 +196,6 @@ CREATE TABLE IF NOT EXISTS search_history (
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
--- USERS
-CREATE INDEX idx_users_username ON users(username);   
-CREATE INDEX idx_users_email ON users(email);        
-CREATE INDEX idx_users_phone ON users(phone_number);
-
--- ADDRESSES
-CREATE INDEX idx_addresses_lat_lng ON addresses(latitude, longitude);
-
--- USER_ADDRESSES
-CREATE INDEX idx_user_addresses_user ON user_addresses(user_id);
-CREATE INDEX idx_user_addresses_address ON user_addresses(address_id);
-
--- RESTAURANTS
-CREATE INDEX idx_restaurants_address ON restaurants(address_id);
-CREATE INDEX idx_restaurants_name ON restaurants(name); -- đã FULLTEXT(name, description), nhưng BTREE index giúp tìm chính xác
-
--- RESTAURANT_SCHEDULES
-CREATE INDEX idx_schedules_restaurant ON restaurant_schedules(restaurant_id);
-CREATE INDEX idx_schedules_day ON restaurant_schedules(day_of_week);
-
--- RESTAURANT_MANAGERS
-CREATE INDEX idx_managers_restaurant ON restaurant_managers(restaurant_id);
-
--- FOODS
-CREATE INDEX idx_foods_restaurant ON foods(restaurant_id);
-CREATE INDEX idx_foods_name ON foods(name); -- bổ sung BTREE song song với FULLTEXT
-
--- FOOD_CATEGORIES
-CREATE INDEX idx_categories_restaurant ON food_categories(restaurant_id);
-
--- FOOD_CATEGORY_MAPPING
-CREATE INDEX idx_food_mapping_food ON food_category_mapping(food_id);
-CREATE INDEX idx_food_mapping_category ON food_category_mapping(food_category_id);
-
--- TABLES
-CREATE INDEX idx_tables_restaurant ON tables(restaurant_id);
-
--- RESERVATIONS
-CREATE INDEX idx_reservations_restaurant ON reservations(restaurant_id);
-CREATE INDEX idx_reservations_user ON reservations(user_id);
-CREATE INDEX idx_reservations_table ON reservations(table_id);
-CREATE INDEX idx_reservations_datetime ON reservations(reservation_datetime);
-
--- BILLS
-CREATE INDEX idx_bills_restaurant ON bills(restaurant_id);
-CREATE INDEX idx_bills_user ON bills(user_id);
-CREATE INDEX idx_bills_status ON bills(order_status);
-CREATE INDEX idx_bills_payment_status ON bills(payment_status);
-
--- BILL_ITEMS
-CREATE INDEX idx_bill_items_bill ON bill_items(bill_id);
-CREATE INDEX idx_bill_items_food ON bill_items(food_id);
-
--- REVIEWS
-CREATE INDEX idx_reviews_user ON reviews(user_id);
-CREATE INDEX idx_reviews_bill ON reviews(bill_id);
-
--- SEARCH_HISTORY
-CREATE INDEX idx_search_history_user ON search_history(user_id);
-
 
 INSERT INTO users (user_id, username, name, password) VALUES ('12345678910', 'team1', 'cdio team 1', '$2a$10$jpChleT2FvfRp/E39jKn5uet5wTL6TZrUu5n67q5dX4Scw6jx34xu')
 

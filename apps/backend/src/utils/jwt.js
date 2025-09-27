@@ -32,11 +32,13 @@ export function createSesionLogin(res, userId) {
       secure: false,
       path: "/",
       sameSite: "strict",
+      maxAge: 15 * 60 * 1000, // 15 minutes
     })
     .cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: false,
       path: "/api/v1/auth/refreshToken",
       sameSite: "strict",
+      maxAge: 365 * 24 * 60 * 60 * 1000, // 1 year
     });
 }
